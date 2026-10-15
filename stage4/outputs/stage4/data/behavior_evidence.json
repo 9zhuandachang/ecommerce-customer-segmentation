@@ -1,0 +1,546 @@
+{
+  "description": "报告中的同日消费份额、购买节奏子组和按月复购对照；不含测试标签评估。",
+  "latest_training_snapshot": [
+    {
+      "snapshot_date": "2011-05-01T00:00:00.000",
+      "cluster": 0,
+      "customers": 838,
+      "spend_180d": 2739132.9,
+      "customer_share": 0.2750246144,
+      "spend_share": 0.7317465913
+    },
+    {
+      "snapshot_date": "2011-05-01T00:00:00.000",
+      "cluster": 1,
+      "customers": 936,
+      "spend_180d": 389997.84,
+      "customer_share": 0.3071873974,
+      "spend_share": 0.1041861058
+    },
+    {
+      "snapshot_date": "2011-05-01T00:00:00.000",
+      "cluster": 2,
+      "customers": 1273,
+      "spend_180d": 614149.97,
+      "customer_share": 0.4177879882,
+      "spend_share": 0.1640673029
+    }
+  ],
+  "behavior_subgroups": [
+    {
+      "split": "train",
+      "cluster": 0,
+      "feature": "accelerating_orders",
+      "flag": 0,
+      "snapshot_count": 6869,
+      "unique_customer_count": 1522,
+      "observed_repurchase_rate": 0.4943951085
+    },
+    {
+      "split": "train",
+      "cluster": 0,
+      "feature": "accelerating_orders",
+      "flag": 1,
+      "snapshot_count": 2672,
+      "unique_customer_count": 1420,
+      "observed_repurchase_rate": 0.4401197605
+    },
+    {
+      "split": "train",
+      "cluster": 1,
+      "feature": "accelerating_orders",
+      "flag": 0,
+      "snapshot_count": 6098,
+      "unique_customer_count": 2424,
+      "observed_repurchase_rate": 0.2290915054
+    },
+    {
+      "split": "train",
+      "cluster": 1,
+      "feature": "accelerating_orders",
+      "flag": 1,
+      "snapshot_count": 1810,
+      "unique_customer_count": 1479,
+      "observed_repurchase_rate": 0.1773480663
+    },
+    {
+      "split": "train",
+      "cluster": 2,
+      "feature": "accelerating_orders",
+      "flag": 0,
+      "snapshot_count": 12074,
+      "unique_customer_count": 3804,
+      "observed_repurchase_rate": 0.1410468776
+    },
+    {
+      "split": "train",
+      "cluster": 0,
+      "feature": "paused_after_repeat",
+      "flag": 0,
+      "snapshot_count": 7744,
+      "unique_customer_count": 1779,
+      "observed_repurchase_rate": 0.4837293388
+    },
+    {
+      "split": "train",
+      "cluster": 0,
+      "feature": "paused_after_repeat",
+      "flag": 1,
+      "snapshot_count": 1797,
+      "unique_customer_count": 1001,
+      "observed_repurchase_rate": 0.4596549805
+    },
+    {
+      "split": "train",
+      "cluster": 1,
+      "feature": "paused_after_repeat",
+      "flag": 0,
+      "snapshot_count": 6877,
+      "unique_customer_count": 2400,
+      "observed_repurchase_rate": 0.2079395085
+    },
+    {
+      "split": "train",
+      "cluster": 1,
+      "feature": "paused_after_repeat",
+      "flag": 1,
+      "snapshot_count": 1031,
+      "unique_customer_count": 759,
+      "observed_repurchase_rate": 0.2793404462
+    },
+    {
+      "split": "train",
+      "cluster": 2,
+      "feature": "paused_after_repeat",
+      "flag": 0,
+      "snapshot_count": 12073,
+      "unique_customer_count": 3804,
+      "observed_repurchase_rate": 0.1410585604
+    },
+    {
+      "split": "train",
+      "cluster": 2,
+      "feature": "paused_after_repeat",
+      "flag": 1,
+      "snapshot_count": 1,
+      "unique_customer_count": 1,
+      "observed_repurchase_rate": 0.0
+    },
+    {
+      "split": "validation",
+      "cluster": 0,
+      "feature": "accelerating_orders",
+      "flag": 0,
+      "snapshot_count": 1787,
+      "unique_customer_count": 952,
+      "observed_repurchase_rate": 0.5075545607
+    },
+    {
+      "split": "validation",
+      "cluster": 0,
+      "feature": "accelerating_orders",
+      "flag": 1,
+      "snapshot_count": 769,
+      "unique_customer_count": 695,
+      "observed_repurchase_rate": 0.4083224967
+    },
+    {
+      "split": "validation",
+      "cluster": 1,
+      "feature": "accelerating_orders",
+      "flag": 0,
+      "snapshot_count": 1185,
+      "unique_customer_count": 898,
+      "observed_repurchase_rate": 0.2151898734
+    },
+    {
+      "split": "validation",
+      "cluster": 1,
+      "feature": "accelerating_orders",
+      "flag": 1,
+      "snapshot_count": 554,
+      "unique_customer_count": 554,
+      "observed_repurchase_rate": 0.155234657
+    },
+    {
+      "split": "validation",
+      "cluster": 2,
+      "feature": "accelerating_orders",
+      "flag": 0,
+      "snapshot_count": 2844,
+      "unique_customer_count": 1634,
+      "observed_repurchase_rate": 0.1434599156
+    },
+    {
+      "split": "validation",
+      "cluster": 0,
+      "feature": "paused_after_repeat",
+      "flag": 0,
+      "snapshot_count": 2151,
+      "unique_customer_count": 1163,
+      "observed_repurchase_rate": 0.4751278475
+    },
+    {
+      "split": "validation",
+      "cluster": 0,
+      "feature": "paused_after_repeat",
+      "flag": 1,
+      "snapshot_count": 405,
+      "unique_customer_count": 353,
+      "observed_repurchase_rate": 0.4913580247
+    },
+    {
+      "split": "validation",
+      "cluster": 1,
+      "feature": "paused_after_repeat",
+      "flag": 0,
+      "snapshot_count": 1549,
+      "unique_customer_count": 1048,
+      "observed_repurchase_rate": 0.1807617818
+    },
+    {
+      "split": "validation",
+      "cluster": 1,
+      "feature": "paused_after_repeat",
+      "flag": 1,
+      "snapshot_count": 190,
+      "unique_customer_count": 164,
+      "observed_repurchase_rate": 0.3210526316
+    },
+    {
+      "split": "validation",
+      "cluster": 2,
+      "feature": "paused_after_repeat",
+      "flag": 0,
+      "snapshot_count": 2837,
+      "unique_customer_count": 1628,
+      "observed_repurchase_rate": 0.1427564329
+    },
+    {
+      "split": "validation",
+      "cluster": 2,
+      "feature": "paused_after_repeat",
+      "flag": 1,
+      "snapshot_count": 7,
+      "unique_customer_count": 7,
+      "observed_repurchase_rate": 0.4285714286
+    }
+  ],
+  "monthly_repurchase": [
+    {
+      "split": "train",
+      "snapshot_date": "2010-06-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 621,
+      "observed_repurchase_rate": 0.5523349436
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-06-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 1397,
+      "observed_repurchase_rate": 0.224051539
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-06-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 634,
+      "observed_repurchase_rate": 0.167192429
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-07-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 678,
+      "observed_repurchase_rate": 0.5324483776
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-07-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 1341,
+      "observed_repurchase_rate": 0.1991051454
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-07-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 718,
+      "observed_repurchase_rate": 0.1295264624
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-08-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 694,
+      "observed_repurchase_rate": 0.4899135447
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-08-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 1305,
+      "observed_repurchase_rate": 0.1938697318
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-08-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 814,
+      "observed_repurchase_rate": 0.1314496314
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-09-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 708,
+      "observed_repurchase_rate": 0.5395480226
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-09-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 1214,
+      "observed_repurchase_rate": 0.2504118616
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-09-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 900,
+      "observed_repurchase_rate": 0.17
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-10-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 818,
+      "observed_repurchase_rate": 0.5366748166
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-10-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 1202,
+      "observed_repurchase_rate": 0.2662229617
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-10-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 879,
+      "observed_repurchase_rate": 0.2468714448
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-11-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 945,
+      "observed_repurchase_rate": 0.5915343915
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-11-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 1522,
+      "observed_repurchase_rate": 0.2785808147
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-11-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 729,
+      "observed_repurchase_rate": 0.2496570645
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-12-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 1123,
+      "observed_repurchase_rate": 0.4211932324
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-12-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 1720,
+      "observed_repurchase_rate": 0.1372093023
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2010-12-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 622,
+      "observed_repurchase_rate": 0.0964630225
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-01-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 1004,
+      "observed_repurchase_rate": 0.374501992
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-01-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 1558,
+      "observed_repurchase_rate": 0.0962772786
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-01-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 841,
+      "observed_repurchase_rate": 0.0951248514
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-02-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 920,
+      "observed_repurchase_rate": 0.3989130435
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-02-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 1122,
+      "observed_repurchase_rate": 0.1176470588
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-02-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 1306,
+      "observed_repurchase_rate": 0.1041347626
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-03-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 878,
+      "observed_repurchase_rate": 0.4487471526
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-03-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 696,
+      "observed_repurchase_rate": 0.1293103448
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-03-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 1764,
+      "observed_repurchase_rate": 0.1218820862
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-04-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 883,
+      "observed_repurchase_rate": 0.4088335221
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-04-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 822,
+      "observed_repurchase_rate": 0.1472019465
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-04-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 1594,
+      "observed_repurchase_rate": 0.112923463
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-05-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 838,
+      "observed_repurchase_rate": 0.531026253
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-05-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 936,
+      "observed_repurchase_rate": 0.2061965812
+    },
+    {
+      "split": "train",
+      "snapshot_date": "2011-05-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 1273,
+      "observed_repurchase_rate": 0.1366849961
+    },
+    {
+      "split": "validation",
+      "snapshot_date": "2011-06-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 846,
+      "observed_repurchase_rate": 0.4846335697
+    },
+    {
+      "split": "validation",
+      "snapshot_date": "2011-06-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 929,
+      "observed_repurchase_rate": 0.2045209903
+    },
+    {
+      "split": "validation",
+      "snapshot_date": "2011-06-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 883,
+      "observed_repurchase_rate": 0.1642129105
+    },
+    {
+      "split": "validation",
+      "snapshot_date": "2011-07-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 887,
+      "observed_repurchase_rate": 0.4735062007
+    },
+    {
+      "split": "validation",
+      "snapshot_date": "2011-07-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 903,
+      "observed_repurchase_rate": 0.1749723145
+    },
+    {
+      "split": "validation",
+      "snapshot_date": "2011-07-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 932,
+      "observed_repurchase_rate": 0.1491416309
+    },
+    {
+      "split": "validation",
+      "snapshot_date": "2011-08-01T00:00:00.000",
+      "cluster": 0,
+      "snapshot_count": 897,
+      "observed_repurchase_rate": 0.4771460424
+    },
+    {
+      "split": "validation",
+      "snapshot_date": "2011-08-01T00:00:00.000",
+      "cluster": 1,
+      "snapshot_count": 840,
+      "observed_repurchase_rate": 0.194047619
+    },
+    {
+      "split": "validation",
+      "snapshot_date": "2011-08-01T00:00:00.000",
+      "cluster": 2,
+      "snapshot_count": 1029,
+      "observed_repurchase_rate": 0.120505345
+    }
+  ]
+}
