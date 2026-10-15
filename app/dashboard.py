@@ -3,6 +3,7 @@ Streamlit Dashboard — E-commerce Customer Segmentation & Repurchase Prediction
 Three views: Segment Profiles | Customer Review | Model Comparison
 """
 
+import hashlib
 import sys
 from pathlib import Path
 
@@ -38,6 +39,7 @@ RESULTS_PATH   = DATA_DIR / "experiment_results.pkl"
 SEG_PIPE_PATH  = MODEL_DIR / "segmentation_pipeline.pkl"
 K_RESULTS_PATH = MODEL_DIR / "k_selection_results.pkl"
 BEST_NAME_PATH = MODEL_DIR / "best_model_name.pkl"
+BEST_MODEL_PATH = MODEL_DIR / "best_model.pkl"
 
 # ---------------------------------------------------------------------------
 # Cached loaders
@@ -53,7 +55,11 @@ def load_snapshots() -> pd.DataFrame:
 
 @st.cache_data(show_spinner=False)
 def load_scored() -> pd.DataFrame:
-    return pd.read_parquet(SCORED_PATH) if SCORED_PATH.exists() else pd.DataFrame()
+    if not SCORED_PATH.exists():
+        return pd.DataFrame()
+    df = pd.read_parquet(SCORED_PATH)
+    df["cutoff_date"] = pd.to_datetime(df["cutoff_date"])
+    return df
 
 @st.cache_data(show_spinner=False)
 def load_results():
@@ -67,18 +73,26 @@ def load_k_results():
 def load_best_name() -> str:
     return joblib.load(BEST_NAME_PATH) if BEST_NAME_PATH.exists() else "—"
 
+def load_model_version() -> str:
+    """Identify the saved model artifact used for historical scoring."""
+    with BEST_MODEL_PATH.open("rb") as model_file:
+        digest = hashlib.file_digest(model_file, "sha256").hexdigest()
+    return f"sha256:{digest[:12]}"
+
 # ---------------------------------------------------------------------------
 # Check pipeline readiness
 # ---------------------------------------------------------------------------
 
-pipeline_ready = SNAPSHOTS_PATH.exists() and SCORED_PATH.exists() and RESULTS_PATH.exists()
+pipeline_ready = all(path.exists() for path in (
+    SNAPSHOTS_PATH, SCORED_PATH, RESULTS_PATH, BEST_MODEL_PATH, BEST_NAME_PATH
+))
 
 if not pipeline_ready:
     st.title("Pipeline not yet run")
     st.info(
         "Run the training pipeline first, then refresh this page.\n\n"
         "```bash\n"
-        "# Place online_retail_II.xlsx in data/raw/, then:\n"
+        "# Build the audited snapshots first, then:\n"
         "python src/train_pipeline.py\n"
         "```",
         icon=":material/info:",
@@ -90,10 +104,14 @@ if not pipeline_ready:
 # ---------------------------------------------------------------------------
 
 snapshots      = load_snapshots()
-scored         = load_scored()
+scored_all     = load_scored()
+scored         = scored_all.loc[
+    scored_all["cutoff_date"].eq(scored_all["cutoff_date"].max())
+].copy() if not scored_all.empty else scored_all
 results        = load_results()
 k_results_data = load_k_results()
 best_name      = load_best_name()
+model_version  = load_model_version()
 
 SEGMENT_FEATURES = ["recency_days", "frequency", "monetary", "aov", "product_diversity"]
 
@@ -140,6 +158,7 @@ with st.sidebar:
     )
     st.divider()
     st.caption(f"Best model: **{best_name}**")
+    st.caption(f"Model version: **{model_version}**")
 
 # ============================================================
 # PAGE: Overview
@@ -157,8 +176,9 @@ if page == "Overview":
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Customers scored", f"{n_customers:,}")
     c2.metric("Segments", n_segments)
-    c3.metric("Avg repurchase score", f"{avg_score:.1%}")
+    c3.metric("Avg model score", f"{avg_score:.3f}")
     c4.metric("Snapshot date", cutoff_str)
+    st.caption("Scores rank customers within a selected snapshot; probability calibration has not been validated.")
 
     if results and best_name in results:
         m = results[best_name]["test"]
@@ -178,7 +198,7 @@ if page == "Overview":
         |------|---------|
         | **Segment profiles** | Explore customer clusters by recency, frequency and spend |
         | **Customer review** | Filter by segment, rank by repurchase score, export CSV |
-        | **Model comparison** | Compare all six prediction experiments |
+        | **Model comparison** | Inspect six prototype candidates; the planned A/B feature comparison is pending |
         """
     )
 
@@ -268,12 +288,12 @@ elif page == "Segment profiles":
         "diversity":    "Median products",
     }
     if "repurchase_rate" in profile.columns:
-        rename["repurchase_rate"] = "Repurchase rate"
+        rename["repurchase_rate"] = "Observed 30-day repurchase rate"
 
     display_profile = profile.rename(columns=rename).set_index("Segment")
     fmt = {"Median spend (£)": "£{:,.0f}", "Median AOV (£)": "£{:,.2f}"}
-    if "Repurchase rate" in display_profile.columns:
-        fmt["Repurchase rate"] = "{:.1%}"
+    if "Observed 30-day repurchase rate" in display_profile.columns:
+        fmt["Observed 30-day repurchase rate"] = "{:.1%}"
     st.dataframe(display_profile.style.format(fmt))
 
     # Scatter: Recency vs Frequency
@@ -306,7 +326,7 @@ elif page == "Segment profiles":
 
 elif page == "Customer review":
     st.title("Customer review", anchor=False)
-    st.caption("Filter by segment, rank by repurchase score and export to CSV.")
+    st.caption("Filter by segment, rank by model score and export a review list. Scores are not validated probabilities.")
 
     if scored.empty or "repurchase_score" not in scored.columns:
         st.error("Scored customer data not found. Re-run the training pipeline.")
@@ -324,22 +344,31 @@ elif page == "Customer review":
             index=len(date_options) - 1 if date_options else 0,
         )
 
+    date_scored = scored_all.loc[
+        scored_all["cutoff_date"].dt.strftime("%Y-%m-%d").eq(selected_date)
+    ].copy()
+
     with col_ctrl2:
-        seg_options = ["All segments"] + sorted(scored["segment_name"].unique().tolist()) \
-            if "segment_name" in scored.columns else ["All segments"]
+        seg_options = ["All segments"] + sorted(date_scored["segment_name"].unique().tolist()) \
+            if "segment_name" in date_scored.columns else ["All segments"]
         selected_seg = st.selectbox("Segment", seg_options)
 
     with col_ctrl3:
-        max_n = min(len(scored), 500)
-        top_n = st.slider("Top N customers", min_value=10, max_value=max_n,
-                          value=min(50, max_n), step=10)
+        max_n = max(1, min(len(date_scored), 500))
+        top_n = st.slider("Top N customers", min_value=1, max_value=max_n,
+                          value=min(50, max_n), step=1)
 
     # Filter & rank
-    display = scored.copy()
+    display = date_scored.copy()
     if selected_seg != "All segments":
         display = display[display["segment_name"] == selected_seg]
 
+    if display.empty:
+        st.info("No customers match this date and segment.")
+        st.stop()
+
     display = display.sort_values("repurchase_score", ascending=False).head(top_n).copy()
+    display = display.drop(columns="rank", errors="ignore")
     display.insert(0, "rank", range(1, len(display) + 1))
 
     # Score distribution
@@ -385,7 +414,7 @@ elif page == "Customer review":
                    "recency_days", "frequency", "monetary"]
     export_df = display[[c for c in export_cols if c in display.columns]].copy()
     export_df["snapshot_date"]  = selected_date
-    export_df["model_version"]  = best_name
+    export_df["model_version"]  = model_version
     csv = export_df.to_csv(index=False).encode("utf-8")
     st.download_button(
         label="Download CSV",
@@ -394,7 +423,7 @@ elif page == "Customer review":
         mime="text/csv",
         icon=":material/download:",
     )
-    st.caption(f"{len(export_df)} customers · model: {best_name}")
+    st.caption(f"{len(export_df)} customers · model: {best_name} · version: {model_version}")
 
 # ============================================================
 # PAGE: Model comparison
@@ -402,7 +431,7 @@ elif page == "Customer review":
 
 elif page == "Model comparison":
     st.title("Model comparison", anchor=False)
-    st.caption("Six prediction experiments with chronological train / validation / test splits.")
+    st.caption("Six prototype candidates on chronological splits; the proposal's two feature sets are still pending.")
 
     if results is None:
         st.warning("No model results found. Run the training pipeline first.")
@@ -424,7 +453,7 @@ elif page == "Model comparison":
         })
     summary_df = pd.DataFrame(rows)
 
-    st.caption(f"Best model (by validation ROC-AUC): **{best_name}**")
+    st.caption(f"Selected by validation average precision (AP): **{best_name}**")
 
     # ROC-AUC grouped bar
     st.subheader("ROC-AUC", anchor=False)
@@ -515,9 +544,9 @@ elif page == "Model comparison":
             """
             **Chronological splits** — earlier label windows finish before the next partition begins.
 
-            - **Train (60%)** — fitted imputation, scaling, K-Means and prediction models  
-            - **Validation (20%)** — ensemble weight selection  
-            - **Test (20%)** — final evaluation reported above
+            - **Train (12 monthly cutoffs)** — fitted imputation, scaling, K-Means and prediction models
+            - **Validation (3 monthly cutoffs)** — model selection
+            - **Test (3 monthly cutoffs)** — held-out prototype metrics reported above
 
             All transformations are fit on training data only and applied to validation and test.
             """

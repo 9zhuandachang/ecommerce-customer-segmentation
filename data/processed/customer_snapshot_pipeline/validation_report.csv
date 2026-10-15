@@ -1,0 +1,11 @@
+﻿check,passed,details
+row_reconciliation,True,"raw=1067371, clean=776579, excluded=290792"
+audit_primary_reconciliation,True,"audit_primary=1067371, raw=1067371"
+clean_unique_rows,True,No canonical duplicate remains in clean transactions
+clean_customer_ids_present,True,Every clean row has a Customer ID
+clean_positive_values,True,Every clean row has positive quantity and unit price
+snapshot_keys_unique,True,Each customer appears at most once per cutoff
+snapshot_observation_eligibility,True,"All snapshots have a qualifying purchase in [t-180d, t)"
+binary_label,True,All repurchase labels are 0 or 1
+complete_label_windows,True,Every scheduled label window ends within source coverage
+split_label_windows_do_not_cross_boundaries,True,"validation_start=2011-06-01, test_start=2011-09-01"

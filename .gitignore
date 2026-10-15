@@ -42,15 +42,7 @@ ENV/
 .agents/
 .claude/
 
-# Data files (raw and processed data should not be pushed to GitHub)
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-
-# Large models / experiment checkpoints
-models/*.pkl
-!models/.gitkeep
+# Project data and saved prototype models are included for reproducibility.
 
 # Logs and temporary files
 *.log

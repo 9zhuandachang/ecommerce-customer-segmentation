@@ -1,0 +1,35 @@
+{
+  "config": {
+    "observation_days": 180,
+    "label_days": 30,
+    "cutoff_frequency": "month_start",
+    "feature_interval": "[t-180d, t)",
+    "label_interval": "[t, t+30d)"
+  },
+  "sources": [
+    {
+      "file": "online_retail_II_2009-2010.csv",
+      "sha256": "3b08dd69366cd115b46c5b309425d7e779356cf2efc9494017373401d54bc3fc",
+      "bytes": 44378605
+    },
+    {
+      "file": "online_retail_II_2010-2011.csv",
+      "sha256": "3e024d78f6cff3e14e8d5bf0ff1a66e86e048afea6fecbd1107965d41cf629c5",
+      "bytes": 45576169
+    }
+  ],
+  "counts": {
+    "raw_rows": 1067371,
+    "clean_rows": 776579,
+    "excluded_rows": 290792,
+    "snapshot_rows": 54040,
+    "cutoff_dates": 18
+  },
+  "date_range": {
+    "source_min": "2009-12-01T07:45:00",
+    "source_max": "2011-12-09T12:50:00",
+    "first_cutoff": "2010-06-01",
+    "last_cutoff": "2011-11-01"
+  },
+  "validation_passed": true
+}

@@ -1,0 +1,13 @@
+﻿rule,matched_rows,primary_rows,action,definition
+invalid_invoice_date,0,0,exclude,InvoiceDate cannot be parsed
+missing_invoice,0,0,exclude,Invoice is missing
+missing_stock_code,0,0,exclude,StockCode is missing
+invalid_quantity,0,0,exclude,Quantity is not numeric
+invalid_unit_price,0,0,exclude,Price is not numeric
+exact_duplicate,34335,34335,exclude,All canonical source fields match an earlier row
+missing_customer_id,243007,235151,exclude,Customer ID is missing
+cancelled_invoice,19494,18390,exclude,Invoice begins with C
+nonpositive_quantity,22950,0,exclude,Quantity is zero or negative
+nonpositive_unit_price,6207,70,exclude,Price is zero or negative
+non_product_entry,5932,2846,exclude,"Operational, fee, adjustment, test, or voucher code"
+included,776579,776579,keep,Row passes all cleaning rules
