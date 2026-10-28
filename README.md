@@ -28,7 +28,7 @@ python -m pip install -r requirements.txt
 python -m streamlit run app/dashboard.py
 ```
 
-浏览器打开 **http://localhost:8501**。已在项目目录时，直接执行最后一条命令。
+服务启动后，浏览器打开 [http://localhost:8501](http://localhost:8501)。已在项目根目录时，只需执行上面最后一条启动命令。
 
 1. 在侧栏“数据导入”上传 `data/demo/2011-12-01/purchase_history.csv`。
 2. 分析日期选择 **2011-12-01**，点击“生成分析”。
