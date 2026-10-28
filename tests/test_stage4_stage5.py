@@ -308,21 +308,27 @@ class StageSixDashboardTests(unittest.TestCase):
     def test_dashboard_high_value_only_exposes_actionable_customer_columns(self):
         from app.business_views import VALUE_COLUMNS
         dashboard = self.open_dashboard()
+        dashboard.session_state['value_scope'] = '全部客户'  # A previous session must also use the fixed Top20% scope.
         self.open_business_page(dashboard, 'value')
         self.assertFalse(dashboard.exception)
         self.assertFalse(dashboard.error)
         shown = dashboard.dataframe[0].value
         self.assertEqual(len(shown), 50)
         self.assertEqual(list(shown), list(VALUE_COLUMNS.values()))
-        self.assertTrue(shown['关注级别'].eq('优先关注').all())
+        self.assertNotIn('关注级别', shown)
         self.assertEqual(shown['潜力排名'].tolist(), list(range(1, 51)))
         self.assertFalse(dashboard.metric)
         self.assertIn('前20%消费潜力客户 · **689位**', [caption.value for caption in dashboard.caption])
         self.assertIn('共匹配 689 位客户，当前显示 50 位', [caption.value for caption in dashboard.caption])
         self.assertEqual(len(dashboard.dataframe[0].value), 50)
-        next(widget for widget in dashboard.selectbox if widget.label == '客户范围').set_value('全部客户').run()
-        self.assertIn('共匹配 3,444 位客户，当前显示 50 位', [caption.value for caption in dashboard.caption])
-        next(widget for widget in dashboard.text_input if widget.label == '客户 ID').set_value('not-a-customer').run()
+        self.assertEqual([widget.label for widget in dashboard.selectbox], ['显示客户数'])
+        priority = self.workspace['priority']
+        last_priority = priority.loc[priority.priority_band.eq('Top 20%')].sort_values('priority_rank').iloc[-1]
+        next(widget for widget in dashboard.text_input if widget.label == '客户 ID').set_value(last_priority.customer_id).run()
+        self.assertFalse(dashboard.exception)
+        self.assertEqual(dashboard.dataframe[0].value['潜力排名'].tolist(), [int(last_priority.priority_rank)])
+        outside_priority = priority.loc[priority.priority_band.ne('Top 20%')].iloc[0].customer_id
+        next(widget for widget in dashboard.text_input if widget.label == '客户 ID').set_value(outside_priority).run()
         self.assertFalse(dashboard.exception)
         self.assertTrue(dashboard.dataframe[0].value.empty)
         self.assertIn('共匹配 0 位客户，当前显示 0 位', [caption.value for caption in dashboard.caption])
@@ -341,27 +347,91 @@ class StageSixDashboardTests(unittest.TestCase):
         self.assertEqual(len(shown), 10)
         self.assertEqual(shown['商品编码'].nunique(), 10)
         self.assertNotIn('排序分数', shown)
+        self.assertNotIn('推荐类型', shown)
         self.assertEqual(len(dashboard.dataframe), 1)
         self.assertEqual([metric.label for metric in dashboard.metric],
                          ['近180天购买次数', '购买商品种数', '历史订单老商品平均占比'])
         self.assertEqual([expander.label for expander in dashboard.expander], ['画像详情'])
-        self.assertEqual({widget.label for widget in dashboard.selectbox}, {'客户 ID'})
+        self.assertEqual({widget.label for widget in dashboard.selectbox}, {'客户 ID', '客户排序'})
         customer = next(widget for widget in dashboard.selectbox if widget.label == '客户 ID').value
         expected = recommend_customer(self.workspace, customer)
         self.assertTrue(expected.recommendation_method.eq('D_classifier').all())
         self.assertEqual(shown['商品编码'].tolist(), expected.stock_code.tolist())
-        self.assertTrue(shown['推荐依据'].eq('结合购买记录、客户习惯与商品关联').all())
+        self.assertNotIn('推荐依据', shown)
+        self.assertEqual(shown['近180天购买次数'].tolist(), expected.purchase_count_180d.tolist())
         profile = self.workspace['profiles'].loc[self.workspace['profiles'].customer_id.eq(customer)].iloc[0]
         self.assertEqual([metric.value for metric in dashboard.metric],
                          [str(int(profile.order_count)), str(int(profile.distinct_products)),
                           f'{profile.historical_repeat_share:.1%}'])
-        self.assertIn(f'常购商品集中度：**{profile.top3_concentration:.1%}**',
-                      [caption.value for caption in dashboard.expander[0].caption])
+        details = dashboard.table[0].value
+        self.assertEqual(len(details), 6 + int(pd.notna(profile.repeat_share_change)))
+        self.assertEqual(details.loc['常购商品集中度', '当前值'], f'{profile.top3_concentration:.1%}')
+        self.assertEqual(details.loc['近期订单老商品平均占比', '当前值'], f'{profile.recent_repeat_share:.1%}')
+        if pd.isna(profile.repeat_share_change):
+            self.assertNotIn('老商品占比变化', details.index)
+        else:
+            self.assertEqual(details.loc['老商品占比变化', '当前值'], f'{100 * profile.repeat_share_change:+.1f}个百分点')
+        self.assertEqual(details.loc['平均每次购买商品种数', '当前值'], f'{profile.mean_basket_size:.1f}种')
+        self.assertEqual(details.loc['距上次购买天数', '当前值'], f'{profile.recency_days:.1f}天')
+        self.assertEqual(details.loc['本期购买跨度', '当前值'], f'{profile.history_span_days:.1f}天')
+        self.assertEqual(details.loc['可比较订单数', '当前值'], f'{profile.comparable_order_count:.0f}笔')
         picker = next(widget for widget in dashboard.selectbox if widget.label == '客户 ID')
-        picker.set_value(picker.options[0]).run()
+        picker.set_value(self.workspace['profiles'].customer_id.min()).run()
         self.assertFalse(dashboard.exception)
         self.assertFalse(dashboard.error)
         self.assertEqual(len(dashboard.dataframe[0].value), 10)
+        self.assertNotIn('推荐依据', dashboard.dataframe[0].value)
+
+    def test_recommendation_customer_sort_preserves_selection_and_short_history_details(self):
+        dashboard = self.open_dashboard()
+        self.open_business_page(dashboard, 'recommendations')
+        original = dashboard.dataframe[0].value.copy()
+        customer = next(widget for widget in dashboard.selectbox if widget.label == '客户 ID').value
+        next(widget for widget in dashboard.selectbox if widget.label == '客户排序').set_value('近180天购买次数从高到低').run()
+        self.assertFalse(dashboard.exception)
+        picker = next(widget for widget in dashboard.selectbox if widget.label == '客户 ID')
+        self.assertEqual(picker.value, customer)
+        pd.testing.assert_frame_equal(original, dashboard.dataframe[0].value)
+        ids = picker.options
+        profiles = self.workspace['profiles'].set_index('customer_id')
+        self.assertEqual(set(ids), set(profiles.index))
+        counts = profiles.loc[ids, 'order_count']
+        self.assertTrue(counts.is_monotonic_decreasing)
+        for left, right in zip(ids, ids[1:]):
+            if profiles.loc[left, 'order_count'] == profiles.loc[right, 'order_count']:
+                self.assertLess(left, right)
+        single = profiles.loc[profiles.order_count.eq(1)].index[0]
+        picker.set_value(single).run()
+        self.assertFalse(dashboard.exception)
+        self.assertEqual([metric.label for metric in dashboard.metric], ['近180天购买次数', '购买商品种数'])
+        self.assertEqual(dashboard.metric[0].value, '1')
+        details = dashboard.table[0].value
+        self.assertEqual(len(details), 5)
+        self.assertNotIn('近期订单老商品平均占比', details.index)
+        self.assertNotIn('老商品占比变化', details.index)
+        self.assertNotIn('记录不足', details['当前值'].tolist())
+        self.assertEqual(details.loc['可比较订单数', '当前值'], '0笔')
+        self.assertEqual(details.loc['本期购买跨度', '当前值'], '0.0天')
+        self.assertEqual(len(dashboard.dataframe[0].value), 10)
+        self.assertGreater(self.workspace['unknown_products'], 0)
+        self.assertFalse(any('推荐名单仅覆盖已知商品' in caption.value for caption in dashboard.caption))
+        two_orders = profiles.loc[profiles.order_count.eq(2) & profiles.historical_repeat_share.eq(0)].index[0]
+        next(widget for widget in dashboard.selectbox if widget.label == '客户 ID').set_value(two_orders).run()
+        self.assertFalse(dashboard.exception)
+        self.assertEqual(dashboard.metric[2].value, '0.0%')
+        details = dashboard.table[0].value
+        self.assertEqual(len(details), 6)
+        self.assertEqual(details.loc['近期订单老商品平均占比', '当前值'], '0.0%')
+        self.assertNotIn('老商品占比变化', details.index)
+        complete = profiles.loc[profiles.repeat_share_change.notna()].index[0]
+        next(widget for widget in dashboard.selectbox if widget.label == '客户 ID').set_value(complete).run()
+        self.assertFalse(dashboard.exception)
+        self.assertEqual(len(dashboard.metric), 3)
+        self.assertEqual(len(dashboard.table[0].value), 7)
+        next(widget for widget in dashboard.selectbox if widget.label == '客户排序').set_value('客户ID升序').run()
+        picker = next(widget for widget in dashboard.selectbox if widget.label == '客户 ID')
+        self.assertEqual(picker.value, complete)
+        self.assertEqual(picker.options, sorted(ids))
 
     def test_business_exports_strip_research_metadata_and_future_answers(self):
         from app.business_views import customer_table, value_table, product_table, business_export
@@ -378,7 +448,8 @@ class StageSixDashboardTests(unittest.TestCase):
                                  'ranking_method': ['SECRET'], 'spend_30d': [999]})
         value = business_export(value_table(priority), '2011-09-01')
         self.assertEqual(value['潜力排名'].tolist(), [2])
-        self.assertFalse({'baseline_rank', 'ranking_method', 'spend_30d'} & set(value))
+        self.assertFalse({'baseline_rank', 'ranking_method', 'spend_30d', 'priority_band', '关注级别'} & set(value))
+        self.assertNotIn('关注级别', business_export(value.assign(**{'关注级别': '旧字段'}), '2011-09-01'))
         products = pd.DataFrame({'rank': [1], 'stock_code': ['sku'], 'description': ['cup'],
                                  'purchased_in_past_180d': [True], 'purchase_count_180d': [2],
                                  'days_since_item_purchase': [5.], 'recommendation_method': ['D_classifier'],
@@ -387,8 +458,11 @@ class StageSixDashboardTests(unittest.TestCase):
         exported = business_export(product_table(products), '2011-09-01', 'a', profile)
         self.assertEqual(exported['客户历史重复购买比例'].iloc[0], .4)
         self.assertEqual(exported['客户 ID'].iloc[0], 'a')
-        self.assertEqual(exported['推荐依据'].iloc[0], '结合购买记录、客户习惯与商品关联')
-        self.assertFalse({'ranking_score', 'target_items', 'recommendation_method'} & set(exported))
+        self.assertEqual(exported['近180天购买次数'].iloc[0], 2)
+        self.assertFalse({'ranking_score', 'target_items', 'recommendation_method', '推荐依据', '推荐类型',
+                          'recommendation_kind'} & set(exported))
+        stale = exported.assign(**{'推荐依据': '旧字段', '推荐类型': '再次购买'})
+        self.assertFalse({'推荐依据', '推荐类型'} & set(business_export(stale, '2011-09-01')))
 
 
 class UploadedInferenceTests(unittest.TestCase):
