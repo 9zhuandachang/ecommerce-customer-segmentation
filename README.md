@@ -1,33 +1,114 @@
-﻿# 电商客户分群与 30 天复购预测
+﻿# 电商客户分析
 
-本目录汇集 UCI Online Retail II 原始数据、已生成的清洗与客户快照结果，以及分群、预测和 Streamlit 仪表板的原型代码。PPT 和中文 proposal 位于上一级 `pre2` 目录；项目目标与验收条件见 [任务流程与验收清单](docs/项目任务流程与验收清单.md)，统一的业务范围、统计单位和导出口径见 [业务范围与数据口径](docs/业务范围与数据口径.md)。
+基于 UCI Online Retail II 购买记录，完成客户分群、未来30天复购评分、消费潜力排序，以及购买习惯画像与商品推荐。用户上传购买明细、选择分析日期，系统生成四项分析，支持筛选和导出名单。
 
-## 目录
+先阅读[项目学习指南](docs/项目学习指南.md)，也可下载[HTML阅读版](docs/项目学习指南.html)在浏览器打开。字段和操作见[上传数据使用说明](docs/上传数据使用说明.md)。
 
-- `data/raw/`：两份原始年度 CSV，保持内容不变。
-- `data/processed/customer_snapshot_pipeline/`：清洗审计、月度客户快照、日期划分、校验报告和运行记录。
-- `src/data_cleaning.py`、`src/features.py`：清洗规则、客户快照与时间划分的唯一实现。
-- `build_customer_snapshots.py`：调用上述模块，从原始 CSV 写出审计与快照产物。
-- `tests/`：清洗、特征与标签窗口、时间划分的单元测试。
-- `src/`、`app/`：分群、预测训练和仪表板的原型代码。
-- `docs/`：任务清单、业务与数据口径、快照流水线说明。
+## 当前使用的方案
 
-## 已完成的数据流水线
+| 功能 | 当前方案 | 页面提供什么 |
+| --- | --- | --- |
+| 客户分群 | K-means，4群 | 群体分布、购买特点、群内客户名单。 |
+| 未来30天复购 | 14项历史特征＋XGBoost | 复购倾向评分、客户优先顺序。 |
+| 高消费潜力 | 20项历史特征＋两步LightGBM | 消费潜力排名、前20%关注名单。 |
+| 画像与商品推荐 | 购买习惯统计＋个人重复购买规则 | 补货与尝新倾向、每位客户10件候选商品。 |
 
-在本目录运行：
+商品级模型的最佳实验方案为完整特征＋LightGBM分类；当前默认推荐规则仍为个人重复购买。各算法比较及选择原因见学习指南和对应实验报告。
+
+## 快速启动
+
+已在 Python 3.11 环境验证。保存的模型依赖训练时的库版本，请使用 `requirements.txt`。数据和较大产物通过 Git LFS 保存，克隆后需要取得实际文件内容。
 
 ```powershell
+git clone https://github.com/9zhuandachang/ecommerce-customer-segmentation.git
+Set-Location ecommerce-customer-segmentation
+git lfs install
+git lfs pull
 python -m pip install -r requirements.txt
-python build_customer_snapshots.py `
-  data/raw/online_retail_II_2009-2010.csv `
-  data/raw/online_retail_II_2010-2011.csv
-python -m unittest discover -s tests -v
+python -m streamlit run app/dashboard.py
 ```
 
-默认输出到 `data/processed/customer_snapshot_pipeline/`。清洗和快照口径见 [流水线说明](docs/customer_snapshot_pipeline.md)。现有产物记录 1,067,371 条原始交易行、776,579 条合格交易行，以及 18 个截止日期的 54,040 条客户快照。
+浏览器打开 **http://localhost:8501**。已在项目目录时，直接执行最后一条命令。
 
-## 原型代码状态
+1. 在侧栏“数据导入”上传 `data/demo/2011-12-01/purchase_history.csv`；也可从页面下载演示ZIP，解压后上传其中这一份CSV。
+2. 分析日期选择 **2011-12-01**，点击“生成分析”。
+3. 在四个分析页面查看、筛选并导出结果。
 
-`src/train_pipeline.py` 现在读取上述 `customer_snapshots.csv`，沿用其中的训练、验证、测试划分，再调用分群与预测原型。运行命令为 `python src/train_pipeline.py`；完成训练后，可用 `streamlit run app/dashboard.py` 查看历史截止日期的评分。
+系统支持 **2011-09-01至2011-12-01之间任意一天，包含首尾**。演示明细包含759,615条真实合格交易，最晚为2011-11-30；选择12月1日会生成3,444位客户的快照，前20%消费潜力客户为689位。系统按照分析日期提取此前的购买记录，调用保存好的模型。
 
-本地已用真实快照运行该原型，生成 `data/processed/` 下的训练缓存与评分文件及 `models/` 下的模型文件。这些产物连同两份原始 CSV 一并纳入仓库；`clean_transactions.csv` 通过 Git LFS 保存，克隆仓库时需安装 Git LFS 才能取得完整文件。分群、正式六组实验、评估与仪表板仍需按任务清单逐项验证。现有代码比较的是 LR、GBDT、三个软投票权重及 Dummy 基线，尚未实现提案中的“两组特征 × 三类模型”；界面和导出会将其标为原型评分，不能当作最终报告或已校准复购概率。PPT 与中文 proposal 保留为 2026 年 9 月的计划版本，进度以本目录文档为准。
+客户总数在标题旁展示，匹配和显示数量位于表格上方；消费中位数位于群体对比区，商品集中度位于“画像详情”。
+
+更换明细或日期时，返回“数据导入”重新生成分析。新分析成功前会保留原结果。代码更新后若出现旧模块导入错误，在运行服务的终端按 `Ctrl+C`，再执行启动命令；样式更新可按 `Ctrl+F5` 刷新页面。
+
+## 项目目录
+
+| 位置 | 用途 |
+| --- | --- |
+| `app/dashboard.py` | 唯一业务页面入口。 |
+| `app/upload_inference.py` | 校验上传明细、生成客户特征、调用四项分析。 |
+| `app/business_views.py`、`app/dashboard.css` | 业务表格、导出字段和页面样式。 |
+| `app/*_data.py` | 当前及历史实验结果的读取与核对适配器。 |
+| `data/raw/` | 两份原始年度CSV。 |
+| `data/processed/customer_snapshot_pipeline/` | 合格交易、排除记录、审计、54,040条客户月快照及时间划分。 |
+| `data/demo/2011-12-01/` | 真实上传示例、来源记录及页面下载ZIP。 |
+| `src/`、`build_customer_snapshots.py` | 共用清洗、特征与基础模型构建代码，数据流水线入口。 |
+| `stage4/`、`stage5/`、`stage6/` | 分群对比、复购对比及模型集成。 |
+| `value_prediction/` | 消费潜力排序与金额相关实验。 |
+| `recommendation/` | 推荐算法、购买画像、商品级打分比较。 |
+| `tests/` | 数据窗口、模型复现、名单与页面回归检查。 |
+| `docs/` | 学习指南、业务口径、任务流程和数据说明。 |
+
+## 数据与模型重建入口
+
+仓库已包含可运行的结果，查看页面可直接使用。需要重做实验时，在项目根目录按顺序执行相关入口。
+
+```powershell
+# 清洗、客户月快照和审计
+python -B build_customer_snapshots.py data/raw/online_retail_II_2009-2010.csv data/raw/online_retail_II_2010-2011.csv
+
+# 三种分群算法、2—6群比较，选择K-means四群
+python -B -m stage4.compare_segmentation compare
+python -B -m stage4.compare_segmentation select --algorithm kmeans --k 4
+
+# 四类复购模型、三组特征比较，然后集成分群与复购模型
+python -B -m stage5.compare_repurchase
+python -B -m stage6.integrate_reanalysis
+
+# 消费额标签、20项历史特征、消费潜力排序比较
+python -B -m value_prediction.labels
+python -B -m value_prediction.temporal_features
+python -B -m value_prediction.ranking_comparison
+
+# 推荐算法、画像混合和商品级打分比较
+python -B -m recommendation.experiment
+python -B -m recommendation.profile_experiment
+python -B -m recommendation.item_experiment
+
+# 重新生成真实上传示例
+python -B -m app.prepare_upload_demo
+```
+
+各实验保存了来源哈希和冻结配置。部分入口发现已有结果时会进行完整性核对；参数及时间窗口见对应方案文件。
+
+## 结果与比较报告
+
+| 内容 | 报告或模型位置 |
+| --- | --- |
+| 分群算法与群数比较 | [分群方案](stage4/segmentation_comparison_protocol.md)、`stage4/outputs/segmentation_comparison/` |
+| 复购模型对比 | [复购方案](stage5/repurchase_comparison_protocol.md)、`stage5/outputs/repurchase_comparison/` |
+| 当前分群与复购模型集成 | [统一回放报告](stage6/outputs/reanalysis_v2/report.md)、`stage6/outputs/reanalysis_v2/model/integrated_bundle.joblib` |
+| 消费潜力排序对比 | [排序报告](value_prediction/outputs/ranking_comparison_v1/report.md)、`value_prediction/outputs/ranking_comparison_v1/ranking_bundle.joblib` |
+| 商品推荐算法对比 | [推荐报告](recommendation/outputs/v1/report.md)、`recommendation/outputs/v1/selected_model.joblib` |
+| 画像混合与商品级模型对比 | [画像比较](recommendation/outputs/profile_v2/report.md)、[商品级比较](recommendation/outputs/item_v3_1/report.md) |
+
+训练快照为2010年6月—2011年5月，验证为2011年6—8月，测试期复核为2011年9—11月。按所选方案计算，复购AP为0.6201、前20%名单精确率66.22%；消费潜力名单月均消费覆盖率70.23%；默认推荐NDCG@10为0.2863、Recall@10为17.17%。具体统计单位、计算方法和月份口径见学习指南。
+
+## 验证与仓库整理
+
+```powershell
+python -B -m unittest discover -s tests -v
+```
+
+已清理早期独立原型入口及其模型和缓存、退出导航的旧页面、重复演示快照、旧流程图和空占位文件。当前数据、模型、结果报告及其校验记录保留。
+
+旧三群、早期复购、金额预测和推荐迭代仍保留在对应模块及 `outputs/` 中；它们用于实验对照、复现和现有测试。`src/modelling.py` 仍被这些实验引用。各阶段共用的数据处理代码继续位于 `src/data_cleaning.py` 与 `src/features.py`。

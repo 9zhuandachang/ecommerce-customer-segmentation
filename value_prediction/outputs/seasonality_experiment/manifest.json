@@ -1,0 +1,32 @@
+{
+  "status": "development_and_viewed_retrospective_only",
+  "candidate": "calendar_tweedie",
+  "added_features": [
+    "month_sin",
+    "month_cos"
+  ],
+  "development_gate": {
+    "buyer_mae_reduction_at_least_5pct": false,
+    "overall_mae_increase_at_most_2pct": true,
+    "top20_capture_not_lower": true,
+    "aggregate_bias_abs_not_larger": true
+  },
+  "gate_passed": false,
+  "source_snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "source_labels_sha256": "b7da0c476c6071649eb7d169428f974bd22bacd93ce8d077a6a7af1783427c71",
+  "source_temporal_features_sha256": "a24833a0e8d05a8795654fc9b4a2a4bed2cac2407cefc37046f1e6c1a4727e9c",
+  "source_seasonal_features_sha256": "4ce9d12f22855885ec622ac3efbacbe2d8a6f3593857345d6b6e361e18287219",
+  "development_reference_sha256": "a8ebe44cc265bc85eb30b7c7d6687430d0f473f8a4419c3f940c5077cdf468e4",
+  "retrospective_reference_sha256": "ec03a034e87cc6af10ba3af48307a9502a470d282e175ce4d753a1d5126132cd",
+  "protocol_sha256": "f5e3805014d233c557f78ba0d9f91176901b3d629b4f9eeb35ff742202ba4efd",
+  "script_sha256": "8fbff34fa6c5f9e35c87a773cc8385f8008b10c3c5383d11277b11697736d317",
+  "outputs_sha256": {
+    "customer_predictions": "6eada408aa2c51fedca7b09e77b92c2cdb616773027ebe72d4c739e16a18e3e2",
+    "monthly_metrics": "cd05cbab20fee920481906394c6b2896eae6461ab5d439f7475ec82f1986b397",
+    "period_metrics": "5ecc1dcec85d115336c750c91ec32e67a90d0d3c54e1bbb0e9445e0293665fb2",
+    "predicted_top1_monthly": "f242f29f3ad9bd6a53fb34473be58bc36426cdfecacd9d20c75ecc54b20ffcc9",
+    "predicted_top1_period": "05b7749fcfd61d859be3f1160c70031a4508a837eeb06ecf8540a70383e5869d",
+    "folds": "2af8eb282c6d1fceca90614bc09607e0f3696c855fedbbb1df82c2edb7178141"
+  },
+  "report_sha256": "dfcb295344ff109270748151a2eef3660a494e0d04408e69554f1e0fb2f7b82e"
+}

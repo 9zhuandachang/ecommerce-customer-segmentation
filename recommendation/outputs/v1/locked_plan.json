@@ -1,0 +1,230 @@
+{
+  "version": "recommendation_v1",
+  "source_hashes": {
+    "transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+    "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+    "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
+  },
+  "specs": [
+    {
+      "id": "popular_30",
+      "method": "popular",
+      "days": 30
+    },
+    {
+      "id": "popular_90",
+      "method": "popular",
+      "days": 90
+    },
+    {
+      "id": "popular_180",
+      "method": "popular",
+      "days": 180
+    },
+    {
+      "id": "personal_repeat_None",
+      "method": "personal_repeat",
+      "half_life": null
+    },
+    {
+      "id": "personal_repeat_30",
+      "method": "personal_repeat",
+      "half_life": 30
+    },
+    {
+      "id": "personal_repeat_90",
+      "method": "personal_repeat",
+      "half_life": 90
+    },
+    {
+      "id": "itemknn_20_0",
+      "method": "itemknn",
+      "neighbors": 20,
+      "shrink": 0
+    },
+    {
+      "id": "itemknn_20_20",
+      "method": "itemknn",
+      "neighbors": 20,
+      "shrink": 20
+    },
+    {
+      "id": "itemknn_50_0",
+      "method": "itemknn",
+      "neighbors": 50,
+      "shrink": 0
+    },
+    {
+      "id": "itemknn_50_20",
+      "method": "itemknn",
+      "neighbors": 50,
+      "shrink": 20
+    },
+    {
+      "id": "itemknn_100_0",
+      "method": "itemknn",
+      "neighbors": 100,
+      "shrink": 0
+    },
+    {
+      "id": "itemknn_100_20",
+      "method": "itemknn",
+      "neighbors": 100,
+      "shrink": 20
+    },
+    {
+      "id": "itemknn_200_0",
+      "method": "itemknn",
+      "neighbors": 200,
+      "shrink": 0
+    },
+    {
+      "id": "itemknn_200_20",
+      "method": "itemknn",
+      "neighbors": 200,
+      "shrink": 20
+    },
+    {
+      "id": "als_16_0.1_1.0",
+      "method": "implicit_als",
+      "factors": 16,
+      "regularization": 0.1,
+      "alpha": 1.0,
+      "iterations": 15
+    },
+    {
+      "id": "als_16_0.1_10.0",
+      "method": "implicit_als",
+      "factors": 16,
+      "regularization": 0.1,
+      "alpha": 10.0,
+      "iterations": 15
+    },
+    {
+      "id": "als_16_1.0_1.0",
+      "method": "implicit_als",
+      "factors": 16,
+      "regularization": 1.0,
+      "alpha": 1.0,
+      "iterations": 15
+    },
+    {
+      "id": "als_16_1.0_10.0",
+      "method": "implicit_als",
+      "factors": 16,
+      "regularization": 1.0,
+      "alpha": 10.0,
+      "iterations": 15
+    },
+    {
+      "id": "als_32_0.1_1.0",
+      "method": "implicit_als",
+      "factors": 32,
+      "regularization": 0.1,
+      "alpha": 1.0,
+      "iterations": 15
+    },
+    {
+      "id": "als_32_0.1_10.0",
+      "method": "implicit_als",
+      "factors": 32,
+      "regularization": 0.1,
+      "alpha": 10.0,
+      "iterations": 15
+    },
+    {
+      "id": "als_32_1.0_1.0",
+      "method": "implicit_als",
+      "factors": 32,
+      "regularization": 1.0,
+      "alpha": 1.0,
+      "iterations": 15
+    },
+    {
+      "id": "als_32_1.0_10.0",
+      "method": "implicit_als",
+      "factors": 32,
+      "regularization": 1.0,
+      "alpha": 10.0,
+      "iterations": 15
+    },
+    {
+      "id": "ease_10",
+      "method": "ease",
+      "regularization": 10
+    },
+    {
+      "id": "ease_30",
+      "method": "ease",
+      "regularization": 30
+    },
+    {
+      "id": "ease_100",
+      "method": "ease",
+      "regularization": 100
+    },
+    {
+      "id": "ease_300",
+      "method": "ease",
+      "regularization": 300
+    },
+    {
+      "id": "ease_1000",
+      "method": "ease",
+      "regularization": 1000
+    },
+    {
+      "id": "ease_3000",
+      "method": "ease",
+      "regularization": 3000
+    },
+    {
+      "id": "ease_10000",
+      "method": "ease",
+      "regularization": 10000
+    },
+    {
+      "id": "ease_30000",
+      "method": "ease",
+      "regularization": 30000
+    }
+  ],
+  "code_hashes": {
+    "data.py": "d959a9249e6e379672cdb4471e2f1836f24e0a309631c034e02fa91381e24966",
+    "models.py": "784416c7c3fe9d01e6ee98ad81048c41c39f017e3b194749b321ba5119ea6573",
+    "metrics.py": "e80d61f13f70be1b9c165b67a8a32bfcca61fcb7da5f53818eb2a23d46e13154",
+    "experiment.py": "32abcda4cbb5ad8c71ad57ebed91600d4be2b0f586970a41ab9675b4ff85f17d",
+    "protocol.md": "a83f25e6a986a636333cd7568e2b26486df15c933d817ef21a8e4b6d29e91461"
+  },
+  "target": "first purchase timestamp product set in [t,t+30d)",
+  "history_days": 180,
+  "list_length": 10,
+  "allow_repeat_recommendations": true,
+  "full_catalog_evaluation": true,
+  "primary_metric": "mean_monthly_buyer_ndcg_at_10",
+  "tuning_dates": [
+    "2011-01-01",
+    "2011-02-01",
+    "2011-03-01",
+    "2011-04-01",
+    "2011-05-01"
+  ],
+  "validation_dates": [
+    "2011-06-01",
+    "2011-07-01",
+    "2011-08-01"
+  ],
+  "test_dates": [
+    "2011-09-01",
+    "2011-10-01",
+    "2011-11-01"
+  ],
+  "seed": 42,
+  "versions": {
+    "python": "3.11.9",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "pandas": "2.3.3",
+    "joblib": "1.5.3"
+  }
+}

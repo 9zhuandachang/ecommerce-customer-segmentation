@@ -1,0 +1,28 @@
+{
+  "status": "development_only_not_independent_acceptance",
+  "candidate": "composition_tweedie",
+  "added_features": [
+    "bulk_spend_share_180d",
+    "median_unit_price_180d",
+    "non_uk_180d"
+  ],
+  "gate": {
+    "buyer_mae_reduction_at_least_5pct": false,
+    "overall_mae_increase_at_most_2pct": true,
+    "top20_capture_not_lower": true,
+    "aggregate_bias_abs_not_larger": false
+  },
+  "gate_passed": false,
+  "composition_features_sha256": "23b190d5eb17b5e72e99da9f0e8d2b5c77f47b66f8b3cf7af94583da1d4edec0",
+  "composition_feature_manifest_sha256": "94dcb9718587f581c3d4f55252a463b822ba7decbf897ddc60d97917b6cea4ea",
+  "reference_predictions_sha256": "a8ebe44cc265bc85eb30b7c7d6687430d0f473f8a4419c3f940c5077cdf468e4",
+  "protocol_sha256": "50ef89b1ec67c390ebc64fbb5a49988c87818c27abcb275afaf8f12227fd5f76",
+  "script_sha256": "0f3f5ae463303db441afa4965aa0684aee5b16b050bceff6666da04c036b691e",
+  "output_sha256": {
+    "customer_predictions": "f5e6a6e18c211b3cabaf1bc3d9017f3c17b01f9694897c8a43c1c0804b093809",
+    "monthly_metrics": "b726c688bd33b9fb5a06e8cc9eebc74dd3842cb2bb8aed57f0626615a2e4aafd",
+    "period_metrics": "0a9fd42ebac09df5eb8ddc36b8c5c003cca7ab14b9c769e72ce4161de876e170",
+    "folds": "4ddd8ba5987a5536efc43033acbc537ccc6397a517835a5eb60fb19f5a20a1d1"
+  },
+  "report_sha256": "4bf3eff75b24ab3c6bf034f3dc03f1a1c0c4c726c8c61262055125a65b37b66f"
+}

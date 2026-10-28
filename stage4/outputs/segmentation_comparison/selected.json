@@ -1,0 +1,39 @@
+{
+  "selected": {
+    "algorithm": "kmeans",
+    "k": 4,
+    "covariance_type": ""
+  },
+  "candidate": "kmeans_k4",
+  "features": [
+    "recency_days",
+    "invoice_frequency_180d",
+    "average_order_value_180d",
+    "products_per_invoice_180d",
+    "recent90_invoice_share"
+  ],
+  "log_columns": [
+    "invoice_frequency_180d",
+    "average_order_value_180d",
+    "products_per_invoice_180d"
+  ],
+  "model_parameters": {
+    "algorithm": "lloyd",
+    "copy_x": true,
+    "init": "k-means++",
+    "max_iter": 500,
+    "n_clusters": 4,
+    "n_init": 20,
+    "random_state": 42,
+    "tol": 0.0001,
+    "verbose": 0
+  },
+  "preprocessing": "log1p on log_columns, then StandardScaler fitted on training rows",
+  "fit_rows": 37019,
+  "source_scope": "historical_reanalysis_not_new_independent_test",
+  "downstream_integrated": false,
+  "comparison_manifest_sha256": "fc3c7d7f5bd959ca772a88b500e2fe6d2af4f4397057aabaeaa1e948371ec7d4",
+  "model_sha256": "da6c1018ac46d54f53a9801c8de3ce0664087b7bc245add681c18386d1228cd1",
+  "assignments_sha256": "57be9eab9b0ec9cb964d87c55f23fa97bb1f1c4887cd6c7d7c6767fab7b5f314",
+  "profiles_sha256": "ce5ba06b1c1e1a99b059cba662346c50854cbca42259c642dfc8b87697c7f85f"
+}

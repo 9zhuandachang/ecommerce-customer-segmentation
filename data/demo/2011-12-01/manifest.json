@@ -1,0 +1,15 @@
+{
+  "source": "UCI Online Retail II / canonical cleaned transactions",
+  "source_sha256": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+  "cutoff": "2011-12-01",
+  "synthetic": false,
+  "future_labels_included": false,
+  "snapshot_input_required": false,
+  "history_rows": 759615,
+  "customers": 3444,
+  "earliest_transaction": "2009-12-01 07:45:00",
+  "latest_transaction": "2011-11-30 17:37:00",
+  "files": {
+    "purchase_history.csv": "4ed55f1624d4be061df04362d41a05bca7bc3e73eef3dff26f33951370d11440"
+  }
+}

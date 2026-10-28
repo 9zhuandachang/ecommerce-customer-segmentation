@@ -1,0 +1,57 @@
+:root { --ink:#142b4b; --muted:#6b7d96; --line:#e4ebf5; --blue:#2563eb; }
+[data-testid="stAppViewContainer"] {
+  background-color:#f7faff;
+  background-image:radial-gradient(ellipse at 92% 0%,rgba(96,165,250,.12),transparent 43%),
+    linear-gradient(rgba(37,99,235,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(37,99,235,.018) 1px,transparent 1px);
+  background-size:auto,40px 40px,40px 40px;
+}
+[data-testid="stHeader"] { background:rgba(247,250,255,.94); }
+[data-testid="stAppDeployButton"] { display:none; }
+/* Leave room for Streamlit's fixed toolbar above the first page label. */
+[data-testid="stMainBlockContainer"] { max-width:1440px; padding:5rem 3.2rem 3rem; }
+[data-testid="stAppViewContainer"],button,input,select { font-family:Inter,"Segoe UI","Microsoft YaHei",sans-serif; }
+h1,h2,h3 { color:var(--ink); letter-spacing:-.025em; }
+h1 { font-size:1.9rem !important; font-weight:700 !important; padding:0 0 .35rem !important; }
+h3 { font-size:1.05rem !important; font-weight:650 !important; padding:.2rem 0 .65rem !important; }
+[data-testid="stCaptionContainer"] { color:var(--muted); }
+[data-testid="stSidebar"] { background:#fff; border-right:1px solid var(--line); min-width:252px; max-width:252px; }
+[data-testid="stSidebarUserContent"] { padding:1.8rem 1rem; }
+.workspace-brand { display:flex; align-items:center; gap:12px; padding:4px 10px 28px; }
+.brand-mark { width:38px; height:38px; flex:none; padding:9px; border-radius:8px;
+  background:linear-gradient(135deg,#1e40af,#3b82f6); display:grid; grid-template-columns:1fr 1fr; gap:3px; }
+.brand-mark i { background:#fff; border-radius:1px; }
+.brand-mark i:last-child { opacity:.45; }
+.brand-title { font-size:20px; font-weight:750; color:var(--ink); line-height:1.5; }
+.brand-subtitle { font-size:9px; font-weight:600; letter-spacing:.13em; color:#7c8da7; }
+.nav-label { color:#8b9ab0; font-size:10px; font-weight:650; letter-spacing:.14em; padding:8px 12px 12px; }
+[data-testid="stSidebar"] [data-testid="stButton"] button {
+  min-height:46px; justify-content:flex-start; gap:10px; padding:10px 14px; border:1px solid transparent;
+  border-radius:8px; box-shadow:none; font-weight:550; transition:background .15s,border-color .15s;
+}
+[data-testid="stSidebar"] button[kind="secondary"] { color:#60738f; background:transparent; }
+[data-testid="stSidebar"] button[kind="secondary"]:hover { color:#1d4ed8; background:#f1f6ff; border-color:#e3edff; }
+[data-testid="stSidebar"] button[kind="primary"] { color:#fff; background:#2458cd;
+  border-color:#2458cd; box-shadow:0 5px 12px rgba(37,99,235,.13); }
+[data-testid="stSidebar"] button:focus-visible { outline:2px solid #93b8ff; outline-offset:3px; }
+.sidebar-bottom { margin:32px 12px 0; padding-top:18px; border-top:1px solid var(--line); color:#8b9ab0;
+  font-size:11px; line-height:1.8; }
+.page-eyebrow { font-size:10px; line-height:1.6; font-weight:650; color:#5783bf; letter-spacing:.16em; margin:0 0 10px; }
+[data-testid="stMetric"] { background:#fff; border:1px solid var(--line); border-radius:10px;
+  padding:17px 20px; box-shadow:0 3px 16px rgba(32,63,110,.025); min-height:108px; }
+[data-testid="stMetricLabel"] { color:#7889a0; font-size:12px; }
+[data-testid="stMetricValue"] { color:var(--ink); font-size:1.85rem; font-weight:650; letter-spacing:-.04em; }
+[class*="st-key-card_"] { background:#fff; border-color:var(--line) !important; border-radius:10px;
+  box-shadow:0 3px 18px rgba(32,63,110,.022); }
+[data-testid="stDataFrame"] { border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+[data-testid="stDownloadButton"] button { border-radius:7px; border:1px solid #d6e3f8;
+  background:#eff5ff; color:#2458cd; font-weight:600; }
+[data-testid="stDownloadButton"] button:hover { background:#e2edff; border-color:#9dbcf7; }
+[data-baseweb="select"] > div,[data-baseweb="input"] { background:#fff; border-color:#dfe7f1; border-radius:7px; }
+[data-testid="stWidgetLabel"] p { color:#64748b; font-size:12px; }
+hr { border-color:var(--line); }
+@media (max-width:900px) {
+  [data-testid="stMainBlockContainer"] { padding:5rem 1.2rem 2rem; }
+  [data-testid="stMetric"] { padding:14px; }
+  [data-testid="stMetricValue"] { font-size:1.5rem; }
+}

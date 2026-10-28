@@ -1,0 +1,20 @@
+{
+  "status": "development_only_not_independent_acceptance",
+  "protocol_sha256": "e00a5744598b3fd0179f0590b99adf9074de49e2003238e77edbade19dadf21f",
+  "script_sha256": "a28edd4220107c917e907185fe4dc239e081feb4d0ac50e32c1e2462c7a98652",
+  "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "labels_sha256": "b7da0c476c6071649eb7d169428f974bd22bacd93ce8d077a6a7af1783427c71",
+  "clean_sha256": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+  "schedule_sha256": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881",
+  "temporal_features_sha256": "a24833a0e8d05a8795654fc9b4a2a4bed2cac2407cefc37046f1e6c1a4727e9c",
+  "invoice_count_reconciled": true,
+  "development_snapshot_count": 45165,
+  "test_rows_used": false,
+  "advancement_checks": {
+    "buyer_mae_reduction_at_least_5pct": false,
+    "overall_mae_increase_at_most_2pct": false,
+    "top20_capture_not_lower": true,
+    "aggregate_bias_abs_not_larger": false
+  },
+  "advance_to_new_test": false
+}

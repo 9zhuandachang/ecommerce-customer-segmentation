@@ -1,0 +1,35 @@
+{
+  "status": "completed_internal_ranking_comparison",
+  "selected_method": "lgbm_two_stage",
+  "baseline_method": "spend_180d",
+  "source_hashes": {
+    "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+    "labels": "b7da0c476c6071649eb7d169428f974bd22bacd93ce8d077a6a7af1783427c71",
+    "temporal_features": "a24833a0e8d05a8795654fc9b4a2a4bed2cac2407cefc37046f1e6c1a4727e9c",
+    "clean_transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+    "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
+  },
+  "independent_test_available": false,
+  "selection_phase": "validation",
+  "outputs_sha256": {
+    "bootstrap_draws.csv": "6d3872e94eb747a37fbbe316ae2729a29c1a98d24bfe1a18b40d8ce172fc8a61",
+    "comparison.csv": "c810ca02de6985bb38e4b00814cb3dd9e6cfaa054e16d195f6659c020c701ba3",
+    "comparison.png": "b40240221b9680c2ff9271ab49cfac74b3ef2e7e22c5181729cd3f40794299ee",
+    "customer_priority.csv": "9d7a63aea3398a42360f3323fd228751607ce316f1141d92611572abf4399a32",
+    "locked_plan.json": "ab5ebec90e70141c46ee4536970b05c0f88909e13587e1b608a2bee37350b200",
+    "locked_selection.json": "02a8b85fe8b859fb1fef9eaa17bc0cea693c2cc3a7999bb3f6ca102662ca7392",
+    "monthly_comparison.csv": "a2a5db7aae696a4b7cdb84d8c933a02a47969d04d3c0cacddc0688da173c8100",
+    "priority_monthly.csv": "bc65767d8c6acca12ac528869359bb235967a6c3df0415a30c2659cd0a82bd26",
+    "ranking_bundle.joblib": "121310a478ec1fc82e264783c1d57a807bff686dc8581addfb961e37c5d3f1e9",
+    "report.md": "b623dbbc5733a978bf4cadcb6ae4edbf4951cbf948b30431b211d86ad6460aae",
+    "review_predictions.csv": "7d34755488f5b0c6d7ffaa5a04bcfcd1759d682cd7cc34d36511c6df086f51ab",
+    "seed_monthly.csv": "9cf530420111318f08d09baf9a06f814e7ddcd4b290fdabf2a659d733829f6da",
+    "shortlist.json": "d5153fef723f6c51c6baafa1a6e83ea6308612ceb05dbfcce7b707a793af44f2",
+    "training_audit.json": "7c7659ac355f29e6c8ede177104fb0653bbfde1122babf6b383bdf7c73b4b7e9",
+    "training_times.csv": "e6263e87bdaec0ab8e45626fea40548e452915b2c35a743c4c4fbc05be744651",
+    "tuning_comparison.csv": "9a6a954d8fb00c689a57917f79492025d2ad00bdc70755ac90b7f4f579f01bfb",
+    "tuning_monthly.csv": "24984cc657b1b48876cf6b6f4573407dd620934c65f7cc5ae216cf471d47b5a8",
+    "validation_predictions.csv": "aa7befda4142bf1fbf47a048ff393d391a7c9c820191e7bea08b6f5a7f1b1c97"
+  },
+  "elapsed_seconds": 54.059911399992416
+}

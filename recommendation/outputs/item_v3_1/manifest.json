@@ -1,0 +1,53 @@
+{
+  "status": "completed_item_comparison",
+  "selected_method": "personal_repeat",
+  "source_hashes": {
+    "transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+    "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+    "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
+  },
+  "code_hashes": {
+    "item_protocol.md": "c4b80751467cda00c73e86c2ddb76736173dcc339378e54dee2f26f6a3c36fc0",
+    "item_features.py": "85a45bfeed2323fc555a4fbffae6b27a662a6877db870bb0da921f540dbff9e6",
+    "item_models.py": "01ce27a8a72687bdeb8430f7a9f5638ee9dcda6449643f9e26374cf9269392f9",
+    "item_experiment.py": "5a6df331f62b02f42e324328d125eeceeb5efe22907af2961014f7229305d742",
+    "data.py": "d959a9249e6e379672cdb4471e2f1836f24e0a309631c034e02fa91381e24966",
+    "models.py": "784416c7c3fe9d01e6ee98ad81048c41c39f017e3b194749b321ba5119ea6573",
+    "metrics.py": "e80d61f13f70be1b9c165b67a8a32bfcca61fcb7da5f53818eb2a23d46e13154",
+    "profiles.py": "facf963e09f80d64422915597f8a3fa4667b5174795249a6a4a4eed0c92ea0b5",
+    "hybrid.py": "eeee5c56098c987ad57716fe4a9e1bbaa311d08f0dbe403f644ed35345292bcf"
+  },
+  "v2_manifest_sha256": "1855b414125cb602c7a70cd109ddfe4627612b5010a3dd0ca9b9e667b768cc61",
+  "output_hashes": {
+    "comparison.csv": "bddbd5acba50802ec3c28d70a13d8a119a99fc9b9793787c152731c42ef61164",
+    "development_monthly.csv": "63cb8f9ad2621a01833256ac471b52637ffdafaee4979b37420b35737e4e95b5",
+    "feature_manifest.json": "cd64275298d88b262725f22a8f813b0b703efcc6f4a61b09cf4b2513e28660f0",
+    "historical_ease_comparison.csv": "47bf22b53e5b7f324b783037be1aba9cc59b66d302bf4bcf764f30e8c014e7ef",
+    "input_audit.json": "387f1cfc663b4f54ac346f92d245945b8baa0894b784854c0d7884582ddf93f4",
+    "locked_plan.json": "b616dd0f16b56b3196b00783f9ef57eef4db7f84f44ede10b14a606b7de11746",
+    "locked_selection.json": "d1b1241ffb6b3364dde299b0aa703037d4f33fac01ea0ea46554dac4c3928af2",
+    "model_bundle.joblib": "6b7a4da3a0b29054c4f8db65dafd325d1e170ea4ca022d400a2252af279a8386",
+    "monthly_comparison.csv": "5201b66017c7811ff14b06fb56bcdfaced4969e7dcc70c9d23a9320667481ccc",
+    "profiles.csv": "c9f6620d362d0bf108bf8e86724d7af1df50c80610960de9c885fb3140bb9550",
+    "report.md": "7768e737d3dc9c3edce0b13de6ef60c4a67f2878ac7ddd64486b86917d4eab8b",
+    "shared_shortlist.json": "0718f531080c8e6ba3ccd59c272759eed1cea0c3bf720a1b725efbad2f15b9a9",
+    "test_catalog.csv": "092996f29a954d5c0a8c0e9c8becc1aa45006e5e572facdda0a0b0dd08efb408",
+    "test_customers.csv": "4a8aa299ec58acae0611a411677a051a09d9f1e03fddd821c911e568d32898e4",
+    "test_groups.csv": "cc7d2bcbafc2ca9c62be2f493e54a2e975c128e9b23de704993777794d439f1d",
+    "test_lists.csv": "400415de3a067b197fb02e0ef5fa9eb19880dff5e0b8f58a2452abd1c0ceb28f",
+    "test_monthly.csv": "7c6192112b334c998a23c20e437a916ccad372ca4baaee6f4865aa045fdd14a3",
+    "test_profiles.csv": "27db49b841d8a548e6756426528a11beddcc1b11ba140e423f78915fb358ed81",
+    "training_audit.json": "9b32b50a5d670cd137f56bd6376b05c211d3fb5e645d653fc7ea24169fceec2f",
+    "training_samples.joblib": "ec9138563c01da7cd44185428ef768a025e57c5cb5dadececd230a67b32cd080",
+    "validation_ablations.csv": "1d045c46a7ba901dc17e4fbc62933259b15540e8ce98eda22f96ba268e894258",
+    "validation_best_paired_draws.csv": "c2126ce5b6623bb3ccfbb7aba1d79f33ee98169cf9f504d1fd68cb2bfcc36e3e",
+    "validation_catalog.csv": "2f86d521069b9282818c8eabb6979ebb815bd339544b7d5e1d589974285fb215",
+    "validation_customers.csv": "7f8e1010227ee440c6c82841e3fd3285b542cf162d404e362622ba4673034672",
+    "validation_groups.csv": "3eacb0af71fe624520530de335f5646dc4d5119d851db69af9192c53d552389e",
+    "validation_lists.csv": "c2e3fef18de4512dd126c39cda74460908ba2abdeb45807e972969ffbdf786f4",
+    "validation_monthly.csv": "6b6540976049de99f4ec579a14838186db92cffc4235ccced55fc901729c2dc3",
+    "validation_profiles.csv": "6203e477ed5f3cab203d44e7ae3079f08ed16e6b4178a8976f39aaf1dbe79461"
+  },
+  "elapsed_seconds": 1446.9878218999947,
+  "review_after_selection_lock": true
+}

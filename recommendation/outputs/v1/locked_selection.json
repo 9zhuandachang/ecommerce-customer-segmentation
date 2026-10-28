@@ -1,0 +1,157 @@
+{
+  "selected_method": "personal_repeat",
+  "selected_name": "个人重复购买",
+  "best_rule": "personal_repeat",
+  "best_learner": "ease",
+  "mean_validation_ndcg_gain": -0.044688803180251035,
+  "conditions": {
+    "ndcg_gain_at_least_002": false,
+    "at_least_two_months_nonworse": false,
+    "mean_recall_loss_at_most_005": false
+  },
+  "selection_phase": "validation",
+  "test_labels_used_for_selection": false,
+  "prior_other_task_results_viewed": true,
+  "validation_customer_intervals": {
+    "resamples": 500,
+    "seed": 42,
+    "customer_clusters": 3093,
+    "metrics": {
+      "ndcg_10": {
+        "point": -0.04468880318025107,
+        "lower_95": -0.053250751715008975,
+        "upper_95": -0.03569671708756785
+      },
+      "recall_10": {
+        "point": -0.03193244619244783,
+        "lower_95": -0.03941823839003521,
+        "upper_95": -0.024735933095860328
+      }
+    },
+    "scope": "validation_paired_customer_resampling_after_selection"
+  },
+  "shortlisted_configs": {
+    "popular": {
+      "id": "popular_30",
+      "method": "popular",
+      "days": 30
+    },
+    "personal_repeat": {
+      "id": "personal_repeat_None",
+      "method": "personal_repeat",
+      "half_life": null
+    },
+    "itemknn": {
+      "id": "itemknn_20_0",
+      "method": "itemknn",
+      "neighbors": 20,
+      "shrink": 0
+    },
+    "implicit_als": {
+      "id": "als_32_1.0_1.0",
+      "method": "implicit_als",
+      "factors": 32,
+      "regularization": 1.0,
+      "alpha": 1.0,
+      "iterations": 15
+    },
+    "ease": {
+      "id": "ease_10",
+      "method": "ease",
+      "regularization": 10
+    }
+  },
+  "selected_config": {
+    "id": "personal_repeat_None",
+    "method": "personal_repeat",
+    "half_life": null
+  },
+  "plan_sha256": "0fb176490435cb1f6a127aa47e80b2e26bbca34ec4c6377aed6ec607d3055e53",
+  "model_sha256": "64c4b15cfa60f6d04f3d5d73d31841bb54d361dd56ba00ded3703d53733f6534",
+  "training_audit": [
+    {
+      "phase": "tuning",
+      "fit_cutoff": "2011-01-01",
+      "feature_start": "2010-07-05",
+      "latest_transaction": "2010-12-23 16:06:00",
+      "fit_customers": 3403,
+      "fit_invoice_item_events": 212542,
+      "catalog_items": 3364,
+      "customer_item_pairs": 164834,
+      "density": 0.01439888494554186
+    },
+    {
+      "phase": "tuning",
+      "fit_cutoff": "2011-02-01",
+      "feature_start": "2010-08-05",
+      "latest_transaction": "2011-01-31 16:59:00",
+      "fit_customers": 3348,
+      "fit_invoice_item_events": 206339,
+      "catalog_items": 3317,
+      "customer_item_pairs": 161006,
+      "density": 0.014498101629886084
+    },
+    {
+      "phase": "tuning",
+      "fit_cutoff": "2011-03-01",
+      "feature_start": "2010-09-02",
+      "latest_transaction": "2011-02-28 17:01:00",
+      "fit_customers": 3338,
+      "fit_invoice_item_events": 203398,
+      "catalog_items": 3282,
+      "customer_item_pairs": 159257,
+      "density": 0.014536960869042938
+    },
+    {
+      "phase": "tuning",
+      "fit_cutoff": "2011-04-01",
+      "feature_start": "2010-10-03",
+      "latest_transaction": "2011-03-31 19:55:00",
+      "fit_customers": 3299,
+      "fit_invoice_item_events": 195629,
+      "catalog_items": 3244,
+      "customer_item_pairs": 154255,
+      "density": 0.014413720258240644
+    },
+    {
+      "phase": "tuning",
+      "fit_cutoff": "2011-05-01",
+      "feature_start": "2010-11-02",
+      "latest_transaction": "2011-04-28 19:53:00",
+      "fit_customers": 3047,
+      "fit_invoice_item_events": 170049,
+      "catalog_items": 3211,
+      "customer_item_pairs": 135317,
+      "density": 0.013830554776783164
+    },
+    {
+      "phase": "validation",
+      "fit_cutoff": "2011-06-01",
+      "feature_start": "2010-12-03",
+      "latest_transaction": "2011-05-31 15:41:00",
+      "fit_customers": 2658,
+      "fit_invoice_item_events": 137986,
+      "catalog_items": 3090,
+      "customer_item_pairs": 110472,
+      "density": 0.013450510274898273
+    },
+    {
+      "phase": "test_frozen_global_model",
+      "fit_cutoff": "2011-09-01",
+      "feature_start": "2011-03-05",
+      "latest_transaction": "2011-08-31 17:16:00",
+      "fit_customers": 2768,
+      "fit_invoice_item_events": 152042,
+      "catalog_items": 3174,
+      "customer_item_pairs": 117357,
+      "density": 0.013357832424576855
+    }
+  ],
+  "source_hashes": {
+    "transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+    "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+    "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
+  },
+  "global_test_model_updates": false,
+  "customer_history_updates": "pre-cutoff purchases only, with global item parameters fixed"
+}

@@ -1,11 +1,11 @@
 {
-  "input_file": "E:\\PROJECT2电商客群分析\\customer_snapshots.csv",
+  "input_file": "data/processed/customer_snapshot_pipeline/customer_snapshots.csv",
   "source_urls": [
     "https://github.com/9zhuandachang/ecommerce-customer-segmentation/blob/main/data/processed/customer_snapshot_pipeline/customer_snapshots.csv",
     "https://github.com/9zhuandachang/ecommerce-customer-segmentation/blob/main/docs/项目任务流程与验收清单.md"
   ],
-  "input_sha256": "54dedce7bfdb2ace6244991545c70f87bdfb20d9d68cbb3fd6284939bb4d2ceb",
-  "script_sha256": "fe522a5b0e27d169e68a80995ad79884e3e07d9c8e4a213964cfeb0d0e49c6b4",
+  "input_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "script_sha256": "16e38df4bbc81031f4ea18ee7750923adf4b4dbb3f5792b67bc506699e2145cc",
   "features": [
     "recency_days",
     "invoice_frequency_180d",
@@ -97,12 +97,12 @@
     }
   },
   "versions": {
-    "python": "3.11.7",
-    "numpy": "1.26.4",
-    "pandas": "2.1.4",
-    "scikit-learn": "1.2.2",
-    "joblib": "1.2.0",
-    "matplotlib": "3.8.0"
+    "python": "3.11.9",
+    "numpy": "2.4.6",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.9.0",
+    "joblib": "1.5.3",
+    "matplotlib": "3.11.1"
   },
   "reload_check": "PASS: full-data predictions identical; distances within 1e-12; RFM scores identical",
   "output_checks": "PASS: keys aligned; distances finite/nonnegative; nearest center equals label; train-only inference agrees",

@@ -1,0 +1,18 @@
+{
+  "status": "development_only_not_independent_acceptance",
+  "protocol_sha256": "98ff641d9768c4eefe6cbfd8e793878c5d6ed7505e57ffd884767e99f901306e",
+  "script_sha256": "f1b08ed59066c86f662fb1727ffb719aed6f553044340840d1148dab8616a145",
+  "hurdle_predictions_sha256": "d010aec70b96f93bd6549ea3dc59260957c6ef1d2534c047e7198cffbd9f1650",
+  "conditional_predictions_sha256": "315c4ee784c7bea95dfd3ad3a7f872df328f26ae0647c01365d201c2b379f62c",
+  "development_predictions_sha256": "be8a3ba5d072a57f5119daa00830ae672ea61e42857da86b96bfe99124db89ab",
+  "test_rows_used": false,
+  "candidate": "probability > 0.5 ? conditional_l1_median : 0",
+  "advancement_checks": {
+    "buyer_mae_reduction_at_least_5pct": false,
+    "overall_mae_increase_at_most_2pct": true,
+    "top20_capture_not_lower": false,
+    "aggregate_bias_abs_not_larger": false,
+    "all_monthly_top20_distinguishable": false
+  },
+  "advance_to_new_test": false
+}

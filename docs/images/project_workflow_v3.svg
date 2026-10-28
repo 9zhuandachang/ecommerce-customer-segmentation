@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1240" viewBox="0 0 1440 1240" role="img" aria-label="电商客户分析完整流程：清洗、制作快照、比较模型、上传明细、四项分析与业务名单">
+  <defs>
+    <style>
+      text{font-family:"Microsoft YaHei","Noto Sans CJK SC",sans-serif;fill:#17375e}
+      .title{font-size:40px;font-weight:700}.sub{font-size:22px;fill:#60748d}
+      .head{font-size:26px;font-weight:700}.body{font-size:22px}.small{font-size:19px;fill:#526f91}
+      .panel{fill:#f6faff;stroke:#bfd5ec;stroke-width:2}.box{fill:#e8f3ff;stroke:#6ca5e4;stroke-width:2}
+      .goal{fill:#ffffff;stroke:#82b1e4;stroke-width:2}.band{fill:#e8f2ff}
+      .line{fill:none;stroke:#4675a8;stroke-width:2.5;marker-end:url(#arrow)}
+      .bus{fill:none;stroke:#4675a8;stroke-width:2.5}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#4675a8" stroke-width="1.7"/></marker>
+  </defs>
+  <rect width="1440" height="1240" fill="#f5f9fe"/>
+  <text x="720" y="65" text-anchor="middle" class="title">电商客户分析：从交易到四项结果</text>
+  <text x="720" y="108" text-anchor="middle" class="sub">训练时学习规律，使用时根据所选日期生成客户快照</text>
+
+  <rect x="48" y="150" width="640" height="420" rx="18" class="panel"/>
+  <rect x="752" y="150" width="640" height="420" rx="18" class="panel"/>
+  <text x="368" y="192" text-anchor="middle" class="head">先准备模型｜阶段1—6</text>
+  <text x="1072" y="192" text-anchor="middle" class="head">再使用系统｜阶段7</text>
+
+  <rect x="88" y="215" width="560" height="88" rx="12" class="box"/>
+  <text x="368" y="250" text-anchor="middle" class="head">原始订单 → 清洗交易</text>
+  <text x="368" y="282" text-anchor="middle" class="small">1,067,371行 → 776,579行合格商品明细</text>
+  <path d="M368 303 V326" class="line"/>
+  <rect x="88" y="330" width="560" height="98" rx="12" class="box"/>
+  <text x="368" y="368" text-anchor="middle" class="head">月初快照＋未来30天答案</text>
+  <text x="368" y="403" text-anchor="middle" class="small">较早月份训练 → 后续月份验证与复核</text>
+  <path d="M368 428 V451" class="line"/>
+  <rect x="88" y="455" width="560" height="84" rx="12" class="box"/>
+  <text x="368" y="489" text-anchor="middle" class="head">比较方案，固定模型与规则</text>
+  <text x="368" y="521" text-anchor="middle" class="small">四项目标分别评价，结合指标比较方案</text>
+
+  <rect x="792" y="215" width="560" height="88" rx="12" class="box"/>
+  <text x="1072" y="250" text-anchor="middle" class="head">数据导入｜上传明细与选择日期</text>
+  <text x="1072" y="282" text-anchor="middle" class="small">2011-09-01至2011-12-01之间任意一天</text>
+  <path d="M1072 303 V326" class="line"/>
+  <rect x="792" y="330" width="560" height="98" rx="12" class="box"/>
+  <text x="1072" y="368" text-anchor="middle" class="head">汇总分析日前的购买记录</text>
+  <text x="1072" y="403" text-anchor="middle" class="small">自动汇总客户快照及其他历史特征</text>
+  <path d="M1072 428 V451" class="line"/>
+  <rect x="792" y="455" width="560" height="84" rx="12" class="box"/>
+  <text x="1072" y="489" text-anchor="middle" class="head">调用保存好的模型与推荐规则</text>
+  <text x="1072" y="521" text-anchor="middle" class="small">计算群体归属、客户评分和商品名单</text>
+  <path d="M648 497 H788" class="line"/>
+
+  <path d="M1072 539 V606 H199 V646" class="line"/>
+  <path d="M545 606 V646" class="line"/>
+  <path d="M891 606 V646" class="line"/>
+  <path d="M1072 606 H1237 V646" class="line"/>
+
+  <rect x="44" y="652" width="310" height="340" rx="15" class="goal"/>
+  <rect x="390" y="652" width="310" height="340" rx="15" class="goal"/>
+  <rect x="736" y="652" width="310" height="340" rx="15" class="goal"/>
+  <rect x="1082" y="652" width="310" height="340" rx="15" class="goal"/>
+
+  <text x="199" y="698" text-anchor="middle" class="head">目标1｜客户分群</text>
+  <text x="199" y="742" text-anchor="middle" class="body">K-means · 4群</text>
+  <text x="199" y="782" text-anchor="middle" class="small">按购买行为相似程度归群</text>
+  <text x="199" y="833" text-anchor="middle" class="body">群1 较久未购</text>
+  <text x="199" y="871" text-anchor="middle" class="body">群2 近期高频</text>
+  <text x="199" y="909" text-anchor="middle" class="body">群3 近期低客单</text>
+  <text x="199" y="947" text-anchor="middle" class="body">群4 近期高客单</text>
+
+  <text x="545" y="698" text-anchor="middle" class="head">目标2｜复购倾向</text>
+  <text x="545" y="742" text-anchor="middle" class="body">14项特征＋XGBoost</text>
+  <text x="545" y="808" text-anchor="middle" class="body">各棵树的修正值累加</text>
+  <text x="545" y="848" text-anchor="middle" class="body">转换为0—1评分</text>
+  <text x="545" y="888" text-anchor="middle" class="body">按评分排列优先名单</text>
+  <text x="545" y="947" text-anchor="middle" class="small">评价：AP、前20%精确率</text>
+
+  <text x="891" y="698" text-anchor="middle" class="head">目标3｜消费潜力</text>
+  <text x="891" y="742" text-anchor="middle" class="small">20项特征＋两步LightGBM</text>
+  <text x="891" y="808" text-anchor="middle" class="body">购买倾向×购买时金额</text>
+  <text x="891" y="848" text-anchor="middle" class="body">按原始分数排名</text>
+  <text x="891" y="888" text-anchor="middle" class="body">选本批前20%客户</text>
+  <text x="891" y="947" text-anchor="middle" class="small">评价：实际消费额覆盖率</text>
+
+  <text x="1237" y="698" text-anchor="middle" class="head">目标4｜画像与推荐</text>
+  <text x="1237" y="742" text-anchor="middle" class="small">购买习惯画像＋补货规则</text>
+  <text x="1237" y="808" text-anchor="middle" class="body">按商品购买次数排序</text>
+  <text x="1237" y="848" text-anchor="middle" class="body">同分按固定热门顺序</text>
+  <text x="1237" y="888" text-anchor="middle" class="body">生成10件候选商品</text>
+  <text x="1237" y="947" text-anchor="middle" class="small">评价：NDCG、Recall、Hit</text>
+
+  <path d="M199 992 V1036 H720" class="bus"/>
+  <path d="M545 992 V1036" class="bus"/>
+  <path d="M891 992 V1036" class="bus"/>
+  <path d="M1237 992 V1036 H720 V1070" class="line"/>
+  <rect x="280" y="1075" width="880" height="84" rx="14" class="box"/>
+  <text x="720" y="1109" text-anchor="middle" class="head">四个业务页面，共用一批上传数据</text>
+  <text x="720" y="1141" text-anchor="middle" class="body">筛选客户 → 查看购买依据与排名 → 导出名单</text>
+  <text x="720" y="1206" text-anchor="middle" class="sub">历史窗口以180天为主；用后续30天结果训练与评估模型</text>
+</svg>

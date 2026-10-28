@@ -1,0 +1,156 @@
+{
+  "selected_method": "lgbm_two_stage",
+  "selected_name": "两步LightGBM",
+  "best_rule": "spend_180d",
+  "best_model": "lgbm_two_stage",
+  "validation_gain_pp": 1.907927233202977,
+  "monthly_gain_pp": {
+    "2011-06-01": 2.3930154625400935,
+    "2011-07-01": 1.1729147456989608,
+    "2011-08-01": 2.1578514913698776
+  },
+  "conditions": {
+    "mean_gain_at_least_1pp": true,
+    "at_least_two_months_nonworse": true,
+    "worst_month_loss_at_most_1pp": true,
+    "customer_interval_lower_positive": true
+  },
+  "customer_interval": {
+    "point_gain_pp": 1.907927233202992,
+    "lower_95_pp": 0.47935049850255756,
+    "upper_95_pp": 2.849280851826355,
+    "resamples": 500,
+    "seed": 42,
+    "customer_clusters": 3093,
+    "scope": "validation_customer_resampling_after_selection"
+  },
+  "selection_phase": "validation",
+  "independent_test_available": false,
+  "shortlisted_configs": {
+    "lgbm_tweedie": {
+      "id": "lgbm_tweedie_120_15_conservative",
+      "family": "lgbm_tweedie",
+      "n_estimators": 120,
+      "num_leaves": 15,
+      "profile": "conservative"
+    },
+    "xgb_tweedie": {
+      "id": "xgb_tweedie_120_15_standard",
+      "family": "xgb_tweedie",
+      "n_estimators": 120,
+      "num_leaves": 15,
+      "profile": "standard"
+    },
+    "lgbm_two_stage": {
+      "id": "lgbm_two_stage_120_15_conservative",
+      "family": "lgbm_two_stage",
+      "n_estimators": 120,
+      "num_leaves": 15,
+      "profile": "conservative"
+    }
+  },
+  "selected_parameters": {
+    "n_estimators": 120,
+    "learning_rate": 0.05,
+    "random_state": 42,
+    "n_jobs": 1,
+    "reg_lambda": 5.0,
+    "subsample": 0.8,
+    "colsample_bytree": 0.9,
+    "num_leaves": 15,
+    "min_child_samples": 100,
+    "subsample_freq": 1,
+    "verbose": -1
+  },
+  "source_hashes": {
+    "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+    "labels": "b7da0c476c6071649eb7d169428f974bd22bacd93ce8d077a6a7af1783427c71",
+    "temporal_features": "a24833a0e8d05a8795654fc9b4a2a4bed2cac2407cefc37046f1e6c1a4727e9c",
+    "clean_transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+    "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
+  },
+  "plan_sha256": "ab5ebec90e70141c46ee4536970b05c0f88909e13587e1b608a2bee37350b200",
+  "model_sha256": "121310a478ec1fc82e264783c1d57a807bff686dc8581addfb961e37c5d3f1e9",
+  "training_audit": [
+    {
+      "stage": "tuning",
+      "prediction_start": "2011-01-01",
+      "rows": 20584,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2010-12-01",
+      "latest_label_end": "2010-12-31",
+      "test_rows": 0
+    },
+    {
+      "stage": "tuning",
+      "prediction_start": "2011-02-01",
+      "rows": 23987,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2011-01-01",
+      "latest_label_end": "2011-01-31",
+      "test_rows": 0
+    },
+    {
+      "stage": "tuning",
+      "prediction_start": "2011-03-01",
+      "rows": 23987,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2011-01-01",
+      "latest_label_end": "2011-01-31",
+      "test_rows": 0
+    },
+    {
+      "stage": "tuning",
+      "prediction_start": "2011-04-01",
+      "rows": 30673,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2011-03-01",
+      "latest_label_end": "2011-03-31",
+      "test_rows": 0
+    },
+    {
+      "stage": "tuning",
+      "prediction_start": "2011-05-01",
+      "rows": 33972,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2011-04-01",
+      "latest_label_end": "2011-05-01",
+      "test_rows": 0
+    },
+    {
+      "stage": "validation",
+      "prediction_start": "2011-06-01",
+      "rows": 37019,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2011-05-01",
+      "latest_label_end": "2011-05-31",
+      "test_rows": 0
+    },
+    {
+      "stage": "review_frozen_model",
+      "prediction_start": "2011-09-01",
+      "rows": 45165,
+      "splits": [
+        "train",
+        "validation"
+      ],
+      "latest_snapshot": "2011-08-01",
+      "latest_label_end": "2011-08-31",
+      "test_rows": 0
+    }
+  ],
+  "review_labels_used_for_training_or_selection": false,
+  "review_model_updates": false
+}

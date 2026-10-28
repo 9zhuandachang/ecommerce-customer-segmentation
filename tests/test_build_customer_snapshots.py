@@ -12,6 +12,7 @@ from src.features import (
     make_cutoff_schedule,
     partition_modeling_snapshots,
 )
+from value_prediction.labels import build_labels
 
 
 def make_rows(rows):
@@ -26,6 +27,25 @@ def make_rows(rows):
 
 
 class CleaningTests(unittest.TestCase):
+    def test_overlapping_source_files_deduplicate_exact_lines_only(self):
+        row = {
+            "invoice": "536365", "stock_code": "85123A",
+            "description": "Product", "quantity": 6,
+            "invoice_date": "2010-12-01 08:26",
+            "unit_price": 2.55, "customer_id": "17850",
+            "country": "United Kingdom",
+        }
+        frame = make_rows([row, row.copy(), {**row, "stock_code": "71053"}])
+        frame["source_file"] = ["2009-2010.csv", "2010-2011.csv",
+                                "2010-2011.csv"]
+        clean, excluded, audit = clean_transactions(frame)
+        self.assertEqual(len(clean), 2)
+        self.assertEqual(clean.stock_code.tolist(), ["71053", "85123A"])
+        self.assertEqual(excluded.cleaning_status.tolist(), ["exact_duplicate"])
+        self.assertEqual(excluded.source_file.tolist(), ["2010-2011.csv"])
+        self.assertEqual(int(audit.loc[audit.rule.eq("exact_duplicate"),
+                                       "primary_rows"].iloc[0]), 1)
+
     def test_cleaning_rules_are_audited_and_reconciled(self):
         valid = {
             "invoice": "100",
@@ -173,6 +193,47 @@ class SnapshotTests(unittest.TestCase):
         february = schedule.loc[schedule["snapshot_date"].eq(pd.Timestamp("2021-02-01"))].iloc[0]
         self.assertEqual(february["split"], "purged_before_test")
         self.assertFalse(bool(february["use_for_modeling"]))
+
+
+class SpendLabelTests(unittest.TestCase):
+    def test_spend_label_uses_exact_future_window_and_existing_cohort(self):
+        snapshots = pd.DataFrame({
+            'snapshot_date': ['2021-01-01', '2021-01-01'],
+            'customer_id': ['1', '2'], 'split': ['train', 'train'],
+            'use_for_modeling': [True, True], 'repurchase_30d': [1, 0],
+        })
+        schedule = pd.DataFrame({
+            'snapshot_date': ['2021-01-01'],
+            'label_end_exclusive': ['2021-01-31'],
+        })
+        clean = pd.DataFrame({
+            'customer_id': ['1', '1', '1', '3'],
+            'invoice_date': ['2020-12-31 23:59', '2021-01-01 00:00',
+                             '2021-01-31 00:00', '2021-01-02 00:00'],
+            'line_amount': [7.0, 12.35, 99.0, 50.0],
+        })
+        labels, audit = build_labels(snapshots, clean, schedule)
+        self.assertEqual(labels.spend_30d.tolist(), [12.35, 0.0])
+        self.assertEqual(audit.loc[0, 'cohort_future_spend'], 12.35)
+        self.assertEqual(audit.loc[0, 'all_future_spend'], 62.35)
+        self.assertTrue(bool(audit.loc[0, 'reconciled']))
+
+    def test_spend_label_rejects_mismatch_with_repurchase(self):
+        snapshots = pd.DataFrame({
+            'snapshot_date': ['2021-01-01'], 'customer_id': ['1'],
+            'split': ['train'], 'use_for_modeling': [True],
+            'repurchase_30d': [0],
+        })
+        schedule = pd.DataFrame({
+            'snapshot_date': ['2021-01-01'],
+            'label_end_exclusive': ['2021-01-31'],
+        })
+        clean = pd.DataFrame({
+            'customer_id': ['1'], 'invoice_date': ['2021-01-02'],
+            'line_amount': [1.0],
+        })
+        with self.assertRaisesRegex(ValueError, 'mismatch'):
+            build_labels(snapshots, clean, schedule)
 
 
 if __name__ == "__main__":

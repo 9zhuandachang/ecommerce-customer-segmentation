@@ -1,0 +1,17 @@
+{
+  "status": "development_only_not_independent_acceptance",
+  "protocol_sha256": "4d2308227c86e8daa0d2b04979ae0fcd3374880b57b175d96aaca9399e0cdb9d",
+  "script_sha256": "d7a2a16601125cd3323ed388bc226c3bb8a20d0abc61039de028021788f7dc85",
+  "stage5_config_sha256": "518568cc854affdff3f5406aa2afbaed7489d859aff6cb2ace9c32fd5a7d4631",
+  "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "labels_sha256": "b7da0c476c6071649eb7d169428f974bd22bacd93ce8d077a6a7af1783427c71",
+  "temporal_features_sha256": "a24833a0e8d05a8795654fc9b4a2a4bed2cac2407cefc37046f1e6c1a4727e9c",
+  "test_rows_used": false,
+  "advancement_checks": {
+    "buyer_mae_reduction_at_least_5pct": false,
+    "overall_mae_increase_at_most_2pct": true,
+    "top20_capture_not_lower": true,
+    "aggregate_bias_abs_not_larger": true
+  },
+  "advance_to_new_test": false
+}

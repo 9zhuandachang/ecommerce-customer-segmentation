@@ -1,0 +1,47 @@
+{
+  "status": "completed_full_item_audit",
+  "verified_customer_lists": 255315,
+  "verified_product_rows": 2553150,
+  "verified_profile_rows": 17021,
+  "old_control_months_unchanged": 18,
+  "best_new": "D_classifier",
+  "best_vs_default": {
+    "resamples": 500,
+    "seed": 42,
+    "customer_clusters": 3093,
+    "metrics": {
+      "ndcg_10": {
+        "point": 0.022178704493660675,
+        "lower_95": 0.017411746042387752,
+        "upper_95": 0.027038263219146888
+      },
+      "recall_10": {
+        "point": 0.012029962173248088,
+        "lower_95": 0.008609863726760892,
+        "upper_95": 0.015750682466942112
+      }
+    },
+    "scope": "validation_paired_customer_resampling_after_selection"
+  },
+  "source_manifest_sha256": "a9d8e4e9ad9f10ce7c07d50545c9d6189659da0767296143b6e32281f9748830",
+  "code_sha256": "31a76448e6f5ab5a2deb148c64123f3e906720cfdae14abf4908881d34c74b98",
+  "profile_reference": "C_classifier",
+  "best_profile_gain": {
+    "resamples": 500,
+    "seed": 42,
+    "customer_clusters": 3093,
+    "metrics": {
+      "ndcg_10": {
+        "point": 0.0025793444043655765,
+        "lower_95": -0.0004619087391487532,
+        "upper_95": 0.005997621629946663
+      },
+      "recall_10": {
+        "point": 0.0019065311197402496,
+        "lower_95": -0.0009739283458295639,
+        "upper_95": 0.005406151646574857
+      }
+    },
+    "scope": "validation_paired_customer_resampling_after_selection"
+  }
+}

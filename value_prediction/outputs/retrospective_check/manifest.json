@@ -1,0 +1,33 @@
+{
+  "status": "retrospective_previously_viewed_not_independent",
+  "methods_fixed_before_this_run": [
+    "historic_180d",
+    "extended_tweedie",
+    "extended_tweedie_lag_calibrated",
+    "extended_tweedie_history_available",
+    "extended_tweedie_previous_year"
+  ],
+  "script_sha256": "9f40f5540e3f8a440b2ba4cf515e3df900894a9e7380bc6785cc9a54330317da",
+  "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "labels_sha256": "b7da0c476c6071649eb7d169428f974bd22bacd93ce8d077a6a7af1783427c71",
+  "temporal_features_sha256": "a24833a0e8d05a8795654fc9b4a2a4bed2cac2407cefc37046f1e6c1a4727e9c",
+  "seasonal_features_sha256": "4ce9d12f22855885ec622ac3efbacbe2d8a6f3593857345d6b6e361e18287219",
+  "prior_development_predictions_sha256": "3381a20d76ca72fad2ff88e56ab780161d3cc2f22139ba84d79ab2b9625bcb8f",
+  "fit_cutoffs": [
+    {
+      "snapshot_date": "2011-09-01",
+      "fit_count": 45165,
+      "latest_fit_label_end": "2011-08-31"
+    },
+    {
+      "snapshot_date": "2011-10-01",
+      "fit_count": 47933,
+      "latest_fit_label_end": "2011-10-01"
+    },
+    {
+      "snapshot_date": "2011-11-01",
+      "fit_count": 50852,
+      "latest_fit_label_end": "2011-10-31"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+﻿feature_set,lr_weight,validation_average_precision,selected
+A_base_8,0.25,0.5876703373067268,False
+A_base_8,0.5,0.5915919471070602,True
+A_base_8,0.75,0.589816775139087,False
+B_base_8_plus_3_distances,0.25,0.5849801422514955,False
+B_base_8_plus_3_distances,0.5,0.589660325788794,False
+B_base_8_plus_3_distances,0.75,0.5899127353912552,True

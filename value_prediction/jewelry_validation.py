@@ -1,0 +1,245 @@
+"""Locked, aggregate-only cross-shop check on publisher's jewelry transactions.
+
+Run ``python -m value_prediction.jewelry_validation``. Raw rows stay in the
+operating-system temporary directory. The protocol predates score inspection.
+"""
+
+from __future__ import annotations
+
+import json
+import shutil
+import tempfile
+import zipfile
+from pathlib import Path
+from urllib.request import urlopen
+
+import numpy as np
+import pandas as pd
+
+from src.features import PipelineConfig, build_customer_snapshots, generate_monthly_cutoffs
+from value_prediction.experiments import TARGET, evaluate
+from value_prediction.external_validation import score_method
+from value_prediction.labels import build_labels, sha256
+from value_prediction.optimization import fit_rows_for_date
+from value_prediction.temporal_features import build_temporal_features
+
+ROOT = Path(__file__).resolve().parents[1]
+OUTPUT = ROOT / 'value_prediction/outputs/jewelry_validation'
+PROTOCOL = ROOT / 'value_prediction/jewelry_protocol.md'
+SOURCE_URL = ('https://www.kaggle.com/api/v1/datasets/download/'
+              'mkechinov/ecommerce-purchase-history-from-jewelry-store')
+SOURCE = Path(tempfile.gettempdir()) / 'ecommerce_spend_external/jewelry_transactions.zip'
+SOURCE_SHA256 = '43c1a4e0b2afed6873f5efe31c8327e3cdfed91dd357b9508ae2ae312c6f5079'
+SOURCE_COLUMNS = ['event_time', 'order_id', 'product_id', 'quantity',
+                  'category_id', 'category_code', 'brand', 'price', 'user_id',
+                  'gender', 'color', 'metal', 'gem']
+ID_COLUMNS = {'order_id': 'string', 'product_id': 'string', 'user_id': 'string'}
+METHODS = ('historic_180d', 'recent_90d', 'extended_tweedie')
+
+
+def source_path() -> Path:
+    if not SOURCE.exists():
+        SOURCE.parent.mkdir(parents=True, exist_ok=True)
+        temporary = SOURCE.with_suffix('.download')
+        try:
+            with urlopen(SOURCE_URL, timeout=90) as response, temporary.open('wb') as dest:
+                shutil.copyfileobj(response, dest)
+            if sha256(temporary) != SOURCE_SHA256:
+                raise ValueError('Jewelry source hash mismatch')
+            temporary.replace(SOURCE)
+        finally:
+            temporary.unlink(missing_ok=True)
+    if sha256(SOURCE) != SOURCE_SHA256:
+        raise ValueError('Jewelry source hash mismatch')
+    return SOURCE
+
+
+def adapt_transactions(raw: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Apply the predeclared field mapping and positive-sale eligibility rule."""
+    required = ['event_time', 'order_id', 'product_id', 'quantity', 'price', 'user_id']
+    missing = set(required) - set(raw.columns)
+    if missing:
+        raise ValueError(f'Missing jewelry columns: {sorted(missing)}')
+    date = pd.to_datetime(raw.event_time, errors='coerce', utc=True)
+    price = pd.to_numeric(raw.price, errors='coerce')
+    quantity = pd.to_numeric(raw.quantity, errors='coerce')
+    valid = raw[required].notna().all(axis=1) & date.notna()
+    valid &= price.gt(0) & quantity.gt(0)
+    valid &= np.isfinite(price) & np.isfinite(quantity)
+    amount_cents = np.rint(price * quantity * 100)
+    valid &= amount_cents.gt(0) & np.isfinite(amount_cents)
+    clean = pd.DataFrame({
+        'customer_id': raw.loc[valid, 'user_id'].astype('string'),
+        'invoice': (raw.loc[valid, 'user_id'].astype('string') + '/' +
+                    raw.loc[valid, 'order_id'].astype('string')),
+        'stock_code': raw.loc[valid, 'product_id'].astype('string'),
+        'invoice_date': date.loc[valid].dt.tz_localize(None),
+        'line_amount': amount_cents.loc[valid].astype('int64') / 100,
+    }).reset_index(drop=True)
+    if clean.empty or clean.isna().any().any():
+        raise ValueError('Empty or missing canonical jewelry data')
+    return clean, {
+        'source_rows': len(raw), 'eligible_rows': len(clean),
+        'excluded_rows': int((~valid).sum()),
+        'missing_required_rows': int(raw[required].isna().any(axis=1).sum()),
+        'nonpositive_price_rows': int(price.le(0).sum()),
+        'nonpositive_quantity_rows': int(quantity.le(0).sum()),
+        'eligible_amount_cents': int(amount_cents.loc[valid].sum()),
+        'eligible_customers': int(clean.customer_id.nunique()),
+        'eligible_orders': int(clean.invoice.nunique()),
+    }
+
+
+def build_schedule(clean: pd.DataFrame) -> pd.DataFrame:
+    config = PipelineConfig(observation_days=180, label_days=30)
+    dates = generate_monthly_cutoffs(clean.invoice_date.min(),
+                                     clean.invoice_date.max(), config)
+    if len(dates) < 9:
+        raise ValueError('Fewer than nine complete jewelry cutoffs')
+    schedule = pd.DataFrame({'snapshot_date': dates})
+    schedule['split'] = (['train'] * (len(dates) - 6)
+                         + ['validation'] * 3 + ['test'] * 3)
+    schedule['feature_start'] = schedule.snapshot_date - pd.Timedelta(days=180)
+    schedule['feature_end_exclusive'] = schedule.snapshot_date
+    schedule['label_start'] = schedule.snapshot_date
+    schedule['label_end_exclusive'] = schedule.snapshot_date + pd.Timedelta(days=30)
+    schedule['use_for_modeling'] = True
+    return schedule
+
+
+def main() -> None:
+    source = source_path()
+    with zipfile.ZipFile(source) as archive:
+        if archive.namelist() != ['jewelry.csv']:
+            raise ValueError(f'Unexpected jewelry zip members: {archive.namelist()}')
+        with archive.open('jewelry.csv') as stream:
+            raw = pd.read_csv(stream, header=None, names=SOURCE_COLUMNS,
+                              dtype=ID_COLUMNS, skip_blank_lines=True,
+                              low_memory=False)
+    clean, source_audit = adapt_transactions(raw)
+    schedule = build_schedule(clean)
+    snapshots = build_customer_snapshots(clean, schedule, PipelineConfig())
+    labels, label_audit = build_labels(snapshots, clean, schedule)
+    temporal = build_temporal_features(snapshots, clean, schedule)
+    data = snapshots.merge(labels[['snapshot_date', 'customer_id', TARGET]],
+                           on=['snapshot_date', 'customer_id'], validate='one_to_one')
+    data = data.merge(temporal, on=['snapshot_date', 'customer_id'],
+                      validate='one_to_one')
+    if len(data) != len(snapshots) or not label_audit.reconciled.all():
+        raise ValueError('Jewelry snapshot or amount reconciliation failed')
+    positive_test = label_audit.loc[
+        label_audit.snapshot_date.isin(schedule.loc[schedule.split.eq('test'),
+                                                   'snapshot_date']),
+        'positive_snapshots']
+    feasibility_only = bool((positive_test < 100).any())
+
+    metrics, pooled_rows = [], []
+    for row in schedule.loc[schedule.split.isin(['validation', 'test'])].itertuples():
+        date = row.snapshot_date
+        fit = fit_rows_for_date(data, date)
+        holdout = data.loc[data.snapshot_date.eq(date)].copy().reset_index(drop=True)
+        if holdout.empty:
+            raise ValueError(f'No jewelry snapshots at {date.date()}')
+        for method in METHODS:
+            score = score_method(method, fit, holdout)
+            if not np.isfinite(score).all() or (score < 0).any():
+                raise ValueError(f'Invalid jewelry score: {method}')
+            result = evaluate(holdout, score)
+            metrics.append({
+                'snapshot_date': date.strftime('%Y-%m-%d'), 'split': row.split,
+                'method': method, 'fit_count': len(fit),
+                'latest_fit_label_end': (
+                    fit.snapshot_date.max() + pd.Timedelta(days=30)
+                ).strftime('%Y-%m-%d'),
+                'zero_spend_share': float(holdout[TARGET].eq(0).mean()),
+                **result,
+            })
+            if row.split == 'test':
+                part = holdout[['snapshot_date', 'customer_id', TARGET]].copy()
+                part['score'] = score
+                part['method'] = method
+                pooled_rows.append(part)
+        print(f'completed jewelry cutoff {date.date()} ({row.split})', flush=True)
+
+    monthly = pd.DataFrame(metrics)
+    heldout = pd.concat(pooled_rows, ignore_index=True)
+    pooled = pd.DataFrame([
+        {'method': method, 'split': 'test_pooled',
+         **evaluate(part, part.score.to_numpy(dtype=float))}
+        for method in METHODS
+        for part in [heldout.loc[heldout.method.eq(method)].copy()]
+    ])
+    OUTPUT.mkdir(parents=True, exist_ok=True)
+    monthly.to_csv(OUTPUT / 'monthly_metrics.csv', index=False, encoding='utf-8-sig')
+    pooled.to_csv(OUTPUT / 'pooled_test_metrics.csv', index=False, encoding='utf-8-sig')
+    manifest = {
+        'status': ('feasibility_only_due_to_small_test_buyer_cohort' if feasibility_only
+                   else 'locked_cross_shop_ecommerce_test_not_original_shop_acceptance'),
+        'source_url': SOURCE_URL, 'source_sha256': sha256(source),
+        'protocol_sha256': sha256(PROTOCOL), 'script_sha256': sha256(Path(__file__)),
+        'source_audit': source_audit,
+        'date_min': clean.invoice_date.min().isoformat(),
+        'date_max': clean.invoice_date.max().isoformat(),
+        'snapshot_count': len(snapshots),
+        'label_reconciled': bool(label_audit.reconciled.all()),
+        'test_buyer_minimum_100_met': not feasibility_only,
+        'schedule': [
+            {'cutoff': row.snapshot_date.strftime('%Y-%m-%d'), 'split': row.split,
+             'snapshot_count': int(snapshots.snapshot_date.eq(row.snapshot_date).sum()),
+             'positive_count': int(label_audit.loc[
+                 label_audit.snapshot_date.eq(row.snapshot_date),
+                 'positive_snapshots'].iloc[0])}
+            for row in schedule.itertuples(index=False)
+        ],
+        'raw_transactions_saved_in_repository': False,
+        'customer_predictions_saved_in_repository': False,
+    }
+    (OUTPUT / 'manifest.json').write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    lines = [
+        '# 独立电商珠宝交易时序检验', '',
+        '固定方案：`jewelry_protocol.md`。来源：[REES46 数据目录]'
+        '(https://rees46.com/en/datasets) 发布并链接到 [Kaggle 珠宝交易数据]'
+        '(https://www.kaggle.com/datasets/mkechinov/ecommerce-purchase-history-from-jewelry-store)。',
+        f'实际文件覆盖 {clean.invoice_date.min().date()} 至 {clean.invoice_date.max().date()}；'
+        f'{source_audit["source_rows"]:,} 条商品行中有 '
+        f'{source_audit["eligible_rows"]:,} 条满足预定清洗条件。'
+        '目录说明中的约两年、13 万笔与文件实际内容不一致，以下均以文件审计为准。',
+        '采用原有 8 个历史特征加 12 个时序特征及固定的 Tweedie 参数；原始行未写入仓库。',
+        f'适用性：{"只作可行性分析（测试月购买客户不足 100）" if feasibility_only else "测试月购买客户数达到预案下限"}。',
+        '', '| 截点 | 分区 | 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |',
+        '| --- | --- | --- | ---: | ---: | ---: | ---: |',
+    ]
+    for row in monthly.itertuples(index=False):
+        lines.append(f'| {row.snapshot_date} | {row.split} | {row.method} | '
+                     f'{row.mae:.2f} | {row.positive_mae:.2f} | '
+                     f'{row.top20_spend_capture:.2%} | {row.aggregate_bias:+.2%} |')
+    lines += ['', '最后三个月合并（Top20 每月分别选取）：', '',
+              '| 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |',
+              '| --- | ---: | ---: | ---: | ---: |']
+    for row in pooled.itertuples(index=False):
+        lines.append(f'| {row.method} | {row.mae:.2f} | {row.positive_mae:.2f} | '
+                     f'{row.top20_spend_capture:.2%} | {row.aggregate_bias:+.2%} |')
+    base = pooled.set_index('method').loc['historic_180d']
+    model = pooled.set_index('method').loc['extended_tweedie']
+    lines += [
+        '', '## 结果解释', '',
+        f'测试期共有 {int(model.snapshot_count):,} 条客户月快照，其中 '
+        f'{int(model.buyer_count):,} 条在未来 30 天购买（'
+        f'{model.buyer_count / model.snapshot_count:.2%}）。',
+        f'模型整体 MAE 相对历史金额基线降低 '
+        f'{1 - model.mae / base.mae:.2%}；Top20 覆盖提高 '
+        f'{(model.top20_spend_capture - base.top20_spend_capture) * 100:.2f} 个百分点。'
+        '这是对同一批客户按不同评分排序的对照。',
+        f'购买者 MAE 只降低 {1 - model.positive_mae / base.positive_mae:.2%}；'
+        f'三个月合并预测总额偏差为 {model.aggregate_bias:+.2%}，'
+        '单月偏差方向也不稳定。不能把这组结果当作金额校准已经准确。',
+        '', '该数据来自另一商家，只能提供跨商家稳健性证据；原项目仍无新月份独立验收数据。',
+        '',
+    ]
+    (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
+    print(f'wrote jewelry aggregate report to {OUTPUT}', flush=True)
+
+
+if __name__ == '__main__':
+    main()

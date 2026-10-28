@@ -1,10 +1,10 @@
-"""阶段四：训练期 K-means 分群、中心距离及 recency / RFM 排序基线。
+"""阶段四：训练期 K-means 分群、中心距离及 RFM 排序基线。
 
-运行：python -s kmeans.py；自检：python -s kmeans.py --check
-输出：outputs/stage4/，报告、data、figures、model 和运行记录。
+从项目根目录运行：python stage4/kmeans.py；自检：python stage4/kmeans.py --check
+输出：stage4/outputs/stage4/，报告、data、figures、model 和运行记录。
 仅训练期拟合；测试期只导出分群、距离和排序，
 不读取测试标签计算指标，以便阶段六保留一次最终评估。
-加载：bundle = joblib.load('outputs/stage4/model/segmentation_bundle.joblib')
+加载：bundle = joblib.load('stage4/outputs/stage4/model/segmentation_bundle.joblib')
 距离：bundle['pipeline'].transform(frame[bundle['features']])
 分群：bundle['pipeline'].predict(frame[bundle['features']])
 滚动验证时必须在各折训练部分重新运行拟合，不可复用本次全训练期模型。
@@ -20,12 +20,12 @@ import sys
 import tempfile
 import unittest
 from itertools import combinations
-from matplotlib import font_manager
-
 sys.dont_write_bytecode = True
-if __name__ == "__main__":
-    sys.modules["kmeans"] = sys.modules[__name__]
 from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 import joblib
 import matplotlib
@@ -39,9 +39,11 @@ from sklearn.metrics import adjusted_rand_score, average_precision_score, roc_au
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer, StandardScaler
 from threadpoolctl import threadpool_limits
+from stage4.transforms import signed_log1p
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 
 FEATURES = [
     'recency_days', 'invoice_frequency_180d', 'monetary_value_180d',
@@ -177,10 +179,9 @@ def baseline_scores(data: pd.DataFrame, config: dict) -> pd.DataFrame:
         values = data[col].fillna(config['missing_medians'][col]).to_numpy()
         bins = np.searchsorted(config['cutpoints'][col], values, side='left')
         out[prefix + '_score'] = 5 - bins if prefix == 'r' else 1 + bins
-    out['recency_score'] = -data['recency_days'].to_numpy()
     out['rfm_score'] = out[['r_score', 'f_score', 'm_score']].sum(axis=1)
     # 名单在每个日期的合格客户内排序，相同分数按 customer_id 文本升序稳定破同分。
-    for name in ['recency', 'rfm']:
+    for name in ['rfm']:
         ordered = out.sort_values(
             ['snapshot_date', name + '_score', 'customer_id'],
             ascending=[True, False, True], kind='stable',
@@ -206,7 +207,7 @@ def evaluate_baselines(scores: pd.DataFrame, labels: np.ndarray) -> pd.DataFrame
         for date, group in views:
             y = group[LABEL].to_numpy()
             prevalence = float(y.mean())
-            for name in ['recency', 'rfm']:
+            for name in ['rfm']:
                 predicted = group[name + '_score'].to_numpy()
                 top = group[name + '_top20'].to_numpy()
                 hits = int(y[top].sum())
@@ -227,7 +228,7 @@ def evaluate_baselines(scores: pd.DataFrame, labels: np.ndarray) -> pd.DataFrame
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--input', type=Path, default=Path(__file__).parent / 'customer_snapshots.csv')
+    parser.add_argument('--input', type=Path, default=PROJECT_ROOT / 'data/processed/customer_snapshot_pipeline/customer_snapshots.csv')
     parser.add_argument('--output', type=Path, default=Path(__file__).parent / 'outputs' / 'stage4')
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--silhouette-sample-size', type=int, default=4000)
@@ -339,7 +340,9 @@ def main() -> None:
     preprocessing['transformed_train_mean'] = preprocessing['feature'].map(mean_by_feature)
     preprocessing['transformed_train_scale'] = preprocessing['feature'].map(scale_by_feature)
     manifest = {
-        'input_file': str(args.input.resolve()),
+        'input_file': (args.input.resolve().relative_to(PROJECT_ROOT).as_posix()
+                       if args.input.resolve().is_relative_to(PROJECT_ROOT)
+                       else str(args.input.resolve())),
         'source_urls': [
             'https://github.com/9zhuandachang/ecommerce-customer-segmentation/blob/main/data/processed/customer_snapshot_pipeline/customer_snapshots.csv',
             'https://github.com/9zhuandachang/ecommerce-customer-segmentation/blob/main/docs/项目任务流程与验收清单.md',
@@ -407,13 +410,6 @@ def derive_features(data: pd.DataFrame) -> pd.DataFrame:
     ).astype(int)
     frame['accelerating_orders'] = (frame.monthly_order_change >= 1).astype(int)
     return frame
-
-
-def signed_log1p(values):
-    """允许节奏变化为负数，保留方向并缩小极端值影响。"""
-    return np.sign(values) * np.log1p(np.abs(values))
-
-signed_log1p.__module__ = 'kmeans'
 
 
 def md_table(headers, rows):
@@ -688,7 +684,7 @@ def render_business_report(output, data, comparison, metrics, selected, results,
     base_score = float(comparison.loc[comparison.k.eq(selected), 'silhouette_train'].iloc[0])
     new_same_space = float(results['experiments'].loc[results['experiments'].k.eq(selected), 'original_space_silhouette'].iloc[0])
     base_valid = metrics.loc[metrics.split.eq('validation') & metrics.snapshot_date.eq('ALL')].set_index('baseline')
-    recency, rfm = base_valid.loc['recency'], base_valid.loc['rfm']
+    rfm = base_valid.loc['rfm']
 
     group_rows = []
     for cluster in ids:
@@ -830,13 +826,11 @@ def render_business_report(output, data, comparison, metrics, selected, results,
         '以上属于探索性观察。同一客户可贡献多个月份记录，不能当作独立样本做普通显著性检验；'
         '这里的“突出特点”指可观察的差异，没有声称统计显著或营销措施有效。测试期仍留给最终评估。', '',
         '## 5. 简单排序给后续预测模型定了什么参照？', '',
-        '假设每个月只能查看20%的客户：一种办法只看谁最近买过；另一种同时看“最近买没买、买过几次、花了多少”，这就是 RFM 排序。', '',
+        '假设每个月只能查看20%的客户：RFM 同时看“最近买没买、买过几次、花了多少”，作为后续预测模型的简单排序参照。', '',
         md_table(['排序方法', '验证期共选出的记录', '其中之后30天再次购买', '名单内复购比例'], [
-            ['只看最近一次购买时间', f'{int(recency.top20_count):,}', f'{int(recency.top20_hits):,}', f'{recency.precision_at_20pct:.1%}'],
-            ['同时看近期、次数和金额（RFM）', f'{int(rfm.top20_count):,}', f'{int(rfm.top20_hits):,}', f'{rfm.precision_at_20pct:.1%}'],
+            ['近期、次数和金额（RFM）', f'{int(rfm.top20_count):,}', f'{int(rfm.top20_hits):,}', f'{rfm.precision_at_20pct:.1%}'],
         ]), '',
-        f'查看同样数量的记录，RFM 多覆盖了 **{int(rfm.top20_hits - recency.top20_hits):,}条** 实际复购记录。'
-        '后续复杂模型应该与这个简单办法比较，确认增加复杂度是否值得。这里是历史名单的回看，不代表营销活动多带来了这些购买。', '',
+        '后续复杂模型应该与这个简单办法比较，确认增加复杂度是否值得。这里是历史名单的回看，不代表营销活动带来了这些购买。', '',
         '## 6. 汇报时可以怎么说？', '',
         '> 我们先用三群抓住总体结构：常来常买、低频购买和长时间未购。'
         '然后把分群细化，发现高消费既可能来自高频购买，也可能来自较高的单笔金额；消费相似的人，近期活跃程度也可能不同。'
@@ -844,7 +838,7 @@ def render_business_report(output, data, comparison, metrics, selected, results,
         '因此，客户分群的价值是把这些差别说清楚，为后续复购预测提出可检验的问题。', '',
         '## 数据文件与复现', '',
         f'- 全部合格快照 **{len(data):,}条**；训练期用于发现分群，验证期用于后续行为对照。',
-        '- 运行 `python -s kmeans.py` 重新生成分析与报告；运行 `python -s kmeans.py --check` 检查已有结果。',
+        '- 在项目根目录运行 `python stage4/kmeans.py` 重新生成分析与报告；运行 `python stage4/kmeans.py --check` 检查已有结果。',
         '- `data/` 放结果表，`figures/` 放正文引用的两张图，`model/` 放可加载模型。', '',
         md_table(['文件', '内容与用途'], [
             ['[客户结果总表](data/customer_results.csv)', '每个客户每月一行：原始特征、新特征、分群、中心距离、两种排序和前20%标记。'],
@@ -871,14 +865,14 @@ def render_business_report(output, data, comparison, metrics, selected, results,
         '同分按客户ID文本升序。汇总名单表现采用逐月入选记录的合计；分数是排序依据。', '',
         '**加载模型。** 在项目根目录运行：', '',
         '```python', 'import joblib',
-        "bundle = joblib.load('outputs/stage4/model/segmentation_bundle.joblib')",
+        "bundle = joblib.load('stage4/outputs/stage4/model/segmentation_bundle.joblib')",
         "X = snapshots[bundle['features']]",
         "clusters = bundle['pipeline'].predict(X)",
         "distances = bundle['pipeline'].transform(X)",
-        "# 探索模型位于 bundle['exploratory']，输入先用 kmeans.derive_features 生成。", '```', '',
+        "# 探索模型位于 bundle['exploratory']，输入先用 stage4.kmeans.derive_features 生成。", '```', '',
         '主模型中心距离位于统一尺度后的特征空间，可供阶段五使用；滚动验证应在各折训练期重新拟合。'
-        '模型包中的探索模型需要同目录的 kmeans.py。依赖版本记录在 run_manifest.json；'
-        '本机命令中的 -s 用于避开现有用户包的版本冲突。', '',
+        '模型包中的探索模型使用 stage4.transforms 中可导入的变换函数。'
+        '依赖版本记录在 run_manifest.json。', '',
         '</details>', '',
     ]
     (output / 'stage4_report.md').write_text('\n'.join(lines), encoding='utf-8')
@@ -990,7 +984,10 @@ def run_self_checks(source: Path, output: Path) -> None:
             fixture.loc[:, RFM] = [20, 1, 100]
             scores = baseline_scores(fixture, config)
             self.assertEqual(scores['rfm_score'].nunique(), 1)
-            for name in ['recency', 'rfm']:
+            self.assertEqual(set(scores.columns) - set(KEYS),
+                             {'r_score', 'f_score', 'm_score', 'rfm_score',
+                              'rfm_rank', 'rfm_top20'})
+            for name in ['rfm']:
                 counts = scores.groupby('snapshot_date')[name + '_top20'].sum()
                 self.assertEqual(counts.tolist(), [1, 1])
             # 输入行顺序不能改变同一客户的分数、名次或入选状态。

@@ -1,0 +1,4 @@
+﻿period,months,predicted_top1pct_count,actual_top1pct_buyer_count,actual_tail_overlap_count,actual_tail_recall,predicted_group_actual_spend,predicted_group_predicted_spend,predicted_to_actual,actual_spend_share
+rolling_jan_may,5,167,37,30,0.8108108108108109,607747.33,621462.878567528,1.0225678466864314,0.27501225003386476
+known_jun_aug,3,83,24,22,0.9166666666666666,501184.04000000004,396414.1819153128,0.7909553183603227,0.3289592157068509
+viewed_sep_nov,3,90,32,27,0.84375,784389.26,579498.6091107822,0.7387895763779098,0.3156151595497116

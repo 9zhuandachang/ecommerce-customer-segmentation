@@ -1,0 +1,4 @@
+﻿method,split,buyer_count,buyer_mae,buyer_amount_bias
+historic_monthly_rate,test_pooled,10820,159.8182754158965,-0.10651283852434013
+average_prior_invoice,test_pooled,10820,232.1824112754159,-0.894564155464119
+conditional_l1_median,test_pooled,10820,146.60806935381402,-0.23700159816702293

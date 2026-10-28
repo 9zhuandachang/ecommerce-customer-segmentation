@@ -1,0 +1,13 @@
+﻿period,method,buyer_count,buyer_mae,buyer_amount_bias
+rolling_jan_may,historic_monthly_rate,3414,396.55591974223785,-0.19962140077880575
+rolling_jan_may,average_prior_invoice,3414,360.2257147041594,-0.2897311603733006
+rolling_jan_may,conditional_gamma_mean,3414,355.8390677287029,0.056526337436559215
+rolling_jan_may,conditional_l1_median,3414,334.5098161006385,-0.051978347549555215
+known_jun_aug,historic_monthly_rate,2177,427.1191639871382,-0.3970655837901589
+known_jun_aug,average_prior_invoice,2177,410.4414056040423,-0.38236341501021087
+known_jun_aug,conditional_gamma_mean,2177,358.6323858690443,-0.07169297093476013
+known_jun_aug,conditional_l1_median,2177,352.18321751598677,-0.1807706838808566
+rolling_jan_aug,historic_monthly_rate,5591,408.4565068860669,-0.28019462708806
+rolling_jan_aug,average_prior_invoice,5591,379.7784886424611,-0.3275326266032126
+rolling_jan_aug,conditional_gamma_mean,5591,356.92671816539104,0.00420246953094261
+rolling_jan_aug,conditional_l1_median,5591,341.39141060631067,-0.10453605729744309

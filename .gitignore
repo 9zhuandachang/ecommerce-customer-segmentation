@@ -42,7 +42,20 @@ ENV/
 .agents/
 .claude/
 
-# Project data and saved prototype models are included for reproducibility.
+# Project data and frozen experiment models are included for reproducibility.
+
+# Retired independent prototype outputs and obsolete upload input.
+/models/*.pkl
+/data/processed/experiment_results.pkl
+/data/processed/scored_customers.parquet
+/data/processed/snapshots.parquet
+/data/demo/2011-12-01/customer_snapshots.csv
+
+# Local test and lint caches.
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
 # Logs and temporary files
 *.log

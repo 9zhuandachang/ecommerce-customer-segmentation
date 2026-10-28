@@ -1,8 +1,13 @@
-pandas>=2.0,<3.0
-numpy>=1.24
-scikit-learn>=1.3
-lightgbm>=4.0
-joblib>=1.3
-streamlit>=1.28
+pandas==2.3.3
+numpy==2.4.6
+scipy==1.17.1
+# Saved stage-four joblib pipelines require the training version of scikit-learn.
+scikit-learn==1.9.0
+lightgbm==4.7.0
+xgboost==3.2.0
+joblib==1.5.3
+matplotlib==3.11.1
+streamlit==1.63.0
 plotly>=5.17
 pyarrow>=14.0
+requests>=2.31

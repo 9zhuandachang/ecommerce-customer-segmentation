@@ -1,0 +1,211 @@
+{
+  "version": "item_v3_1",
+  "source_hashes": {
+    "transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+    "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+    "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
+  },
+  "code_hashes": {
+    "item_protocol.md": "c4b80751467cda00c73e86c2ddb76736173dcc339378e54dee2f26f6a3c36fc0",
+    "item_features.py": "85a45bfeed2323fc555a4fbffae6b27a662a6877db870bb0da921f540dbff9e6",
+    "item_models.py": "01ce27a8a72687bdeb8430f7a9f5638ee9dcda6449643f9e26374cf9269392f9",
+    "item_experiment.py": "5a6df331f62b02f42e324328d125eeceeb5efe22907af2961014f7229305d742",
+    "data.py": "d959a9249e6e379672cdb4471e2f1836f24e0a309631c034e02fa91381e24966",
+    "models.py": "784416c7c3fe9d01e6ee98ad81048c41c39f017e3b194749b321ba5119ea6573",
+    "metrics.py": "e80d61f13f70be1b9c165b67a8a32bfcca61fcb7da5f53818eb2a23d46e13154",
+    "profiles.py": "facf963e09f80d64422915597f8a3fa4667b5174795249a6a4a4eed0c92ea0b5",
+    "hybrid.py": "eeee5c56098c987ad57716fe4a9e1bbaa311d08f0dbe403f644ed35345292bcf"
+  },
+  "features": {
+    "A": [
+      "bought_before",
+      "log_count_180d",
+      "log_count_90d",
+      "log_count_30d",
+      "item_recency_180d",
+      "item_first_seen_180d",
+      "mean_item_gap_180d",
+      "has_item_gap",
+      "item_due_ratio",
+      "personal_order_share",
+      "log_popularity_30d",
+      "log_popularity_180d",
+      "popularity_trend",
+      "log_product_buyers_180d",
+      "product_seen_180d"
+    ],
+    "B": [
+      "bought_before",
+      "log_count_180d",
+      "log_count_90d",
+      "log_count_30d",
+      "item_recency_180d",
+      "item_first_seen_180d",
+      "mean_item_gap_180d",
+      "has_item_gap",
+      "item_due_ratio",
+      "personal_order_share",
+      "log_popularity_30d",
+      "log_popularity_180d",
+      "popularity_trend",
+      "log_product_buyers_180d",
+      "product_seen_180d",
+      "profile_historical_repeat_share",
+      "profile_recent_repeat_share",
+      "profile_repeat_share_change",
+      "profile_top3_concentration",
+      "profile_order_count",
+      "profile_comparable_order_count",
+      "profile_distinct_products",
+      "profile_mean_basket_size",
+      "profile_recency_days",
+      "profile_history_span_days",
+      "repeat_x_bought",
+      "recent_repeat_x_bought",
+      "change_x_bought",
+      "concentration_x_count",
+      "repeat_x_count",
+      "recent_repeat_x_popularity"
+    ],
+    "C": [
+      "bought_before",
+      "log_count_180d",
+      "log_count_90d",
+      "log_count_30d",
+      "item_recency_180d",
+      "item_first_seen_180d",
+      "mean_item_gap_180d",
+      "has_item_gap",
+      "item_due_ratio",
+      "personal_order_share",
+      "log_popularity_30d",
+      "log_popularity_180d",
+      "popularity_trend",
+      "log_product_buyers_180d",
+      "product_seen_180d",
+      "ease_score_scaled",
+      "no_ease_signal"
+    ],
+    "D": [
+      "bought_before",
+      "log_count_180d",
+      "log_count_90d",
+      "log_count_30d",
+      "item_recency_180d",
+      "item_first_seen_180d",
+      "mean_item_gap_180d",
+      "has_item_gap",
+      "item_due_ratio",
+      "personal_order_share",
+      "log_popularity_30d",
+      "log_popularity_180d",
+      "popularity_trend",
+      "log_product_buyers_180d",
+      "product_seen_180d",
+      "profile_historical_repeat_share",
+      "profile_recent_repeat_share",
+      "profile_repeat_share_change",
+      "profile_top3_concentration",
+      "profile_order_count",
+      "profile_comparable_order_count",
+      "profile_distinct_products",
+      "profile_mean_basket_size",
+      "profile_recency_days",
+      "profile_history_span_days",
+      "repeat_x_bought",
+      "recent_repeat_x_bought",
+      "change_x_bought",
+      "concentration_x_count",
+      "repeat_x_count",
+      "recent_repeat_x_popularity",
+      "ease_score_scaled",
+      "no_ease_signal",
+      "repeat_x_ease"
+    ]
+  },
+  "model_specs": {
+    "lr": [
+      {
+        "id": "lr_0.01",
+        "family": "lr",
+        "c": 0.01
+      },
+      {
+        "id": "lr_0.1",
+        "family": "lr",
+        "c": 0.1
+      },
+      {
+        "id": "lr_1.0",
+        "family": "lr",
+        "c": 1.0
+      },
+      {
+        "id": "lr_10.0",
+        "family": "lr",
+        "c": 10.0
+      }
+    ],
+    "classifier": [
+      {
+        "id": "classifier_7_60",
+        "family": "classifier",
+        "leaves": 7,
+        "trees": 60
+      },
+      {
+        "id": "classifier_7_120",
+        "family": "classifier",
+        "leaves": 7,
+        "trees": 120
+      },
+      {
+        "id": "classifier_15_60",
+        "family": "classifier",
+        "leaves": 15,
+        "trees": 60
+      },
+      {
+        "id": "classifier_15_120",
+        "family": "classifier",
+        "leaves": 15,
+        "trees": 120
+      }
+    ],
+    "ranker": [
+      {
+        "id": "ranker_7_60",
+        "family": "ranker",
+        "leaves": 7,
+        "trees": 60
+      },
+      {
+        "id": "ranker_7_120",
+        "family": "ranker",
+        "leaves": 7,
+        "trees": 120
+      },
+      {
+        "id": "ranker_15_60",
+        "family": "ranker",
+        "leaves": 15,
+        "trees": 60
+      },
+      {
+        "id": "ranker_15_120",
+        "family": "ranker",
+        "leaves": 15,
+        "trees": 120
+      }
+    ]
+  },
+  "v2_manifest_sha256": "1855b414125cb602c7a70cd109ddfe4627612b5010a3dd0ca9b9e667b768cc61",
+  "versions": {
+    "python": "3.11.9",
+    "numpy": "2.4.6",
+    "pandas": "2.3.3"
+  },
+  "reused_sample_sha256": "79bfe498acda9252cae94ff4fe2374405a199ba476bb306ff9bb0f2eb0bec8b1",
+  "full_catalog_evaluation": true,
+  "prior_validation_and_test_results_viewed": true
+}

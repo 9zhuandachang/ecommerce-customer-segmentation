@@ -1,0 +1,98 @@
+{
+  "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "stage4_model_sha256": "63673be3b62b08d5a0873cc61eeae461a4dbe92e68e467cdcbfce449340b971a",
+  "script_sha256": "8ff3a437531bb4cf3b92afb5ef466894c5a4d91123859dd710317ec063125d63",
+  "original_stage5_comparison_sha256": "886f1b6770140947a277c7ddd5faf60f636d6481f2b30c5c524894751cc50488",
+  "feature_sets": {
+    "A_base_8": [
+      "recency_days",
+      "invoice_frequency_180d",
+      "monetary_value_180d",
+      "average_order_value_180d",
+      "product_diversity_180d",
+      "invoice_count_30d",
+      "invoice_count_90d",
+      "customer_history_days"
+    ],
+    "B_base_8_plus_3_distances": [
+      "recency_days",
+      "invoice_frequency_180d",
+      "monetary_value_180d",
+      "average_order_value_180d",
+      "product_diversity_180d",
+      "invoice_count_30d",
+      "invoice_count_90d",
+      "customer_history_days",
+      "cluster_distance_0",
+      "cluster_distance_1",
+      "cluster_distance_2"
+    ],
+    "C_base_8_plus_4_behavior": [
+      "recency_days",
+      "invoice_frequency_180d",
+      "monetary_value_180d",
+      "average_order_value_180d",
+      "product_diversity_180d",
+      "invoice_count_30d",
+      "invoice_count_90d",
+      "customer_history_days",
+      "monthly_order_change",
+      "recent90_order_share",
+      "history_adjusted_monthly_orders",
+      "has_90d_history"
+    ]
+  },
+  "fold_dates": [
+    "2011-03-01",
+    "2011-04-01",
+    "2011-05-01"
+  ],
+  "purge_rule": "train snapshot_date + 30 days <= fold validation date",
+  "gbdt_leaf_options": [
+    15,
+    31
+  ],
+  "gbdt_max_trees": 500,
+  "gbdt_early_stopping_rounds": 30,
+  "gbdt_iteration_selection": "inner last eligible month with 30-day purge; outer fold month untouched until evaluation",
+  "gbdt_selection": "highest mean fold AP, lower leaf count on tie; median best iteration",
+  "soft_vote_weights": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "soft_vote_selection": "highest mean fold AP, prefer 0.50 on tie",
+  "selected": {
+    "A_base_8": {
+      "num_leaves": 15,
+      "n_estimators": 64,
+      "lr_weight": 0.5,
+      "mean_tuning_gbdt_ap": 0.5394358728414931
+    },
+    "B_base_8_plus_3_distances": {
+      "num_leaves": 15,
+      "n_estimators": 47,
+      "lr_weight": 0.5,
+      "mean_tuning_gbdt_ap": 0.5436436669459216
+    },
+    "C_base_8_plus_4_behavior": {
+      "num_leaves": 15,
+      "n_estimators": 57,
+      "lr_weight": 0.5,
+      "mean_tuning_gbdt_ap": 0.541277159554247
+    }
+  },
+  "versions": {
+    "python": "3.11.9",
+    "numpy": "2.4.6",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.9.0",
+    "lightgbm": "4.7.0"
+  },
+  "official_validation_dates": [
+    "2011-06-01",
+    "2011-07-01",
+    "2011-08-01"
+  ],
+  "test_labels_used": false
+}
