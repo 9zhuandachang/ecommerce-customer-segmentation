@@ -41,7 +41,7 @@
   <text x="1072" y="403" text-anchor="middle" class="small">自动汇总客户快照及其他历史特征</text>
   <path d="M1072 428 V451" class="line"/>
   <rect x="792" y="455" width="560" height="84" rx="12" class="box"/>
-  <text x="1072" y="489" text-anchor="middle" class="head">调用保存好的模型与推荐规则</text>
+  <text x="1072" y="489" text-anchor="middle" class="head">调用保存好的分析与推荐模型</text>
   <text x="1072" y="521" text-anchor="middle" class="small">计算群体归属、客户评分和商品名单</text>
   <path d="M648 497 H788" class="line"/>
 
@@ -78,10 +78,10 @@
   <text x="891" y="947" text-anchor="middle" class="small">评价：实际消费额覆盖率</text>
 
   <text x="1237" y="698" text-anchor="middle" class="head">目标4｜画像与推荐</text>
-  <text x="1237" y="742" text-anchor="middle" class="small">购买习惯画像＋补货规则</text>
-  <text x="1237" y="808" text-anchor="middle" class="body">按商品购买次数排序</text>
-  <text x="1237" y="848" text-anchor="middle" class="body">同分按固定热门顺序</text>
-  <text x="1237" y="888" text-anchor="middle" class="body">生成10件候选商品</text>
+  <text x="1237" y="742" text-anchor="middle" class="small">D完整组＋LightGBM分类</text>
+  <text x="1237" y="808" text-anchor="middle" class="body">购买记录、画像与商品关联</text>
+  <text x="1237" y="848" text-anchor="middle" class="body">对候选商品逐件打分</text>
+  <text x="1237" y="888" text-anchor="middle" class="body">生成10件推荐商品</text>
   <text x="1237" y="947" text-anchor="middle" class="small">评价：NDCG、Recall、Hit</text>
 
   <path d="M199 992 V1036 H720" class="bus"/>

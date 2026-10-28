@@ -106,6 +106,7 @@ class StageSixDashboardTests(unittest.TestCase):
         self.assertFalse(dashboard.exception)
         self.assertFalse(dashboard.error)
         self.assertEqual(dashboard.session_state['uploaded_workspace']['date'], '2011-12-01')
+        self.assertEqual(dashboard.session_state['uploaded_workspace']['recommendation_method'], 'D_classifier')
         self.assertTrue(any('本批客户 · 3,444位' in caption.value for caption in dashboard.caption))
         next(button for button in dashboard.button if button.key == 'change_data').click().run()
         with patch('streamlit.file_uploader', return_value=BytesIO(b'bad,file\n1,2')):
@@ -117,6 +118,25 @@ class StageSixDashboardTests(unittest.TestCase):
         next(button for button in dashboard.button if button.key == 'cancel_upload').click().run()
         self.assertFalse(dashboard.exception)
         self.assertTrue(any('本批客户 · 3,444位' in caption.value for caption in dashboard.caption))
+
+    def test_old_rule_session_requires_regeneration_before_opening_business_pages(self):
+        dashboard = AppTest.from_file(str(ROOT / 'app/dashboard.py'), default_timeout=40)
+        dashboard.session_state['uploaded_workspace'] = dict(self.workspace, recommendation_method='personal_repeat')
+        dashboard.session_state['workspace_page'] = 'recommendations'
+        dashboard.run()
+        self.assertFalse(dashboard.exception)
+        self.assertEqual(dashboard.title[0].value, '数据导入')
+        self.assertTrue(any('推荐方案已更新' in message.value for message in dashboard.info))
+        self.assertTrue(all(button.disabled for button in dashboard.sidebar.button if button.key != 'nav_upload'))
+        self.assertFalse(any(button.key == 'cancel_upload' for button in dashboard.button))
+        self.assertEqual(dashboard.session_state['uploaded_workspace']['recommendation_method'], 'personal_repeat')
+        with patch('streamlit.file_uploader', return_value=BytesIO(self.history_bytes)):
+            next(button for button in dashboard.button if button.key == 'run_upload').click().run()
+        self.assertFalse(dashboard.exception)
+        self.assertFalse(dashboard.error)
+        self.assertEqual(dashboard.session_state['uploaded_workspace']['recommendation_method'], 'D_classifier')
+        self.assertEqual(dashboard.session_state['workspace_page'], 'segments')
+        self.assertFalse(any(button.disabled for button in dashboard.sidebar.button))
 
     def test_upload_date_controls_generated_cohort_and_four_pages(self):
         dashboard = AppTest.from_file(str(ROOT / 'app/dashboard.py'), default_timeout=40).run()
@@ -311,7 +331,7 @@ class StageSixDashboardTests(unittest.TestCase):
         self.assertFalse(dashboard.exception)
         self.assertEqual(dashboard.session_state['uploaded_workspace']['date'], '2011-12-01')
 
-    def test_dashboard_recommendations_show_locked_default_and_purchase_habits(self):
+    def test_dashboard_recommendations_show_d_classifier_and_purchase_habits(self):
         from app.upload_inference import recommend_customer
         dashboard = self.open_dashboard()
         self.open_business_page(dashboard, 'recommendations')
@@ -328,7 +348,9 @@ class StageSixDashboardTests(unittest.TestCase):
         self.assertEqual({widget.label for widget in dashboard.selectbox}, {'客户 ID'})
         customer = next(widget for widget in dashboard.selectbox if widget.label == '客户 ID').value
         expected = recommend_customer(self.workspace, customer)
+        self.assertTrue(expected.recommendation_method.eq('D_classifier').all())
         self.assertEqual(shown['商品编码'].tolist(), expected.stock_code.tolist())
+        self.assertTrue(shown['推荐依据'].eq('结合购买记录、客户习惯与商品关联').all())
         profile = self.workspace['profiles'].loc[self.workspace['profiles'].customer_id.eq(customer)].iloc[0]
         self.assertEqual([metric.value for metric in dashboard.metric],
                          [str(int(profile.order_count)), str(int(profile.distinct_products)),
@@ -359,12 +381,13 @@ class StageSixDashboardTests(unittest.TestCase):
         self.assertFalse({'baseline_rank', 'ranking_method', 'spend_30d'} & set(value))
         products = pd.DataFrame({'rank': [1], 'stock_code': ['sku'], 'description': ['cup'],
                                  'purchased_in_past_180d': [True], 'purchase_count_180d': [2],
-                                 'days_since_item_purchase': [5.], 'recommendation_method': ['personal_repeat'],
+                                 'days_since_item_purchase': [5.], 'recommendation_method': ['D_classifier'],
                                  'ranking_score': [10.], 'target_items': ['SECRET']})
         profile = dict(order_count=3, distinct_products=5, historical_repeat_share=.4, top3_concentration=.6)
         exported = business_export(product_table(products), '2011-09-01', 'a', profile)
         self.assertEqual(exported['客户历史重复购买比例'].iloc[0], .4)
         self.assertEqual(exported['客户 ID'].iloc[0], 'a')
+        self.assertEqual(exported['推荐依据'].iloc[0], '结合购买记录、客户习惯与商品关联')
         self.assertFalse({'ranking_score', 'target_items', 'recommendation_method'} & set(exported))
 
 
@@ -382,6 +405,27 @@ class UploadedInferenceTests(unittest.TestCase):
     @staticmethod
     def csv(frame):
         return frame.to_csv(index=False).encode('utf-8-sig')
+
+    def test_live_default_loads_frozen_d_classifier_and_matching_ease_catalog(self):
+        from recommendation.item_features import FEATURE_SETS
+        model = self.models['recommendation_model']
+        self.assertEqual(self.models['recommendation_method'], 'D_classifier')
+        self.assertEqual(model['group'], 'D')
+        self.assertEqual(model['spec']['family'], 'classifier')
+        self.assertEqual(model['features'], FEATURE_SETS['D'])
+        self.assertEqual(len(model['features']), 34)
+        self.assertEqual(model['spec']['leaves'], 15)
+        self.assertEqual(model['spec']['trees'], 120)
+        self.assertLessEqual(pd.Timestamp(model['latest_label_end']), pd.Timestamp('2011-09-01'))
+        self.assertEqual(self.models['catalog'].stock_code.tolist(),
+                         self.models['recommendation_ease']['catalog'].stock_code.tolist())
+
+    def test_live_default_rejects_changed_model_package(self):
+        from app.upload_inference import digest, load_models
+        item_path = ROOT / 'recommendation/outputs/item_v3_1/model_bundle.joblib'
+        with patch('app.upload_inference.digest', side_effect=lambda path: 'changed' if path == item_path else digest(path)):
+            with self.assertRaisesRegex(ValueError, 'recommendation configuration'):
+                load_models()
 
     def test_every_calendar_day_in_supported_range_builds_a_past_only_snapshot(self):
         from app.upload_inference import MIN_ANALYSIS_DATE, MAX_ANALYSIS_DATE, UploadError, validate_upload
@@ -425,13 +469,14 @@ class UploadedInferenceTests(unittest.TestCase):
             validate_upload(self.csv(self.small), '2013-12-01')
 
     def test_upload_scores_new_customer_ids_from_inputs_and_changes_when_history_changes(self):
-        from app.upload_inference import analyze_upload
+        from app.upload_inference import analyze_upload, recommend_customer
         before = analyze_upload(self.csv(self.small), '2011-12-01', self.models)
         renamed = self.small.copy()
         renamed.customer_id = 'new-' + renamed.customer_id
         after = analyze_upload(self.csv(renamed), '2011-12-01', self.models)
         self.assertEqual(after['customers'].CustomerID.tolist(), ['new-12347', 'new-12348'])
         np.testing.assert_allclose(before['customers'].repurchase_score, after['customers'].repurchase_score, rtol=0, atol=0)
+        pd.testing.assert_frame_equal(recommend_customer(before, '12347'), recommend_customer(after, 'new-12347'))
         changed = self.small.copy()
         changed.quantity *= 2
         changed.line_amount *= 2
@@ -479,8 +524,36 @@ class UploadedInferenceTests(unittest.TestCase):
         self.assertEqual(actual['priority'].customer_id.tolist(), ranks.customer_id.tolist())
         lists = pd.read_csv(ROOT / 'recommendation/outputs/item_v3_1/test_lists.csv', dtype={'customer_id': 'string'})
         saved_list = lists.loc[lists.snapshot_date.eq('2011-11-01') & lists.customer_id.eq('12347')
-                               & lists.method.eq('personal_repeat')].iloc[0]
-        self.assertEqual(recommend_customer(actual, '12347').stock_code.tolist(), json.loads(saved_list.recommended_items))
+                               & lists.method.eq('D_classifier')].iloc[0]
+        recommendations = recommend_customer(actual, '12347')
+        self.assertEqual(recommendations.stock_code.tolist(), json.loads(saved_list.recommended_items))
+        np.testing.assert_allclose(recommendations.ranking_score, json.loads(saved_list.ranking_scores), rtol=0, atol=1e-12)
+
+    def test_uploaded_d_classifier_reproduces_september_and_october_full_catalog_lists(self):
+        import json
+        from app.upload_inference import analyze_upload, recommend_customer
+        lists = pd.read_csv(ROOT / 'recommendation/outputs/item_v3_1/test_lists.csv', dtype={'customer_id': 'string'})
+        content = self.csv(self.history)
+        for date in ('2011-09-01', '2011-10-01'):
+            actual = analyze_upload(content, date, self.models)
+            for customer in ('12347', '14646'):
+                with self.subTest(date=date, customer=customer):
+                    expected = lists.loc[lists.snapshot_date.eq(date) & lists.customer_id.eq(customer)
+                                         & lists.method.eq('D_classifier')].iloc[0]
+                    recommendations = recommend_customer(actual, customer)
+                    self.assertEqual(recommendations.stock_code.tolist(), json.loads(expected.recommended_items))
+                    np.testing.assert_allclose(recommendations.ranking_score, json.loads(expected.ranking_scores),
+                                               rtol=0, atol=1e-12)
+                    np.testing.assert_array_equal(recommendations.purchase_count_180d,
+                                                  json.loads(expected.purchase_counts_180d))
+
+    def test_recommendation_rejects_old_workspace_and_unknown_customer(self):
+        from app.upload_inference import UploadError, analyze_upload, recommend_customer
+        workspace = analyze_upload(self.csv(self.small), '2011-12-01', self.models)
+        with self.assertRaisesRegex(UploadError, '重新上传'):
+            recommend_customer(dict(workspace, recommendation_method='personal_repeat'), '12347')
+        with self.assertRaisesRegex(UploadError, '找不到该客户'):
+            recommend_customer(workspace, 'missing')
 
 
 class StageFiveTests(unittest.TestCase):

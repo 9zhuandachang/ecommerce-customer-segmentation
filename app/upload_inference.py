@@ -16,6 +16,8 @@ import pandas as pd
 
 from app.business_views import display_customer_groups
 from recommendation.data import make_context
+from recommendation.item_features import FEATURE_SETS, item_context, pair_features
+from recommendation.item_models import predict_item_scores
 from recommendation.models import topk
 from recommendation.profiles import purchase_profiles
 from src.data_cleaning import NON_PRODUCT_CODES
@@ -33,6 +35,9 @@ TRANSACTION_COLUMNS = ['customer_id', 'invoice', 'invoice_date', 'stock_code',
 MAX_BYTES = 150 * 1024 * 1024
 MIN_ANALYSIS_DATE = pd.Timestamp('2011-09-01')
 MAX_ANALYSIS_DATE = pd.Timestamp('2011-12-01')
+# Current business default, selected for the project. Frozen experiment decisions
+# remain in their original manifests and selection files.
+RECOMMENDATION_METHOD = 'D_classifier'
 
 
 class UploadError(ValueError):
@@ -167,13 +172,28 @@ def load_models() -> dict:
     item_lock = json.loads((item_dir / 'locked_selection.json').read_text(encoding='utf-8'))
     manifest = json.loads((item_dir / 'manifest.json').read_text(encoding='utf-8'))
     catalog_path = item_dir / 'test_catalog.csv'
-    if (item_lock['selected_method'] != manifest['selected_method'] or item_lock['selected_method'] != 'personal_repeat'
-            or digest(catalog_path) != manifest['output_hashes']['test_catalog.csv']):
+    item_path = item_dir / 'model_bundle.joblib'
+    if (item_lock['selected_method'] != manifest['selected_method']
+            or item_lock['best_new'] != RECOMMENDATION_METHOD
+            or digest(catalog_path) != manifest['output_hashes']['test_catalog.csv']
+            or digest(item_path) != item_lock['model_sha256']
+            or item_lock['model_sha256'] != manifest['output_hashes']['model_bundle.joblib']):
         raise ValueError('Unexpected recommendation configuration or catalog')
     catalog = pd.read_csv(catalog_path, dtype={'stock_code': 'string'})
+    item_bundle = joblib.load(item_path)
+    item_model = item_bundle['test']['models'][RECOMMENDATION_METHOD]
+    ease = item_bundle['test']['ease']
+    if (item_model['group'] != 'D' or item_model['spec']['family'] != 'classifier'
+            or item_model['features'] != FEATURE_SETS['D']
+            or pd.Timestamp(item_model['fit_cutoff']) > MIN_ANALYSIS_DATE
+            or pd.Timestamp(ease['fit_cutoff']) > MIN_ANALYSIS_DATE
+            or list(catalog.stock_code) != list(ease['catalog'].stock_code)):
+        raise ValueError('Recommendation model features or frozen catalog differ')
     return dict(customer=customer, value=value['review'][value_lock['selected_method']],
                 value_method=value_lock['selected_method'], baseline=value['baseline_method'],
-                catalog=catalog, recommendation_method=item_lock['selected_method'])
+                catalog=catalog, recommendation_method=RECOMMENDATION_METHOD,
+                recommendation_model=item_model, recommendation_ease=ease,
+                recommendation_version=item_lock['model_sha256'])
 
 
 def analyze_upload(history_bytes: bytes, analysis_date, models: dict | None = None) -> dict:
@@ -212,6 +232,10 @@ def analyze_upload(history_bytes: bytes, analysis_date, models: dict | None = No
     return dict(date=str(cutoff.date()), customers=customers, priority=priority,
                 profiles=profiles, context=context, item_last_purchase=ages,
                 catalog=catalog, recommendation_method=models['recommendation_method'],
+                recommendation_history=events[['customer_id', 'invoice', 'invoice_date', 'stock_code', 'description']],
+                recommendation_model=models['recommendation_model'],
+                recommendation_ease=models['recommendation_ease'],
+                recommendation_version=models['recommendation_version'],
                 generated_snapshots=snapshots,
                 history_sha256=hashlib.sha256(history_bytes).hexdigest(),
                 ignored_future_rows=ignored,
@@ -220,20 +244,28 @@ def analyze_upload(history_bytes: bytes, analysis_date, models: dict | None = No
 
 
 def recommend_customer(workspace: dict, customer: str) -> pd.DataFrame:
-    """Compute a fresh top ten for this uploaded customer's actual item history."""
+    """Score this customer's full frozen catalog using the saved D classifier."""
+    if workspace.get('recommendation_method') != RECOMMENDATION_METHOD:
+        raise UploadError('推荐方案已更新，请重新上传购买明细并生成分析。')
     context = workspace['context']
     positions = np.flatnonzero(context['customers'] == customer)
     if len(positions) != 1:
         raise UploadError('找不到该客户的购买记录。')
-    counts = context['counts'][int(positions[0])].toarray()
-    indices = topk(counts)[0]
-    cutoff, rows = pd.Timestamp(workspace['date']), []
+    cutoff = pd.Timestamp(workspace['date'])
+    snapshots = workspace['generated_snapshots'].loc[workspace['generated_snapshots'].customer_id.eq(customer)]
+    item_inputs = item_context(workspace['recommendation_history'], snapshots, cutoff, workspace['recommendation_ease'])
+    columns = np.arange(len(workspace['catalog']))
+    features = pair_features(item_inputs, np.zeros(len(columns), dtype=int), columns)
+    scores = predict_item_scores(workspace['recommendation_model'], features)
+    indices = topk(scores[None, :])[0]
+    counts = item_inputs['counts_dense'][0]
+    rows = []
     for rank, item in enumerate(indices, 1):
         product = workspace['catalog'].iloc[item]
-        count = int(counts[0, item])
+        count = int(counts[item])
         last = workspace['item_last_purchase'].get((customer, product.stock_code), pd.NaT)
         rows.append(dict(rank=rank, stock_code=str(product.stock_code), description=product.description,
                          purchased_in_past_180d=count > 0, purchase_count_180d=count,
                          days_since_item_purchase=(cutoff - last).total_seconds() / 86400 if count else np.nan,
-                         recommendation_method=workspace['recommendation_method']))
+                         recommendation_method=workspace['recommendation_method'], ranking_score=float(scores[item])))
     return pd.DataFrame(rows)

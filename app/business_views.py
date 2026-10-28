@@ -82,7 +82,9 @@ def product_table(rows: pd.DataFrame) -> pd.DataFrame:
             return '曾购商品，按购买次数推荐' if row.purchased_in_past_180d else '热门商品补充'
         if row.recommendation_method.startswith('B_'):
             return '结合购买记录与客户习惯'
-        if row.recommendation_method.startswith(('C_', 'D_')):
+        if row.recommendation_method.startswith('D_'):
+            return '结合购买记录、客户习惯与商品关联'
+        if row.recommendation_method.startswith('C_'):
             return '结合购买记录与商品关联'
         return '根据历史购买记录推荐'
     out['business_reason'] = out.apply(reason, axis=1)

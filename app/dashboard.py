@@ -11,7 +11,7 @@ import streamlit as st
 
 from app.stage6_data import review_list
 from app.upload_inference import (DEMO, UploadError, analyze_upload, load_models,
-                                  recommend_customer, MIN_ANALYSIS_DATE, MAX_ANALYSIS_DATE)
+                                  recommend_customer, MIN_ANALYSIS_DATE, MAX_ANALYSIS_DATE, RECOMMENDATION_METHOD)
 from app.business_views import (PAGES, customer_filter, group_summary, customer_table,
                                 value_table, product_table, business_export)
 
@@ -24,7 +24,8 @@ BLUES = ['#2458cd', '#5788e8', '#8fb2f4', '#bfd3fa']
 
 
 @st.cache_resource(show_spinner=False)
-def frozen_models():
+def frozen_models(recommendation_method):
+    # The active method also keys the cache after switching the business default.
     return load_models()
 
 
@@ -62,6 +63,8 @@ def upload_workspace():
     current = st.session_state.get('uploaded_workspace')
     if current is not None:
         st.caption(f'当前分析：{current["date"]} · {len(current["customers"]):,}位客户')
+        if current.get('recommendation_method') != RECOMMENDATION_METHOD:
+            st.info('推荐方案已更新，请重新上传购买明细并生成分析。')
     with st.container(border=True, key='card_upload'):
         left, right = st.columns(2)
         with left:
@@ -83,7 +86,7 @@ def upload_workspace():
             else:
                 try:
                     with st.spinner('正在核对数据并生成分析…'):
-                        workspace = analyze_upload(history.getvalue(), analysis_date, frozen_models())
+                        workspace = analyze_upload(history.getvalue(), analysis_date, frozen_models(RECOMMENDATION_METHOD))
                     st.session_state['uploaded_workspace'] = workspace
                     open_page('segments')
                     for key in ('segment_group', 'repurchase_group', 'segment_search', 'repurchase_search',
@@ -95,7 +98,7 @@ def upload_workspace():
                 except (ValueError, KeyError, OSError, AssertionError):
                     LOGGER.exception('Could not analyze uploaded customer data')
                     st.error('分析暂时无法完成，请联系项目维护者检查模型文件。')
-        if st.session_state.get('uploaded_workspace') is not None:
+        if current is not None and current.get('recommendation_method') == RECOMMENDATION_METHOD:
             if st.button('返回当前分析', key='cancel_upload'):
                 previous = st.session_state.get('last_analysis_page', 'segments')
                 open_page(previous if previous in PAGES else 'segments')
@@ -137,7 +140,9 @@ def style_chart(figure, group_names):
 st.session_state.setdefault('workspace_page', 'upload')
 if st.session_state.pop('show_upload', False):
     open_page('upload')
-if st.session_state.workspace_page not in {'upload', *PAGES} or st.session_state.get('uploaded_workspace') is None:
+current_workspace = st.session_state.get('uploaded_workspace')
+workspace_ready = current_workspace is not None and current_workspace.get('recommendation_method') == RECOMMENDATION_METHOD
+if st.session_state.workspace_page not in {'upload', *PAGES} or not workspace_ready:
     st.session_state.workspace_page = 'upload'
 with st.sidebar:
     st.markdown('''<div class="workspace-brand"><div class="brand-mark" aria-hidden="true">
@@ -150,7 +155,7 @@ with st.sidebar:
     for name, (label, icon) in PAGES.items():
         st.button(label, key=f'nav_{name}', icon=icon, width='stretch',
                   type='primary' if st.session_state.workspace_page == name else 'secondary',
-                  disabled=st.session_state.get('uploaded_workspace') is None,
+                  disabled=not workspace_ready,
                   on_click=open_page, args=(name,))
     st.markdown('<div class="sidebar-bottom">从购买记录，到客户洞察。</div>', unsafe_allow_html=True)
 
