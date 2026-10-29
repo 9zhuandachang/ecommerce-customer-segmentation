@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import logging
 from pathlib import Path
 
@@ -9,13 +10,21 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+# A running Streamlit session may retain imported modules after the page script
+# changes. Refresh older text modules once without clearing uploaded data.
+for module_name in ('app.business_views', 'app.upload_inference'):
+    text_module = importlib.import_module(module_name)
+    if getattr(text_module, 'UI_TEXT_VERSION', None) != 'en-1':
+        importlib.reload(text_module)
+
 from app.stage6_data import review_list
 from app.upload_inference import (UploadError, analyze_upload, load_models,
                                   recommend_customer, MIN_ANALYSIS_DATE, MAX_ANALYSIS_DATE, RECOMMENDATION_METHOD)
 from app.business_views import (PAGES, customer_filter, group_summary, customer_table,
-                                value_table, product_table, profile_details, business_export)
+                                value_table, product_table, profile_details, business_export,
+                                GROUP_NAMES, display_customer_groups)
 
-st.set_page_config(page_title='客户洞察', page_icon=':material/analytics:', layout='wide',
+st.set_page_config(page_title='Customer Insights', page_icon=':material/analytics:', layout='wide',
                    initial_sidebar_state='expanded')
 st.markdown('<style>' + Path(__file__).with_name('dashboard.css').read_text(encoding='utf-8') + '</style>',
             unsafe_allow_html=True)
@@ -39,10 +48,10 @@ def open_page(name):
 def header(page, date, customer_count):
     title, _ = PAGES[page]
     descriptions = {
-        'segments': '了解不同客户的购买习惯与消费特征。',
-        'repurchase': '按未来30天的复购倾向，整理值得优先查看的客户。',
-        'value': '查看客户消费潜力排名，确定关注顺序。',
-        'recommendations': '查看客户购买习惯与下一单的10件候选商品。',
+        'segments': 'Explore purchase habits and spending patterns across customer segments.',
+        'repurchase': 'Prioritize customers by their likelihood of purchasing again within 30 days.',
+        'value': 'Review customer spending potential and decide whom to prioritize.',
+        'recommendations': 'Review purchase habits and 10 product recommendations for the next order.',
     }
     title_column, date_column = st.columns([3, 1], vertical_alignment='center')
     with title_column:
@@ -50,42 +59,42 @@ def header(page, date, customer_count):
         st.title(title, anchor=False)
         st.caption(descriptions[page])
     with date_column:
-        st.caption(f'分析日期 · {date}  \n本批客户 · {customer_count:,}位')
-        if st.button('更换数据', key='change_data', icon=':material/upload_file:'):
+        st.caption(f'Analysis date · {date}  \nCustomers · {customer_count:,}')
+        if st.button('Change data', key='change_data', icon=':material/upload_file:'):
             open_page('upload')
             st.rerun()
 
 
 def upload_workspace():
     st.markdown('<div class="page-eyebrow">CUSTOMER WORKSPACE</div>', unsafe_allow_html=True)
-    st.title('数据导入', anchor=False)
-    st.caption('上传购买明细，选择分析日期，系统自动生成客户快照和四项分析。')
+    st.title('Data import', anchor=False)
+    st.caption('Upload purchase history and select an analysis date to generate customer snapshots and all four analyses.')
     current = st.session_state.get('uploaded_workspace')
     if current is not None:
-        st.caption(f'当前分析：{current["date"]} · {len(current["customers"]):,}位客户')
+        st.caption(f'Current analysis: {current["date"]} · {len(current["customers"]):,} customers')
         if current.get('recommendation_method') != RECOMMENDATION_METHOD:
-            st.info('推荐方案已更新，请重新上传购买明细并生成分析。')
+            st.info('The recommendation model has been updated. Please upload purchase history and generate the analysis again.')
     with st.container(border=True, key='card_upload'):
         left, right = st.columns(2)
         with left:
-            history = st.file_uploader('购买明细 CSV', type=['csv'], key='upload_history',
-                                       help='提供完整可见购买历史，系统只使用分析日期之前的记录。')
+            history = st.file_uploader('Purchase history CSV', type=['csv'], key='upload_history',
+                                       help='Provide the complete available purchase history. Only transactions before the analysis date are used.')
         with right:
             previous_date = (st.session_state.get('uploaded_workspace') or {}).get('date', '2011-12-01')
             default_date = min(max(pd.Timestamp(previous_date), MIN_ANALYSIS_DATE), MAX_ANALYSIS_DATE)
             if 'upload_date' in st.session_state and not (
                     MIN_ANALYSIS_DATE <= pd.Timestamp(st.session_state['upload_date']) <= MAX_ANALYSIS_DATE):
                 del st.session_state['upload_date']
-            analysis_date = st.date_input('分析日期', value=default_date.date(),
+            analysis_date = st.date_input('Analysis date', value=default_date.date(),
                                           min_value=MIN_ANALYSIS_DATE.date(), max_value=MAX_ANALYSIS_DATE.date(),
                                           key='upload_date', format='YYYY-MM-DD',
-                                          help='可选择2011-09-01至2011-12-01之间任意一天。当天及之后的交易会自动排除。')
-        if st.button('生成分析', key='run_upload', type='primary', icon=':material/analytics:'):
+                                          help='Choose any date from 2011-09-01 to 2011-12-01. Transactions on or after that date are excluded.')
+        if st.button('Generate analysis', key='run_upload', type='primary', icon=':material/analytics:'):
             if history is None:
-                st.error('请先上传购买明细CSV文件。')
+                st.error('Please upload a purchase-history CSV file first.')
             else:
                 try:
-                    with st.spinner('正在核对数据并生成分析…'):
+                    with st.spinner('Validating data and generating analysis…'):
                         workspace = analyze_upload(history.getvalue(), analysis_date, frozen_models(RECOMMENDATION_METHOD))
                     st.session_state['uploaded_workspace'] = workspace
                     open_page('segments')
@@ -97,28 +106,28 @@ def upload_workspace():
                     st.error(str(error))
                 except (ValueError, KeyError, OSError, AssertionError):
                     LOGGER.exception('Could not analyze uploaded customer data')
-                    st.error('分析暂时无法完成，请联系项目维护者检查模型文件。')
+                    st.error('Analysis could not be completed. Please ask the project maintainer to check the model files.')
         if current is not None and current.get('recommendation_method') == RECOMMENDATION_METHOD:
-            if st.button('返回当前分析', key='cancel_upload'):
+            if st.button('Return to current analysis', key='cancel_upload'):
                 previous = st.session_state.get('last_analysis_page', 'segments')
                 open_page(previous if previous in PAGES else 'segments')
                 st.rerun()
 
 
 def row_limit(key):
-    return st.selectbox('显示客户数', [25, 50, 100, 200, 500], index=1, key=key)
+    return st.selectbox('Customers to display', [25, 50, 100, 200, 500], index=1, key=key)
 
 
 def download(shown, date, name, customer=None, profile=None):
     out = business_export(shown, date, customer, profile)
-    st.download_button('导出当前名单', data=out.to_csv(index=False).encode('utf-8-sig'),
+    st.download_button('Export current list', data=out.to_csv(index=False).encode('utf-8-sig'),
                        file_name=f'{name}_{date}.csv', mime='text/csv', icon=':material/download:')
 
 
 def money_columns():
     return {
-        '近180天消费额 (£)': st.column_config.NumberColumn(format='£%.2f'),
-        '平均客单价 (£)': st.column_config.NumberColumn(format='£%.2f'),
+        'Spend in last 180 days (£)': st.column_config.NumberColumn(format='£%.2f'),
+        'Average order value (£)': st.column_config.NumberColumn(format='£%.2f'),
     }
 
 
@@ -132,6 +141,21 @@ def style_chart(figure, group_names):
     return figure
 
 
+# Preserve selections when a previously opened Chinese-language session reloads.
+legacy_choices = {
+    '全部群体': 'All segments',
+    '客户ID升序': 'Customer ID (ascending)',
+    '近180天购买次数从高到低': 'Purchases in last 180 days (descending)',
+    '群 1｜较久未购': GROUP_NAMES[1],
+    '群 2｜近期高频': GROUP_NAMES[2],
+    '群 3｜近期低客单': GROUP_NAMES[0],
+    '群 4｜近期高客单': GROUP_NAMES[3],
+}
+for selection_key in ('segment_group', 'repurchase_group', 'recommendation_customer_sort'):
+    previous_choice = st.session_state.get(selection_key)
+    if previous_choice in legacy_choices:
+        st.session_state[selection_key] = legacy_choices[previous_choice]
+
 st.session_state.setdefault('workspace_page', 'upload')
 if st.session_state.pop('show_upload', False):
     open_page('upload')
@@ -141,18 +165,18 @@ if st.session_state.workspace_page not in {'upload', *PAGES} or not workspace_re
     st.session_state.workspace_page = 'upload'
 with st.sidebar:
     st.markdown('''<div class="workspace-brand"><div class="brand-mark" aria-hidden="true">
-        <i></i><i></i><i></i><i></i></div><div><div class="brand-title">客户洞察</div>
+        <i></i><i></i><i></i><i></i></div><div><div class="brand-title">Customer Insights</div>
         <div class="brand-subtitle">CUSTOMER ANALYTICS</div></div></div>''', unsafe_allow_html=True)
-    st.button('数据导入', key='nav_upload', icon=':material/upload_file:', width='stretch',
+    st.button('Data import', key='nav_upload', icon=':material/upload_file:', width='stretch',
               type='primary' if st.session_state.workspace_page == 'upload' else 'secondary',
               on_click=open_page, args=('upload',))
-    st.markdown('<div class="nav-label">客户分析</div>', unsafe_allow_html=True)
+    st.markdown('<div class="nav-label">Customer analysis</div>', unsafe_allow_html=True)
     for name, (label, icon) in PAGES.items():
         st.button(label, key=f'nav_{name}', icon=icon, width='stretch',
                   type='primary' if st.session_state.workspace_page == name else 'secondary',
                   disabled=not workspace_ready,
                   on_click=open_page, args=(name,))
-    st.markdown('<div class="sidebar-bottom">从购买记录，到客户洞察。</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-bottom">From purchase history to customer insights.</div>', unsafe_allow_html=True)
 
 if st.session_state.workspace_page == 'upload':
     upload_workspace()
@@ -163,8 +187,8 @@ page = st.session_state.workspace_page
 date = workspace['date']
 header(page, date, len(workspace['customers']))
 if workspace.get('ignored_future_rows', 0):
-    st.caption(f'已排除分析日当天及之后的{workspace["ignored_future_rows"]:,}条交易，仅使用此前记录。')
-month = workspace['customers'] if page in ('segments', 'repurchase') else (
+    st.caption(f'Excluded {workspace["ignored_future_rows"]:,} transactions on or after the analysis date. Only earlier records are used.')
+month = display_customer_groups(workspace['customers']) if page in ('segments', 'repurchase') else (
     workspace['priority'] if page == 'value' else workspace['profiles'])
 
 if page == 'segments':
@@ -172,37 +196,37 @@ if page == 'segments':
     palette = dict(zip(summary.segment_name, BLUES))
     left, right = st.columns(2)
     with left, st.container(border=True, key='card_segment_sizes'):
-        st.subheader('客户群体分布', anchor=False)
+        st.subheader('Customer segment distribution', anchor=False)
         figure = px.bar(summary, x='customers', y='segment_name', color='segment_name', orientation='h',
                          color_discrete_map=palette,
-                         labels={'customers': '客户数', 'segment_name': ''}, text='customers')
+                         labels={'customers': 'Customers', 'segment_name': ''}, text='customers')
         figure.update_traces(textposition='outside', cliponaxis=False)
         st.plotly_chart(style_chart(figure, summary.segment_name), width='stretch', config={'displayModeBar': False})
     with right, st.container(border=True, key='card_segment_spending'):
-        st.subheader('各群近180天累计消费', anchor=False)
+        st.subheader('180-day spend by segment', anchor=False)
         figure = px.bar(summary, x='spending', y='segment_name', color='segment_name', orientation='h',
                          color_discrete_map=palette,
-                         labels={'spending': '近180天累计消费中位数 (£)', 'segment_name': ''})
-        figure.update_traces(hovertemplate='%{y}<br>消费中位数 £%{x:,.2f}<extra></extra>')
+                         labels={'spending': 'Median 180-day spend (£)', 'segment_name': ''})
+        figure.update_traces(hovertemplate='%{y}<br>Median spend £%{x:,.2f}<extra></extra>')
         st.plotly_chart(style_chart(figure, summary.segment_name), width='stretch', config={'displayModeBar': False})
     with st.container(border=True, key='card_segment_summary'):
-        st.subheader('群体特征', anchor=False)
-        st.caption(f'整体参照：本批客户近180天消费中位数 £{month.monetary.median():,.2f}')
-        table = summary.rename(columns={'segment_name': '客户群体', 'customers': '客户数', 'share': '占比',
-                                         'recency': '距上次购买中位天数', 'orders': '近180天订单中位数',
-                                         'spending': '近180天消费中位数 (£)', 'aov': '客单价中位数 (£)'})
-        st.dataframe(table[['客户群体', '客户数', '占比', '距上次购买中位天数', '近180天订单中位数',
-                            '近180天消费中位数 (£)', '客单价中位数 (£)']], hide_index=True, width='stretch',
-                     column_config={'占比': st.column_config.NumberColumn(format='percent'),
-                                    '近180天消费中位数 (£)': st.column_config.NumberColumn(format='£%.2f'),
-                                    '客单价中位数 (£)': st.column_config.NumberColumn(format='£%.2f')})
+        st.subheader('Segment profiles', anchor=False)
+        st.caption(f'Overall reference: median 180-day spend £{month.monetary.median():,.2f}')
+        table = summary.rename(columns={'segment_name': 'Customer segment', 'customers': 'Customers', 'share': 'Share',
+                                         'recency': 'Median days since last purchase', 'orders': 'Median orders (180d)',
+                                         'spending': 'Median 180-day spend (£)', 'aov': 'Median order value (£)'})
+        st.dataframe(table[['Customer segment', 'Customers', 'Share', 'Median days since last purchase', 'Median orders (180d)',
+                            'Median 180-day spend (£)', 'Median order value (£)']], hide_index=True, width='stretch',
+                     column_config={'Share': st.column_config.NumberColumn(format='percent'),
+                                    'Median 180-day spend (£)': st.column_config.NumberColumn(format='£%.2f'),
+                                    'Median order value (£)': st.column_config.NumberColumn(format='£%.2f')})
     with st.container(border=True, key='card_segment_customers'):
-        st.subheader('查看群内客户', anchor=False)
+        st.subheader('Customers in this segment', anchor=False)
         f1, f2, f3 = st.columns([2, 2, 1])
         with f1:
-            segment = st.selectbox('客户群体', ['全部群体'] + sorted(month.segment_name.unique()), key='segment_group')
+            segment = st.selectbox('Customer segment', ['All segments'] + sorted(month.segment_name.unique()), key='segment_group')
         with f2:
-            query = st.text_input('客户 ID', placeholder='输入客户 ID 筛选', key='segment_search')
+            query = st.text_input('Customer ID', placeholder='Enter a customer ID to filter', key='segment_search')
         with f3:
             limit = row_limit('segment_limit')
         filtered = customer_filter(month, segment, query)
@@ -210,18 +234,18 @@ if page == 'segments':
         action_left, action_right = st.columns([3, 1])
         with action_right:
             download(shown, date, 'customer_segments')
-        st.caption(f'共匹配 {len(filtered):,} 位客户，当前显示 {len(shown):,} 位')
+        st.caption(f'Matched {len(filtered):,} customers · Showing {len(shown):,}')
         if shown.empty:
-            st.info('没有匹配的客户，请调整筛选。')
+            st.info('No matching customers. Adjust the filters.')
         st.dataframe(shown, hide_index=True, width='stretch', height=380, column_config=money_columns())
 
 elif page == 'repurchase':
     with st.container(border=True, key='card_repurchase_filters'):
         f1, f2, f3 = st.columns([2, 2, 1])
         with f1:
-            segment = st.selectbox('客户群体', ['全部群体'] + sorted(month.segment_name.unique()), key='repurchase_group')
+            segment = st.selectbox('Customer segment', ['All segments'] + sorted(month.segment_name.unique()), key='repurchase_group')
         with f2:
-            query = st.text_input('客户 ID', placeholder='输入客户 ID 筛选', key='repurchase_search')
+            query = st.text_input('Customer ID', placeholder='Enter a customer ID to filter', key='repurchase_search')
         with f3:
             limit = row_limit('repurchase_limit')
     filtered = customer_filter(month, segment, query)
@@ -230,22 +254,22 @@ elif page == 'repurchase':
         shown = customer_table(ranked)
         title_column, action_column = st.columns([3, 1], vertical_alignment='center')
         with title_column:
-            st.subheader('复购优先名单', anchor=False)
+            st.subheader('Repurchase priorities', anchor=False)
         with action_column:
             download(shown, date, 'repurchase_priority')
-        st.caption(f'共匹配 {len(filtered):,} 位客户，当前显示 {len(shown):,} 位')
-        st.caption('评分越高，查看优先级越高。')
+        st.caption(f'Matched {len(filtered):,} customers · Showing {len(shown):,}')
+        st.caption('Higher scores indicate higher review priority.')
         if shown.empty:
-            st.info('没有匹配的客户，请调整筛选。')
+            st.info('No matching customers. Adjust the filters.')
         config = money_columns()
-        config['复购评分'] = st.column_config.ProgressColumn(min_value=0., max_value=1., format='%.3f')
+        config['Repurchase score'] = st.column_config.ProgressColumn(min_value=0., max_value=1., format='%.3f')
         st.dataframe(shown, hide_index=True, width='stretch', height=450, column_config=config)
 
 elif page == 'value':
     with st.container(border=True, key='card_value_filters'):
         f1, f2 = st.columns([3, 1])
         with f1:
-            query = st.text_input('客户 ID', placeholder='输入客户 ID 筛选', key='value_search')
+            query = st.text_input('Customer ID', placeholder='Enter a customer ID to filter', key='value_search')
         with f2:
             limit = row_limit('value_limit')
     priority_count = int(month.priority_band.eq('Top 20%').sum())
@@ -255,48 +279,48 @@ elif page == 'value':
         shown = value_table(filtered.head(limit))
         title_column, action_column = st.columns([3, 1], vertical_alignment='center')
         with title_column:
-            st.subheader('消费潜力名单', anchor=False)
-            st.caption(f'前20%消费潜力客户 · **{priority_count:,}位**')
+            st.subheader('Spending potential ranking', anchor=False)
+            st.caption(f'Top 20% by spending potential · **{priority_count:,} customers**')
         with action_column:
             download(shown, date, 'spend_potential')
-        st.caption(f'共匹配 {len(filtered):,} 位客户，当前显示 {len(shown):,} 位')
-        st.caption('名次表示本批上传客户的相对消费潜力，不是预计消费金额。')
+        st.caption(f'Matched {len(filtered):,} customers · Showing {len(shown):,}')
+        st.caption('Ranks show relative spending potential within the uploaded cohort, rather than predicted amounts.')
         if shown.empty:
-            st.info('没有匹配的客户，请调整筛选。')
+            st.info('No matching customers. Adjust the filters.')
         st.dataframe(shown, hide_index=True, width='stretch', height=450, column_config=money_columns())
 
 else:
     with st.container(border=True, key='card_recommendation_customer'):
         sort_column, customer_column = st.columns([1, 3])
         with sort_column:
-            customer_sort = st.selectbox('客户排序', ['客户ID升序', '近180天购买次数从高到低'],
+            customer_sort = st.selectbox('Customer sort order', ['Customer ID (ascending)', 'Purchases in last 180 days (descending)'],
                                          key='recommendation_customer_sort')
         ordered = (month.sort_values(['order_count', 'customer_id'], ascending=[False, True], kind='stable')
-                   if customer_sort == '近180天购买次数从高到低' else month.sort_values('customer_id', kind='stable'))
+                   if customer_sort == 'Purchases in last 180 days (descending)' else month.sort_values('customer_id', kind='stable'))
         ids = ordered.customer_id.tolist()
         if st.session_state.get('recommendation_customer') not in ids:
             st.session_state['recommendation_customer'] = '12347' if '12347' in ids else ids[0]
         with customer_column:
-            customer = st.selectbox('客户 ID', ids, key='recommendation_customer')
+            customer = st.selectbox('Customer ID', ids, key='recommendation_customer')
     profile = month.loc[month.customer_id.eq(customer)].iloc[0]
     summary_columns = st.columns(3 if pd.notna(profile.historical_repeat_share) else 2)
-    summary_columns[0].metric('近180天购买次数', str(int(profile.order_count)))
-    summary_columns[1].metric('购买商品种数', str(int(profile.distinct_products)))
+    summary_columns[0].metric('Purchases (180d)', str(int(profile.order_count)))
+    summary_columns[1].metric('Distinct products purchased', str(int(profile.distinct_products)))
     if pd.notna(profile.historical_repeat_share):
-        summary_columns[2].metric('历史订单老商品平均占比', f'{profile.historical_repeat_share:.1%}',
-                                 help='在近180天内，第一笔订单建立购买历史；对后续每单计算以前买过的商品占比，再取平均。')
+        summary_columns[2].metric('Historical repeat-product share', f'{profile.historical_repeat_share:.1%}',
+                                 help='Within the last 180 days, the first order establishes history. Average the share of previously purchased products across later orders.')
     if profile.history_status != '可比较':
-        st.caption('可用购买记录较少，购买习惯仅供参考。')
-    with st.expander('画像详情'):
+        st.caption('Purchase history is limited; interpret these habits with care.')
+    with st.expander('Profile details'):
         st.table(profile_details(profile))
     rows = recommend_customer(workspace, customer)
     shown = product_table(rows)
     with st.container(border=True, key='card_recommendation_products'):
         title_column, action_column = st.columns([3, 1], vertical_alignment='center')
         with title_column:
-            st.subheader('为这位客户推荐的10件商品', anchor=False)
+            st.subheader('10 product recommendations for this customer', anchor=False)
         with action_column:
             download(shown, date, f'product_recommendations_{customer}', customer, profile)
         st.dataframe(shown, hide_index=True, width='stretch', height=450,
-                     column_config={'近180天购买次数': st.column_config.NumberColumn(format='%d'),
-                                    '距该商品上次购买天数': st.column_config.NumberColumn(format='%.1f')})
+                     column_config={'Purchases (180d)': st.column_config.NumberColumn(format='%d'),
+                                    'Days since last product purchase': st.column_config.NumberColumn(format='%.1f')})

@@ -28,6 +28,7 @@ from value_prediction.ranking_comparison import make_priority, predict, rule_sco
 from value_prediction.temporal_features import build_temporal_features
 
 ROOT = Path(__file__).resolve().parents[1]
+UI_TEXT_VERSION = 'en-1'
 DEMO = ROOT / 'data/demo/2011-12-01'
 SNAPSHOT_COLUMNS = ['snapshot_date', 'customer_id'] + BASE_FEATURES
 TRANSACTION_COLUMNS = ['customer_id', 'invoice', 'invoice_date', 'stock_code',
@@ -51,22 +52,22 @@ def digest(path: Path) -> str:
 
 def _read_csv(content: bytes, columns: list[str], label: str) -> pd.DataFrame:
     if not content or len(content) > MAX_BYTES:
-        raise UploadError(f'{label}不能为空，且不能超过150 MB。')
+        raise UploadError(f'{label} must not be empty or larger than 150 MB.')
     try:
         data = pd.read_csv(BytesIO(content), dtype='string', encoding='utf-8-sig')
     except (ValueError, UnicodeError, pd.errors.ParserError) as error:
-        raise UploadError(f'{label}无法读取，请使用UTF-8编码的CSV文件。') from error
+        raise UploadError(f'{label} could not be read. Use a UTF-8 encoded CSV file.') from error
     missing, extra = sorted(set(columns) - set(data)), sorted(set(data) - set(columns))
     if missing:
-        raise UploadError(f'{label}缺少字段：{", ".join(missing)}。请参考演示文件。')
+        raise UploadError(f'{label} is missing fields: {", ".join(missing)}. Please refer to the example file.')
     if extra:
-        raise UploadError(f'{label}包含不支持的字段：{", ".join(extra)}。请只保留模板字段，不要上传预测答案。')
+        raise UploadError(f'{label} contains unsupported fields: {", ".join(extra)}. Keep only the template fields and do not upload prediction labels.')
     if data.empty or len(data) > 2_000_000 or data.isna().any().any():
-        raise UploadError(f'{label}需有1至2,000,000行，所有字段均须填写。')
+        raise UploadError(f'{label} must contain 1 to 2,000,000 rows, with all fields completed.')
     for column in columns:
         data[column] = data[column].str.strip()
         if data[column].eq('').any():
-            raise UploadError(f'{label}的{column}存在空值。')
+            raise UploadError(f'{label} contains empty values in {column}.')
     return data[columns]
 
 
@@ -76,7 +77,7 @@ def _dates(data: pd.DataFrame, column: str, label: str) -> None:
         if data[column].dt.tz is not None or data[column].isna().any():
             raise ValueError('Expected local datetimes')
     except (ValueError, TypeError, AttributeError) as error:
-        raise UploadError(f'{label}的{column}日期无效；请使用不含时区的日期或时间。') from error
+        raise UploadError(f'{label} has invalid dates in {column}. Use dates or times without a time zone.') from error
 
 
 def _numbers(data: pd.DataFrame, columns: list[str], label: str) -> None:
@@ -86,7 +87,7 @@ def _numbers(data: pd.DataFrame, columns: list[str], label: str) -> None:
         if not np.isfinite(data[columns].to_numpy(dtype=float)).all():
             raise ValueError('Nonfinite number')
     except (ValueError, TypeError) as error:
-        raise UploadError(f'{label}的数值字段必须为有限数字。') from error
+        raise UploadError(f'Numeric fields in {label} must contain finite numbers.') from error
 
 
 def snapshots_from_history(history: pd.DataFrame, cutoff: pd.Timestamp) -> pd.DataFrame:
@@ -95,7 +96,7 @@ def snapshots_from_history(history: pd.DataFrame, cutoff: pd.Timestamp) -> pd.Da
     past = history.loc[history.invoice_date.lt(cutoff)]
     observed = past.loc[past.invoice_date.ge(cutoff - pd.Timedelta(days=180))]
     if observed.empty:
-        raise UploadError('分析日前180天没有合格购买记录。')
+        raise UploadError('There are no eligible purchases in the 180 days before the analysis date.')
     invoices = observed.groupby(['customer_id', 'invoice'], observed=True, as_index=False).agg(
         invoice_date=('invoice_date', 'max'), order_value=('line_amount', 'sum'))
     customers = observed.groupby('customer_id', observed=True).agg(
@@ -122,32 +123,32 @@ def validate_upload(history_bytes: bytes, analysis_date) -> tuple[pd.DataFrame, 
         if pd.isna(cutoff) or cutoff.tzinfo is not None or cutoff != cutoff.normalize():
             raise ValueError('Expected a local calendar date')
     except (ValueError, TypeError) as error:
-        raise UploadError('分析日期须为有效日期，不含具体时分秒或时区。') from error
+        raise UploadError('The analysis date must be a valid calendar date without a time of day or time zone.') from error
     if not MIN_ANALYSIS_DATE <= cutoff <= MAX_ANALYSIS_DATE:
-        raise UploadError('分析日期须在2011-09-01至2011-12-01之间（含首尾）。')
-    history = _read_csv(history_bytes, TRANSACTION_COLUMNS, '购买明细')
-    _dates(history, 'invoice_date', '购买明细')
+        raise UploadError('The analysis date must be from 2011-09-01 to 2011-12-01, inclusive.')
+    history = _read_csv(history_bytes, TRANSACTION_COLUMNS, 'Purchase history')
+    _dates(history, 'invoice_date', 'Purchase history')
     future = history.invoice_date.ge(cutoff)
     ignored = int(future.sum())
     history = history.loc[~future].copy()
     if history.empty:
-        raise UploadError('分析日期之前没有购买记录，请检查日期或上传更早的明细。')
-    _numbers(history, ['quantity', 'unit_price', 'line_amount'], '购买明细')
+        raise UploadError('No purchases precede the analysis date. Check the date or upload earlier purchase history.')
+    _numbers(history, ['quantity', 'unit_price', 'line_amount'], 'Purchase history')
     if (history[['quantity', 'unit_price', 'line_amount']] <= 0).any().any():
-        raise UploadError('请上传清洗后的购买明细，数量、单价和金额须大于0。')
+        raise UploadError('Upload cleaned purchase history with quantity, unit price and amount greater than zero.')
     if not np.allclose(history.line_amount, (history.quantity * history.unit_price).round(2), rtol=0, atol=1e-6):
-        raise UploadError('购买明细中，行金额必须等于数量乘单价并保留两位小数。')
+        raise UploadError('In purchase history, line_amount must equal quantity multiplied by unit_price, rounded to two decimal places.')
     cents = history.line_amount.to_numpy(dtype=float) * 100
     if not np.allclose(cents, np.rint(cents), rtol=0, atol=1e-6):
-        raise UploadError('购买明细的行金额最多保留两位小数。')
+        raise UploadError('Purchase-history amounts must have no more than two decimal places.')
     code = history.stock_code.str.upper()
     if (history.invoice.str.upper().str.startswith('C').any() or code.isin(NON_PRODUCT_CODES).any()
             or code.str.startswith(('GIFT_', 'TEST')).any()):
-        raise UploadError('请移除取消订单、费用、测试和礼券等非商品记录。')
+        raise UploadError('Remove cancelled orders, charges, test entries, gift vouchers and other non-product records.')
     if history.duplicated(TRANSACTION_COLUMNS).any():
-        raise UploadError('购买明细存在完全重复行，请先去重。')
+        raise UploadError('Purchase history contains duplicate rows. Remove duplicates first.')
     if history.groupby('invoice').customer_id.nunique().gt(1).any():
-        raise UploadError('同一发票编号对应了不同客户，请检查订单编号。')
+        raise UploadError('An invoice ID is associated with different customers. Check the invoice IDs.')
     snapshots = snapshots_from_history(history, cutoff)
     return snapshots, history, ignored
 
@@ -202,7 +203,7 @@ def analyze_upload(history_bytes: bytes, analysis_date, models: dict | None = No
     cutoff = snapshots.snapshot_date.iloc[0]
     catalog = models['catalog']
     if pd.to_datetime(catalog.catalog_cutoff).max() > cutoff:
-        raise UploadError('分析日期早于当前商品库的冻结日期。')
+        raise UploadError('The analysis date precedes the frozen product catalog date.')
     invoices = history.groupby(['customer_id', 'invoice'], observed=True, as_index=False).invoice_date.max()
     features = add_features(snapshots, invoices)
     scored = score(models['customer'], features)
@@ -246,11 +247,11 @@ def analyze_upload(history_bytes: bytes, analysis_date, models: dict | None = No
 def recommend_customer(workspace: dict, customer: str) -> pd.DataFrame:
     """Score this customer's full frozen catalog using the saved D classifier."""
     if workspace.get('recommendation_method') != RECOMMENDATION_METHOD:
-        raise UploadError('推荐方案已更新，请重新上传购买明细并生成分析。')
+        raise UploadError('The recommendation model has been updated. Please upload purchase history and generate the analysis again.')
     context = workspace['context']
     positions = np.flatnonzero(context['customers'] == customer)
     if len(positions) != 1:
-        raise UploadError('找不到该客户的购买记录。')
+        raise UploadError('No purchase history was found for this customer.')
     cutoff = pd.Timestamp(workspace['date'])
     snapshots = workspace['generated_snapshots'].loc[workspace['generated_snapshots'].customer_id.eq(customer)]
     item_inputs = item_context(workspace['recommendation_history'], snapshots, cutoff, workspace['recommendation_ease'])

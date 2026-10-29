@@ -85,10 +85,10 @@ class StageSixDashboardTests(unittest.TestCase):
             if 'stToolbar' in selector or 'stExpandSidebarButton' in selector:
                 self.assertNotRegex(declarations, r'(visibility\s*:\s*hidden|display\s*:\s*none)')
         self.assertFalse(dashboard.exception)
-        self.assertEqual(dashboard.title[0].value, '数据导入')
+        self.assertEqual(dashboard.title[0].value, 'Data import')
         self.assertEqual(dashboard.session_state['workspace_page'], 'upload')
         self.assertEqual([button.label for button in dashboard.sidebar.button],
-                         ['数据导入', '客户分群', '复购优先名单', '高消费潜力', '画像与商品推荐'])
+                         ['Data import', 'Customer segments', 'Repurchase priorities', 'High-value customers', 'Product recommendations'])
         self.assertTrue(all(button.disabled for button in dashboard.sidebar.button if button.key != 'nav_upload'))
         self.assertFalse(dashboard.dataframe)
         self.assertEqual(len(dashboard.get('file_uploader')), 1)
@@ -107,7 +107,7 @@ class StageSixDashboardTests(unittest.TestCase):
         self.assertFalse(dashboard.error)
         self.assertEqual(dashboard.session_state['uploaded_workspace']['date'], '2011-12-01')
         self.assertEqual(dashboard.session_state['uploaded_workspace']['recommendation_method'], 'D_classifier')
-        self.assertTrue(any('本批客户 · 3,444位' in caption.value for caption in dashboard.caption))
+        self.assertTrue(any('Customers · 3,444' in caption.value for caption in dashboard.caption))
         next(button for button in dashboard.button if button.key == 'change_data').click().run()
         with patch('streamlit.file_uploader', return_value=BytesIO(b'bad,file\n1,2')):
             next(button for button in dashboard.button if button.key == 'run_upload').click().run()
@@ -117,7 +117,7 @@ class StageSixDashboardTests(unittest.TestCase):
         self.assertEqual(dashboard.session_state['uploaded_workspace']['date'], '2011-12-01')
         next(button for button in dashboard.button if button.key == 'cancel_upload').click().run()
         self.assertFalse(dashboard.exception)
-        self.assertTrue(any('本批客户 · 3,444位' in caption.value for caption in dashboard.caption))
+        self.assertTrue(any('Customers · 3,444' in caption.value for caption in dashboard.caption))
 
     def test_old_rule_session_requires_regeneration_before_opening_business_pages(self):
         dashboard = AppTest.from_file(str(ROOT / 'app/dashboard.py'), default_timeout=40)
@@ -125,8 +125,8 @@ class StageSixDashboardTests(unittest.TestCase):
         dashboard.session_state['workspace_page'] = 'recommendations'
         dashboard.run()
         self.assertFalse(dashboard.exception)
-        self.assertEqual(dashboard.title[0].value, '数据导入')
-        self.assertTrue(any('推荐方案已更新' in message.value for message in dashboard.info))
+        self.assertEqual(dashboard.title[0].value, 'Data import')
+        self.assertTrue(any('The recommendation model has been updated' in message.value for message in dashboard.info))
         self.assertTrue(all(button.disabled for button in dashboard.sidebar.button if button.key != 'nav_upload'))
         self.assertFalse(any(button.key == 'cancel_upload' for button in dashboard.button))
         self.assertEqual(dashboard.session_state['uploaded_workspace']['recommendation_method'], 'personal_repeat')
@@ -162,7 +162,7 @@ class StageSixDashboardTests(unittest.TestCase):
         original = dashboard.dataframe[0].value.copy()
         self.open_business_page(dashboard, 'upload')
         self.assertFalse(dashboard.exception)
-        self.assertEqual(dashboard.title[0].value, '数据导入')
+        self.assertEqual(dashboard.title[0].value, 'Data import')
         self.assertEqual(len(dashboard.get('file_uploader')), 1)
         self.assertFalse(dashboard.dataframe)
         self.assertEqual(dashboard.session_state['uploaded_workspace']['date'], '2011-12-01')
@@ -191,7 +191,7 @@ class StageSixDashboardTests(unittest.TestCase):
         before = frame.copy(deep=True)
         shown = display_customer_groups(frame)
         self.assertEqual(shown.segment_name.tolist(), [
-            '群 3｜近期低客单', '群 1｜较久未购', '群 2｜近期高频', '群 4｜近期高客单'])
+            'Group 3 | Recent low order value', 'Group 1 | Long inactive', 'Group 2 | Recent frequent buyers', 'Group 4 | Recent high order value'])
         pd.testing.assert_frame_equal(frame, before)
         pd.testing.assert_frame_equal(shown.drop(columns='segment_name'), before.drop(columns='segment_name'))
         self.assertEqual(group_summary(shown).segment_name.tolist(), list(GROUP_NAMES.values()))
@@ -199,8 +199,8 @@ class StageSixDashboardTests(unittest.TestCase):
             filtered = customer_filter(shown, name)
             self.assertEqual(filtered.cluster.tolist(), [cluster])
             exported = business_export(customer_table(filtered, include_score=False), '2011-09-01')
-            self.assertEqual(exported['客户群体'].tolist(), [name])
-            self.assertEqual(exported['客户 ID'].tolist(), frame.loc[frame.cluster.eq(cluster), 'CustomerID'].tolist())
+            self.assertEqual(exported['Customer segment'].tolist(), [name])
+            self.assertEqual(exported['Customer ID'].tolist(), frame.loc[frame.cluster.eq(cluster), 'CustomerID'].tolist())
 
     def test_frozen_model_reproduces_saved_test_scores_without_exporting_labels(self):
         replay, metadata, comparison = load_stage6_replay()
@@ -243,7 +243,7 @@ class StageSixDashboardTests(unittest.TestCase):
         dashboard = self.open_dashboard()
         self.assertFalse(dashboard.exception)
         self.assertFalse(dashboard.error)
-        self.assertEqual([button.label for button in dashboard.sidebar.button], ['数据导入'] + [value[0] for value in PAGES.values()])
+        self.assertEqual([button.label for button in dashboard.sidebar.button], ['Data import'] + [value[0] for value in PAGES.values()])
         self.assertEqual(len(dashboard.sidebar.radio), 0)
         self.assertEqual(len(dashboard.radio), 0)
         for key in PAGES:
@@ -254,28 +254,96 @@ class StageSixDashboardTests(unittest.TestCase):
                             for element in getattr(dashboard, category))
             for redundant in ('sha256', 'XGBoost', 'LightGBM', 'NDCG', 'ROC-AUC', 'Brier', '验证期', '复核', '模型版本'):
                 self.assertNotIn(redundant, text)
-            self.assertEqual(sum('本批客户 · 3,444位' in caption.value for caption in dashboard.caption), 1)
+            rendered = [text] + [element.value for element in dashboard.markdown]
+            rendered += [button.label for button in dashboard.button]
+            rendered += [widget.label + ' '.join(widget.options) for widget in dashboard.selectbox]
+            rendered += [widget.label for widget in dashboard.text_input]
+            rendered += [metric.label + metric.value for metric in dashboard.metric]
+            rendered += [table.value.to_csv() for table in (*dashboard.dataframe, *dashboard.table)]
+            for chart in dashboard.get('plotly_chart'):
+                rendered.append(chart.proto.spec)
+            self.assertNotRegex(' '.join(rendered), r'[\u4e00-\u9fff]')
+            self.assertEqual(sum('Customers · 3,444' in caption.value for caption in dashboard.caption), 1)
             self.assertEqual([expander.label for expander in dashboard.expander],
-                             ['画像详情'] if key == 'recommendations' else [])
+                             ['Profile details'] if key == 'recommendations' else [])
             if key != 'recommendations':
                 self.assertFalse(dashboard.metric)
             else:
                 self.assertEqual([metric.label for metric in dashboard.metric],
-                                 ['近180天购买次数', '购买商品种数', '历史订单老商品平均占比'])
+                                 ['Purchases (180d)', 'Distinct products purchased', 'Historical repeat-product share'])
         self.assertEqual(dashboard.session_state['workspace_page'], 'recommendations')
+
+    def test_english_labels_preserve_existing_session_data_and_selections(self):
+        from app.business_views import GROUP_NAMES
+        legacy_names = {1: '群 1｜较久未购', 2: '群 2｜近期高频',
+                        0: '群 3｜近期低客单', 3: '群 4｜近期高客单'}
+        legacy_customers = self.workspace['customers'].assign(
+            segment_name=self.workspace['customers'].cluster.map(legacy_names))
+        original = legacy_customers.copy(deep=True)
+        dashboard = AppTest.from_file(str(ROOT / 'app/dashboard.py'), default_timeout=40)
+        dashboard.session_state['uploaded_workspace'] = dict(self.workspace, customers=legacy_customers)
+        dashboard.session_state['workspace_page'] = 'segments'
+        dashboard.session_state['segment_group'] = legacy_names[1]
+        dashboard.session_state['repurchase_group'] = legacy_names[3]
+        dashboard.session_state['recommendation_customer_sort'] = '近180天购买次数从高到低'
+        dashboard.session_state['recommendation_customer'] = '12348'
+        dashboard.run()
+        self.assertFalse(dashboard.exception)
+        self.assertEqual(next(widget for widget in dashboard.selectbox if widget.label == 'Customer segment').value,
+                         GROUP_NAMES[1])
+        self.assertEqual(dashboard.dataframe[1].value['Customer segment'].unique().tolist(), [GROUP_NAMES[1]])
+        pd.testing.assert_frame_equal(dashboard.session_state['uploaded_workspace']['customers'], original)
+        self.open_business_page(dashboard, 'repurchase')
+        self.assertFalse(dashboard.exception)
+        self.assertEqual(dashboard.dataframe[0].value['Customer segment'].unique().tolist(), [GROUP_NAMES[3]])
+        self.open_business_page(dashboard, 'recommendations')
+        self.assertFalse(dashboard.exception)
+        self.assertEqual(next(widget for widget in dashboard.selectbox if widget.label == 'Customer ID').value, '12348')
+        self.assertEqual(next(widget for widget in dashboard.selectbox if widget.label == 'Customer sort order').value,
+                         'Purchases in last 180 days (descending)')
+        pd.testing.assert_frame_equal(dashboard.session_state['uploaded_workspace']['customers'], original)
+
+    def test_cached_chinese_ui_modules_reload_without_losing_uploaded_analysis(self):
+        import importlib
+        from types import ModuleType
+        package = importlib.import_module('app')
+        views = importlib.import_module('app.business_views')
+        inference = importlib.import_module('app.upload_inference')
+        legacy_pages = {key: (f'旧页面{number}', icon)
+                        for number, (key, (_, icon)) in enumerate(views.PAGES.items())}
+        legacy_groups = {cluster: f'旧群体{cluster}' for cluster in views.GROUP_NAMES}
+        orphaned = ModuleType('app.business_views')
+        orphaned.UI_TEXT_VERSION = 'zh-legacy'
+        orphaned.PAGES = legacy_pages
+        original = self.workspace['customers'].copy(deep=True)
+        with patch.object(package, 'business_views', orphaned), \
+                patch.object(views, 'UI_TEXT_VERSION', 'zh-legacy'), \
+                patch.object(views, 'PAGES', legacy_pages), \
+                patch.object(views, 'GROUP_NAMES', legacy_groups), \
+                patch.object(inference, 'UI_TEXT_VERSION', 'zh-legacy'):
+            dashboard = self.open_dashboard()
+            self.assertFalse(dashboard.exception)
+            self.assertEqual(dashboard.title[0].value, 'Customer segments')
+            self.assertEqual([button.label for button in dashboard.sidebar.button],
+                             ['Data import', 'Customer segments', 'Repurchase priorities',
+                              'High-value customers', 'Product recommendations'])
+            self.assertNotRegex(dashboard.dataframe[0].value.to_csv(), r'[\u4e00-\u9fff]')
+            self.assertEqual(views.UI_TEXT_VERSION, 'en-1')
+            self.assertEqual(inference.UI_TEXT_VERSION, 'en-1')
+            pd.testing.assert_frame_equal(dashboard.session_state['uploaded_workspace']['customers'], original)
 
     def test_dashboard_keeps_analysis_date_between_segments_and_repurchase(self):
         dashboard = self.open_dashboard()
-        names = ['群 1｜较久未购', '群 2｜近期高频', '群 3｜近期低客单', '群 4｜近期高客单']
+        names = ['Group 1 | Long inactive', 'Group 2 | Recent frequent buyers', 'Group 3 | Recent low order value', 'Group 4 | Recent high order value']
         summary = dashboard.dataframe[0].value
         self.assertFalse(dashboard.metric)
-        self.assertIn('共匹配 3,444 位客户，当前显示 50 位', [caption.value for caption in dashboard.caption])
-        self.assertTrue(any(f'近180天消费中位数 £{self.workspace["customers"].monetary.median():,.2f}' in caption.value
+        self.assertIn('Matched 3,444 customers · Showing 50', [caption.value for caption in dashboard.caption])
+        self.assertTrue(any(f'Overall reference: median 180-day spend £{self.workspace["customers"].monetary.median():,.2f}' in caption.value
                             for caption in dashboard.caption))
-        self.assertEqual(summary['客户群体'].tolist(), names)
-        self.assertEqual(summary['客户数'].tolist(), [590, 816, 704, 1334])
-        self.assertEqual(next(widget for widget in dashboard.selectbox if widget.label == '客户群体').options,
-                         ['全部群体'] + names)
+        self.assertEqual(summary['Customer segment'].tolist(), names)
+        self.assertEqual(summary['Customers'].tolist(), [590, 816, 704, 1334])
+        self.assertEqual(next(widget for widget in dashboard.selectbox if widget.label == 'Customer segment').options,
+                         ['All segments'] + names)
         for chart in dashboard.get('plotly_chart'):
             import json
             spec = json.loads(chart.proto.spec)
@@ -285,25 +353,25 @@ class StageSixDashboardTests(unittest.TestCase):
         self.assertFalse(dashboard.exception)
         self.assertFalse(dashboard.error)
         self.assertEqual(dashboard.session_state['uploaded_workspace']['date'], '2011-12-01')
-        self.assertFalse(any(widget.label == '分析日期' for widget in dashboard.selectbox))
+        self.assertFalse(any(widget.label == 'Analysis date' for widget in dashboard.selectbox))
         shown = dashboard.dataframe[0].value
         self.assertEqual(len(shown), 50)
-        self.assertEqual(shown['优先名次'].tolist(), list(range(1, 51)))
-        self.assertTrue(shown['复购评分'].is_monotonic_decreasing)
-        group = next(widget for widget in dashboard.selectbox if widget.label == '客户群体')
-        self.assertEqual(group.options, ['全部群体'] + names)
+        self.assertEqual(shown['Priority rank'].tolist(), list(range(1, 51)))
+        self.assertTrue(shown['Repurchase score'].is_monotonic_decreasing)
+        group = next(widget for widget in dashboard.selectbox if widget.label == 'Customer segment')
+        self.assertEqual(group.options, ['All segments'] + names)
         group.set_value(group.options[1]).run()
         self.assertFalse(dashboard.exception)
-        self.assertEqual(dashboard.dataframe[0].value['客户群体'].nunique(), 1)
-        self.assertIn('共匹配 590 位客户，当前显示 50 位', [caption.value for caption in dashboard.caption])
-        next(widget for widget in dashboard.selectbox if widget.label == '显示客户数').set_value(25).run()
+        self.assertEqual(dashboard.dataframe[0].value['Customer segment'].nunique(), 1)
+        self.assertIn('Matched 590 customers · Showing 50', [caption.value for caption in dashboard.caption])
+        next(widget for widget in dashboard.selectbox if widget.label == 'Customers to display').set_value(25).run()
         self.assertEqual(len(dashboard.dataframe[0].value), 25)
-        self.assertIn('共匹配 590 位客户，当前显示 25 位', [caption.value for caption in dashboard.caption])
-        next(widget for widget in dashboard.text_input if widget.label == '客户 ID').set_value('not-a-customer').run()
+        self.assertIn('Matched 590 customers · Showing 25', [caption.value for caption in dashboard.caption])
+        next(widget for widget in dashboard.text_input if widget.label == 'Customer ID').set_value('not-a-customer').run()
         self.assertFalse(dashboard.exception)
         self.assertFalse(dashboard.error)
         self.assertTrue(dashboard.dataframe[0].value.empty)
-        self.assertIn('共匹配 0 位客户，当前显示 0 位', [caption.value for caption in dashboard.caption])
+        self.assertIn('Matched 0 customers · Showing 0', [caption.value for caption in dashboard.caption])
 
     def test_dashboard_high_value_only_exposes_actionable_customer_columns(self):
         from app.business_views import VALUE_COLUMNS
@@ -315,24 +383,24 @@ class StageSixDashboardTests(unittest.TestCase):
         shown = dashboard.dataframe[0].value
         self.assertEqual(len(shown), 50)
         self.assertEqual(list(shown), list(VALUE_COLUMNS.values()))
-        self.assertNotIn('关注级别', shown)
-        self.assertEqual(shown['潜力排名'].tolist(), list(range(1, 51)))
+        self.assertNotIn('Attention level', shown)
+        self.assertEqual(shown['Potential rank'].tolist(), list(range(1, 51)))
         self.assertFalse(dashboard.metric)
-        self.assertIn('前20%消费潜力客户 · **689位**', [caption.value for caption in dashboard.caption])
-        self.assertIn('共匹配 689 位客户，当前显示 50 位', [caption.value for caption in dashboard.caption])
+        self.assertIn('Top 20% by spending potential · **689 customers**', [caption.value for caption in dashboard.caption])
+        self.assertIn('Matched 689 customers · Showing 50', [caption.value for caption in dashboard.caption])
         self.assertEqual(len(dashboard.dataframe[0].value), 50)
-        self.assertEqual([widget.label for widget in dashboard.selectbox], ['显示客户数'])
+        self.assertEqual([widget.label for widget in dashboard.selectbox], ['Customers to display'])
         priority = self.workspace['priority']
         last_priority = priority.loc[priority.priority_band.eq('Top 20%')].sort_values('priority_rank').iloc[-1]
-        next(widget for widget in dashboard.text_input if widget.label == '客户 ID').set_value(last_priority.customer_id).run()
+        next(widget for widget in dashboard.text_input if widget.label == 'Customer ID').set_value(last_priority.customer_id).run()
         self.assertFalse(dashboard.exception)
-        self.assertEqual(dashboard.dataframe[0].value['潜力排名'].tolist(), [int(last_priority.priority_rank)])
+        self.assertEqual(dashboard.dataframe[0].value['Potential rank'].tolist(), [int(last_priority.priority_rank)])
         outside_priority = priority.loc[priority.priority_band.ne('Top 20%')].iloc[0].customer_id
-        next(widget for widget in dashboard.text_input if widget.label == '客户 ID').set_value(outside_priority).run()
+        next(widget for widget in dashboard.text_input if widget.label == 'Customer ID').set_value(outside_priority).run()
         self.assertFalse(dashboard.exception)
         self.assertTrue(dashboard.dataframe[0].value.empty)
-        self.assertIn('共匹配 0 位客户，当前显示 0 位', [caption.value for caption in dashboard.caption])
-        self.assertIn('前20%消费潜力客户 · **689位**', [caption.value for caption in dashboard.caption])
+        self.assertIn('Matched 0 customers · Showing 0', [caption.value for caption in dashboard.caption])
+        self.assertIn('Top 20% by spending potential · **689 customers**', [caption.value for caption in dashboard.caption])
         self.open_business_page(dashboard, 'segments')
         self.assertFalse(dashboard.exception)
         self.assertEqual(dashboard.session_state['uploaded_workspace']['date'], '2011-12-01')
@@ -345,51 +413,51 @@ class StageSixDashboardTests(unittest.TestCase):
         self.assertFalse(dashboard.error)
         shown = dashboard.dataframe[0].value
         self.assertEqual(len(shown), 10)
-        self.assertEqual(shown['商品编码'].nunique(), 10)
+        self.assertEqual(shown['Product code'].nunique(), 10)
         self.assertNotIn('排序分数', shown)
-        self.assertNotIn('推荐类型', shown)
+        self.assertNotIn('Recommendation type', shown)
         self.assertEqual(len(dashboard.dataframe), 1)
         self.assertEqual([metric.label for metric in dashboard.metric],
-                         ['近180天购买次数', '购买商品种数', '历史订单老商品平均占比'])
-        self.assertEqual([expander.label for expander in dashboard.expander], ['画像详情'])
-        self.assertEqual({widget.label for widget in dashboard.selectbox}, {'客户 ID', '客户排序'})
-        customer = next(widget for widget in dashboard.selectbox if widget.label == '客户 ID').value
+                         ['Purchases (180d)', 'Distinct products purchased', 'Historical repeat-product share'])
+        self.assertEqual([expander.label for expander in dashboard.expander], ['Profile details'])
+        self.assertEqual({widget.label for widget in dashboard.selectbox}, {'Customer ID', 'Customer sort order'})
+        customer = next(widget for widget in dashboard.selectbox if widget.label == 'Customer ID').value
         expected = recommend_customer(self.workspace, customer)
         self.assertTrue(expected.recommendation_method.eq('D_classifier').all())
-        self.assertEqual(shown['商品编码'].tolist(), expected.stock_code.tolist())
-        self.assertNotIn('推荐依据', shown)
-        self.assertEqual(shown['近180天购买次数'].tolist(), expected.purchase_count_180d.tolist())
+        self.assertEqual(shown['Product code'].tolist(), expected.stock_code.tolist())
+        self.assertNotIn('Recommendation reason', shown)
+        self.assertEqual(shown['Purchases (180d)'].tolist(), expected.purchase_count_180d.tolist())
         profile = self.workspace['profiles'].loc[self.workspace['profiles'].customer_id.eq(customer)].iloc[0]
         self.assertEqual([metric.value for metric in dashboard.metric],
                          [str(int(profile.order_count)), str(int(profile.distinct_products)),
                           f'{profile.historical_repeat_share:.1%}'])
         details = dashboard.table[0].value
         self.assertEqual(len(details), 6 + int(pd.notna(profile.repeat_share_change)))
-        self.assertEqual(details.loc['常购商品集中度', '当前值'], f'{profile.top3_concentration:.1%}')
-        self.assertEqual(details.loc['近期订单老商品平均占比', '当前值'], f'{profile.recent_repeat_share:.1%}')
+        self.assertEqual(details.loc['Top-3 product concentration', 'Value'], f'{profile.top3_concentration:.1%}')
+        self.assertEqual(details.loc['Recent repeat-product share', 'Value'], f'{profile.recent_repeat_share:.1%}')
         if pd.isna(profile.repeat_share_change):
-            self.assertNotIn('老商品占比变化', details.index)
+            self.assertNotIn('Change in repeat-product share', details.index)
         else:
-            self.assertEqual(details.loc['老商品占比变化', '当前值'], f'{100 * profile.repeat_share_change:+.1f}个百分点')
-        self.assertEqual(details.loc['平均每次购买商品种数', '当前值'], f'{profile.mean_basket_size:.1f}种')
-        self.assertEqual(details.loc['距上次购买天数', '当前值'], f'{profile.recency_days:.1f}天')
-        self.assertEqual(details.loc['本期购买跨度', '当前值'], f'{profile.history_span_days:.1f}天')
-        self.assertEqual(details.loc['可比较订单数', '当前值'], f'{profile.comparable_order_count:.0f}笔')
-        picker = next(widget for widget in dashboard.selectbox if widget.label == '客户 ID')
+            self.assertEqual(details.loc['Change in repeat-product share', 'Value'], f'{100 * profile.repeat_share_change:+.1f} pp')
+        self.assertEqual(details.loc['Average basket size (products)', 'Value'], f'{profile.mean_basket_size:.1f} products')
+        self.assertEqual(details.loc['Days since last purchase', 'Value'], f'{profile.recency_days:.1f} days')
+        self.assertEqual(details.loc['Purchase history span', 'Value'], f'{profile.history_span_days:.1f} days')
+        self.assertEqual(details.loc['Comparable orders', 'Value'], f'{profile.comparable_order_count:.0f} orders')
+        picker = next(widget for widget in dashboard.selectbox if widget.label == 'Customer ID')
         picker.set_value(self.workspace['profiles'].customer_id.min()).run()
         self.assertFalse(dashboard.exception)
         self.assertFalse(dashboard.error)
         self.assertEqual(len(dashboard.dataframe[0].value), 10)
-        self.assertNotIn('推荐依据', dashboard.dataframe[0].value)
+        self.assertNotIn('Recommendation reason', dashboard.dataframe[0].value)
 
     def test_recommendation_customer_sort_preserves_selection_and_short_history_details(self):
         dashboard = self.open_dashboard()
         self.open_business_page(dashboard, 'recommendations')
         original = dashboard.dataframe[0].value.copy()
-        customer = next(widget for widget in dashboard.selectbox if widget.label == '客户 ID').value
-        next(widget for widget in dashboard.selectbox if widget.label == '客户排序').set_value('近180天购买次数从高到低').run()
+        customer = next(widget for widget in dashboard.selectbox if widget.label == 'Customer ID').value
+        next(widget for widget in dashboard.selectbox if widget.label == 'Customer sort order').set_value('Purchases in last 180 days (descending)').run()
         self.assertFalse(dashboard.exception)
-        picker = next(widget for widget in dashboard.selectbox if widget.label == '客户 ID')
+        picker = next(widget for widget in dashboard.selectbox if widget.label == 'Customer ID')
         self.assertEqual(picker.value, customer)
         pd.testing.assert_frame_equal(original, dashboard.dataframe[0].value)
         ids = picker.options
@@ -403,33 +471,33 @@ class StageSixDashboardTests(unittest.TestCase):
         single = profiles.loc[profiles.order_count.eq(1)].index[0]
         picker.set_value(single).run()
         self.assertFalse(dashboard.exception)
-        self.assertEqual([metric.label for metric in dashboard.metric], ['近180天购买次数', '购买商品种数'])
+        self.assertEqual([metric.label for metric in dashboard.metric], ['Purchases (180d)', 'Distinct products purchased'])
         self.assertEqual(dashboard.metric[0].value, '1')
         details = dashboard.table[0].value
         self.assertEqual(len(details), 5)
-        self.assertNotIn('近期订单老商品平均占比', details.index)
-        self.assertNotIn('老商品占比变化', details.index)
-        self.assertNotIn('记录不足', details['当前值'].tolist())
-        self.assertEqual(details.loc['可比较订单数', '当前值'], '0笔')
-        self.assertEqual(details.loc['本期购买跨度', '当前值'], '0.0天')
+        self.assertNotIn('Recent repeat-product share', details.index)
+        self.assertNotIn('Change in repeat-product share', details.index)
+        self.assertNotIn('Insufficient history', details['Value'].tolist())
+        self.assertEqual(details.loc['Comparable orders', 'Value'], '0 orders')
+        self.assertEqual(details.loc['Purchase history span', 'Value'], '0.0 days')
         self.assertEqual(len(dashboard.dataframe[0].value), 10)
         self.assertGreater(self.workspace['unknown_products'], 0)
         self.assertFalse(any('推荐名单仅覆盖已知商品' in caption.value for caption in dashboard.caption))
         two_orders = profiles.loc[profiles.order_count.eq(2) & profiles.historical_repeat_share.eq(0)].index[0]
-        next(widget for widget in dashboard.selectbox if widget.label == '客户 ID').set_value(two_orders).run()
+        next(widget for widget in dashboard.selectbox if widget.label == 'Customer ID').set_value(two_orders).run()
         self.assertFalse(dashboard.exception)
         self.assertEqual(dashboard.metric[2].value, '0.0%')
         details = dashboard.table[0].value
         self.assertEqual(len(details), 6)
-        self.assertEqual(details.loc['近期订单老商品平均占比', '当前值'], '0.0%')
-        self.assertNotIn('老商品占比变化', details.index)
+        self.assertEqual(details.loc['Recent repeat-product share', 'Value'], '0.0%')
+        self.assertNotIn('Change in repeat-product share', details.index)
         complete = profiles.loc[profiles.repeat_share_change.notna()].index[0]
-        next(widget for widget in dashboard.selectbox if widget.label == '客户 ID').set_value(complete).run()
+        next(widget for widget in dashboard.selectbox if widget.label == 'Customer ID').set_value(complete).run()
         self.assertFalse(dashboard.exception)
         self.assertEqual(len(dashboard.metric), 3)
         self.assertEqual(len(dashboard.table[0].value), 7)
-        next(widget for widget in dashboard.selectbox if widget.label == '客户排序').set_value('客户ID升序').run()
-        picker = next(widget for widget in dashboard.selectbox if widget.label == '客户 ID')
+        next(widget for widget in dashboard.selectbox if widget.label == 'Customer sort order').set_value('Customer ID (ascending)').run()
+        picker = next(widget for widget in dashboard.selectbox if widget.label == 'Customer ID')
         self.assertEqual(picker.value, complete)
         self.assertEqual(picker.options, sorted(ids))
 
@@ -439,30 +507,30 @@ class StageSixDashboardTests(unittest.TestCase):
                                  'recency_days': [5], 'frequency': [3], 'monetary': [120.], 'aov': [40.],
                                  'repurchase_30d': [1], 'model_version': ['SECRET']})
         out = business_export(customer_table(customer), '2011-09-01')
-        self.assertEqual(out['客户 ID'].tolist(), ['a'])
+        self.assertEqual(out['Customer ID'].tolist(), ['a'])
         self.assertNotIn('model_version', out)
         self.assertNotIn('repurchase_30d', out)
-        self.assertEqual(out['分析日期'].tolist(), ['2011-09-01'])
+        self.assertEqual(out['Analysis date'].tolist(), ['2011-09-01'])
         priority = pd.DataFrame({'priority_rank': [2], 'customer_id': ['a'], 'priority_band': ['Top 20%'],
                                  'recency_days': [5], 'monetary_value_180d': [120.], 'baseline_rank': [7],
                                  'ranking_method': ['SECRET'], 'spend_30d': [999]})
         value = business_export(value_table(priority), '2011-09-01')
-        self.assertEqual(value['潜力排名'].tolist(), [2])
-        self.assertFalse({'baseline_rank', 'ranking_method', 'spend_30d', 'priority_band', '关注级别'} & set(value))
-        self.assertNotIn('关注级别', business_export(value.assign(**{'关注级别': '旧字段'}), '2011-09-01'))
+        self.assertEqual(value['Potential rank'].tolist(), [2])
+        self.assertFalse({'baseline_rank', 'ranking_method', 'spend_30d', 'priority_band', 'Attention level'} & set(value))
+        self.assertNotIn('Attention level', business_export(value.assign(**{'Attention level': '旧字段'}), '2011-09-01'))
         products = pd.DataFrame({'rank': [1], 'stock_code': ['sku'], 'description': ['cup'],
                                  'purchased_in_past_180d': [True], 'purchase_count_180d': [2],
                                  'days_since_item_purchase': [5.], 'recommendation_method': ['D_classifier'],
                                  'ranking_score': [10.], 'target_items': ['SECRET']})
         profile = dict(order_count=3, distinct_products=5, historical_repeat_share=.4, top3_concentration=.6)
         exported = business_export(product_table(products), '2011-09-01', 'a', profile)
-        self.assertEqual(exported['客户历史重复购买比例'].iloc[0], .4)
-        self.assertEqual(exported['客户 ID'].iloc[0], 'a')
-        self.assertEqual(exported['近180天购买次数'].iloc[0], 2)
-        self.assertFalse({'ranking_score', 'target_items', 'recommendation_method', '推荐依据', '推荐类型',
+        self.assertEqual(exported['Customer historical repeat-product share'].iloc[0], .4)
+        self.assertEqual(exported['Customer ID'].iloc[0], 'a')
+        self.assertEqual(exported['Purchases (180d)'].iloc[0], 2)
+        self.assertFalse({'ranking_score', 'target_items', 'recommendation_method', 'Recommendation reason', 'Recommendation type',
                           'recommendation_kind'} & set(exported))
-        stale = exported.assign(**{'推荐依据': '旧字段', '推荐类型': '再次购买'})
-        self.assertFalse({'推荐依据', '推荐类型'} & set(business_export(stale, '2011-09-01')))
+        stale = exported.assign(**{'Recommendation reason': '旧字段', 'Recommendation type': '再次购买'})
+        self.assertFalse({'Recommendation reason', 'Recommendation type'} & set(business_export(stale, '2011-09-01')))
 
 
 class UploadedInferenceTests(unittest.TestCase):
@@ -624,9 +692,9 @@ class UploadedInferenceTests(unittest.TestCase):
     def test_recommendation_rejects_old_workspace_and_unknown_customer(self):
         from app.upload_inference import UploadError, analyze_upload, recommend_customer
         workspace = analyze_upload(self.csv(self.small), '2011-12-01', self.models)
-        with self.assertRaisesRegex(UploadError, '重新上传'):
+        with self.assertRaisesRegex(UploadError, 'upload'):
             recommend_customer(dict(workspace, recommendation_method='personal_repeat'), '12347')
-        with self.assertRaisesRegex(UploadError, '找不到该客户'):
+        with self.assertRaisesRegex(UploadError, 'No purchase history'):
             recommend_customer(workspace, 'missing')
 
 
