@@ -59,3 +59,6 @@ htmlcov/
 
 # Logs and temporary files
 *.log
+
+# Final report documents are kept locally.
+/docs/final_report/

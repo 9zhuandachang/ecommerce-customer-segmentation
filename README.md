@@ -103,13 +103,7 @@ python -B -m app.prepare_upload_demo
 
 训练快照为2010年6月—2011年5月，验证为2011年6—8月，测试期复核为2011年9—11月。按所选方案计算，复购AP为0.6201、前20%名单精确率66.22%；消费潜力名单月均消费覆盖率70.23%；默认D完整组推荐NDCG@10为0.3001、Recall@10为17.79%、Hit@10为76.93%。具体统计单位、计算方法和月份口径见学习指南。
 
-## 最终报告
-
-| 部分 | 中文版 | English |
-| --- | --- | --- |
-| Part 1 使用的工具与技术 | [下载文档](docs/final_report/Part1_工具与技术_中文版.docx) | [Tools and Techniques](docs/final_report/Part1_Tools_and_Techniques_EN.docx) |
-| Part 2 系统设计与模型 | [下载文档](docs/final_report/Part2_系统设计与模型_中文版.docx) | [System Design and Models](docs/final_report/Part2_System_Design_and_Models_EN.docx) |
-| Part 3 系统效果与评价 | [下载文档](docs/final_report/Part3_系统效果与评价_中文版.docx) | [System Performance](docs/final_report/Part3_System_Performance_EN.docx) |
+## 项目流程图
 
 流程图：[中文版](docs/images/project_workflow_v3.png) · [English](docs/images/project_workflow_en.png)。可编辑SVG与图片保存在同一目录。
 
