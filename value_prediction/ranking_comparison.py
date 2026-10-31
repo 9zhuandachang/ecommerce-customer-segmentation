@@ -31,9 +31,9 @@ REVIEW_DATES = pd.date_range('2011-09-01', '2011-11-01', freq='MS')
 FAMILIES = ('lgbm_tweedie', 'xgb_tweedie', 'lgbm_two_stage')
 RULES = ('spend_180d', 'spend_90d', 'spend_30d')
 METHODS = RULES + FAMILIES
-NAMES = {'spend_180d': '过去180天消费排序', 'spend_90d': '过去90天消费排序',
-         'spend_30d': '过去30天消费排序', 'lgbm_tweedie': 'LightGBM Tweedie',
-         'xgb_tweedie': 'XGBoost Tweedie', 'lgbm_two_stage': '两步LightGBM'}
+NAMES = {'spend_180d': 'Consumption sorting in the past 180 days', 'spend_90d': 'Consumption sorting in the past 90 days',
+         'spend_30d': 'Consumption sorting in the past 30 days', 'lgbm_tweedie': 'LightGBM Tweedie',
+         'xgb_tweedie': 'XGBoost Tweedie', 'lgbm_two_stage': 'Two steps LightGBM'}
 EXPORT_COLUMNS = KEYS + ['priority_rank', 'priority_percentile', 'priority_band',
                          'baseline_rank', 'recency_days', 'monetary_value_180d', 'ranking_method']
 SEED = 42
@@ -522,58 +522,58 @@ def make_figure(monthly: pd.DataFrame, selected: str) -> None:
 
 def report(comparison: pd.DataFrame, monthly: pd.DataFrame, lock: dict, tuning: pd.DataFrame) -> None:
     selected, baseline = lock['selected_method'], lock['best_rule']
-    lines = ['# 高消费潜力排序：统一比较结果', '',
-             f'**最终采用：{NAMES[selected]}。** 只按6–8月验证结果选型，9–11月为锁定后的复核结果。', '',
-             '目标：每月挑选20%客户，覆盖更多后续30天合格消费额。'
-             '所有学习模型共用20项已知购买特征，每类8组参数、5个向前开发折。', '',
-             '| 方法 | 验证：月均覆盖 | 验证：金额加总覆盖 | 复核：月均覆盖 | 复核：金额加总覆盖 |',
+    lines = ['# High consumption potential sorting: unified comparison results', '',
+             f'**Final adoption: {NAMES[selected]}.** Only based on the verification results of 6 – 8 months, the 9 – 11 months are the review results after locking.', '',
+             'Goal: Select 20% customers every month and cover more subsequent 30 days of qualified consumption.'
+             'All learning models share 20 known purchase characteristics, 8 sets of parameters for each category, and 5 forward development folds.', '',
+             '| Method | Verification: Average monthly coverage | Verification: Total amount coverage | Review: Average monthly coverage | Review: Total amount coverage |',
              '|---|---:|---:|---:|---:|']
     for method in METHODS:
         a = comparison.loc[comparison.phase.eq('validation') & comparison.method.eq(method)].iloc[0]
         b = comparison.loc[comparison.phase.eq('review') & comparison.method.eq(method)].iloc[0]
         lines.append(f'| {NAMES[method]} | {a.mean_capture_20:.2%} | {a.pooled_capture_20:.2%} | '
                      f'{b.mean_capture_20:.2%} | {b.pooled_capture_20:.2%} |')
-    lines += ['', '## 为什么选它', '',
-              f'- 最强规则：{NAMES[baseline]}；最强学习方案：{NAMES[lock["best_model"]]}。',
-              f'- 最强学习方案验证期月均覆盖相对最强规则：{lock["validation_gain_pp"]:+.2f}个百分点。',
-              '- 固定条件：平均提升≥1个百分点、至少2/3个月不退步、最差月落后≤1个百分点，'
-              '配对客户重抽样区间下界>0。',
-              f'- 条件结果：`{json.dumps(lock["conditions"], ensure_ascii=False)}`。',
-              ('- 四项满足，采用验证期胜出的学习方案。' if selected in FAMILIES
-               else '- 学习方案未满足全部内部选型条件，采用验证期最强消费排序规则。'), '',
-              '## 最终参数与公平比较', '',
-              '所有模型均不使用测试标签拟合。验证模型只训练到2011年5月，'
-              '最终模型只训练到2011年8月；后者固定评分9、10、11月，中途不更新。', '',
-              '| 学习方案 | 开发选定配置 | 开发月均覆盖 |', '|---|---|---:|']
+    lines += ['', '## Why choose it?', '',
+              f'- The strongest rule: {NAMES[baseline]}; the strongest learning plan: {NAMES[lock["best_model"]]}.',
+              f'- The monthly average coverage of the strongest learning scheme during the verification period is: {lock["validation_gain_pp"]:+.2f} percentage points relative to the strongest rules.',
+              '- Fixed conditions: average improvement ≥ 1 percentage points, no regression for at least 2 / 3 months, worst month lag ≤ 1 percentage points,'
+              'The lower bound of the paired customer resampling interval > 0.',
+              f'- Condition result: `{json.dumps(lock["conditions"], ensure_ascii=False)}`.',
+              ('- If the four items are met, the learning plan that wins during the verification period will be adopted.' if selected in FAMILIES
+               else '- If the learning plan does not meet all internal selection conditions, the strongest consumption sorting rule during the verification period will be used.'), '',
+              '## Final parameters and fair comparison', '',
+              'All models are fitted without test labels. The verification model is only trained until 2011 years and 5 months.'
+              'The final model is only trained until 2011 years and 8 months; the latter has fixed scores of 9, 10, and 11 months and is not updated midway.', '',
+              '| Learning Plan | Develop Selected Configuration | Develop Monthly Average Coverage |', '|---|---|---:|']
     for family, spec in lock['shortlisted_configs'].items():
         metric = tuning.loc[tuning.config_id.eq(spec['id'])].iloc[0]
-        lines.append(f'| {NAMES[family]} | {spec["n_estimators"]}棵回归树，{spec["num_leaves"]}叶，'
+        lines.append(f'| {NAMES[family]} | {spec["n_estimators"]} regression tree, {spec["num_leaves"]} leaves,'
                      f'{spec["profile"]} | {metric.mean_capture_20:.2%} |')
-    lines += ['', '学习率均为0.05、种子42；Tweedie方差幂1.5。两步模型分类树数为回归树数的2/3，'
-              '用购买概率乘购买后的Gamma金额均值排序。全部具体参数见locked_plan.json及locked_selection.json。', '',
-              '## 逐月名单效果', '', '| 月份 | 用途 | 客户数 | 20%名额 | 最终方法覆盖 | 最强规则覆盖 | 差值 |',
+    lines += ['', 'The learning rate is 0.05, seed 42; Tweedie variance power 1.5. The number of classification trees of the two-step model is 2 / 3 of the number of regression trees,'
+              'Sort by multiplying the purchase probability by the Gamma amount after purchase. For all specific parameters, see locked_plan.json and locked_selection.json.', '',
+              '## Monthly list effect', '', '| Month | Purpose | Number of customers | 20% quota | Final method coverage | Strongest rule coverage | Difference |',
               '|---|---|---:|---:|---:|---:|---:|']
     for phase in ('validation', 'review'):
         a = monthly.loc[monthly.phase.eq(phase) & monthly.method.eq(selected)].set_index('snapshot_date')
         b = monthly.loc[monthly.phase.eq(phase) & monthly.method.eq(baseline)].set_index('snapshot_date')
         for date, row in a.iterrows():
-            lines.append(f'| {date[:7]} | {"验证" if phase == "validation" else "复核"} | '
+            lines.append(f'| {date[:7]} | {"Verify" if phase == "validation" else "Review"} |'
                          f'{int(row.customers):,} | {int(row.top20_count):,} | {row.capture_20:.2%} | '
-                         f'{b.loc[date, "capture_20"]:.2%} | {100 * (row.capture_20 - b.loc[date, "capture_20"]):+.2f}个百分点 |')
+                         f'{b.loc[date, "capture_20"]:.2%} | {100 * (row.capture_20 - b.loc[date, "capture_20"]):+.2f} percentage points |')
     ci = lock['customer_interval']
-    lines += ['', '## 稳健性与使用', '',
-              f'验证期500次客户成组配对重抽样：最强学习方案对最强规则的月均提升为'
-              f'{ci["point_gain_pp"]:+.2f}个百分点，95%客户抽样区间'
-              f'[{ci["lower_95_pp"]:+.2f}, {ci["upper_95_pp"]:+.2f}]个百分点。'
-              '这是选型后的内部诊断，不包含月份变化带来的不确定性。另两个种子的逐月结果见seed_monthly.csv。', '',
-              '此前这些月份的金额结果已经用于研究，本轮不能提供新独立测试。'
-              '模型比较和20%名单效用与个人金额预测准确度是不同指标；名单百分位只表示当月相对名次。', '',
-              '![逐月比较](comparison.png)', '',
-              '复现：`python -B -m value_prediction.ranking_comparison`；'
-              '打开：`python -m streamlit run app/dashboard.py` → High-value customers。', '',
-              'comparison.csv为总体对比，monthly_comparison.csv为逐月对比，tuning_comparison.csv保留全部24组参数；'
-              'validation_predictions.csv/review_predictions.csv保留内部逐条评分与真实答案，'
-              'customer_priority.csv为可导出的安全名单，不含未来答案或个人预计金额。', '']
+    lines += ['', '## Robustness and usage', '',
+              f'Verification period 500 customer group paired resampling: the monthly average improvement of the strongest learning scheme to the strongest rule is'
+              f'{ci["point_gain_pp"]:+.2f} percentage points, 95% customer sampling interval'
+              f'[ {ci["lower_95_pp"]:+.2f}, {ci["upper_95_pp"]:+.2f} ] percentage points.'
+              'This is an internal diagnosis after selection and does not include the uncertainty caused by monthly changes. See seed_monthly.csv for the monthly results of the other two seeds.', '',
+              'Amount results from these previous months have been used in the study and new independent testing is not available for this round.'
+              'Model comparison and 20% list utility and personal amount prediction accuracy are different indicators; the list percentile only represents the relative ranking of the month.', '',
+              '![Month-by-Month Comparison ](comparison.png)', '',
+              'Recurrence: `python -B -m value_prediction.ranking_comparison`;'
+              'Open: `python -m streamlit run app/dashboard.py` → High-value customers.', '',
+              'comparison.csv is the overall comparison, monthly_comparison.csv is the month-by-month comparison, tuning_comparison.csv retains all 24 group parameters;'
+              'validation_predictions.csv/review_predictions.csv retains internal item-by-item ratings and real answers,'
+              'customer_priority.csv is an exportable safe list that does not contain future answers or personal estimated amounts.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
 
 

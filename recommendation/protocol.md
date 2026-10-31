@@ -1,45 +1,45 @@
-# 下一笔订单商品推荐：比较方案 v1
+# Product recommendation for next order: Compare plans v 1
 
-本方案在本任务商品标签和推荐指标生成之前写入。原有9–11月复购/金额结果已用于其他任务；本轮先冻结推荐方法和选型，再一次性计算该期商品推荐结果，不将其用于选型。
+This plan is written before the product labels and recommended indicators for this task are generated. The original September-Novemberly repurchase/amount results have been used for other tasks; in this round, the recommendation method and selection will be frozen first, and then the product recommendation results for this period will be calculated at once, and will not be used for selection.
 
-## 问题、客户与答案
+## Questions, Customers and Answers
 
-- 对原客户月快照的所有合格客户，在每月1日推荐10种不同商品；允许推荐已买过的商品，适应重复采购。推荐仅使用截点之前的合格商品交易。
-- 正确答案是截点起30天内的下一次购买事件中的不同商品集合。事件为同一客户同一发票时间的商品；同一时刻多张发票合并。窗口为 `[t,t+30天)`，没有购买则答案为空。不会将当月所有订单混成下一笔订单。
-- 同一客户、发票、时间、商品的多行只算一次购买互动；一次买很多件不等于多次偏好。对批发交易不使用件数或金额作推荐互动强度。
-- 每月全体合格客户均生成推荐。主指标只在随后确有下一笔订单的客户上评估；全体客户Hit另报。是否购买只在评价时分组，预测时未知。
+- For all qualified customers of the original customer monthly snapshot, 10 different products will be recommended on 1 days of each month; already purchased products are allowed to be recommended to accommodate repeated purchases. It is recommended to only use eligible commodity transactions before the cut-off point.
+- The correct answer is a collection of different items in the next purchase event within 30 days from the cutoff. The event is the goods of the same customer at the same invoice time; multiple invoices at the same time are merged. The window is `[t,t+30day)`. If there is no purchase, the answer is empty. All orders for the current month will not be mixed into the next order.
+- Multiple lines with the same customer, invoice, time, and product are only counted as one purchase interaction; buying many items at one time does not equal multiple preferences. Do not use piece count or dollar amount for recommended interaction strength for wholesale transactions.
+- Recommendations are generated for all qualified customers every month. The main indicator is only evaluated on customers who subsequently place an order; hits for all customers are reported separately. Whether to buy or not is only grouped during evaluation and is unknown during prediction.
 
-## 共同输入与商品范围
+## Common input and product range
 
-- 所有方法的全局训练资料为拟合时点之前180天的客户—商品不同发票次数。ItemKNN/EASE用 `x=log(1+次数)`；ALS用已购偏好1、未观察偏好0和置信度 `c=1+alpha*x`，未观察行为只有较低置信度，不解释为明确不喜欢。
-- 候选商品为全局拟合窗口中出现的全部商品，各方案完全相同，不按将来是否销售或有库存筛选。商品说明使用拟合时点之前最后可见的描述，不从后来的记录补名字。没有库存数据，因此不能承诺商品当时有货。
-- 全局参数和商品范围在各阶段冻结。每个预测月只更新客户截点前180天的购买向量。ALS只在固定商品向量下解客户向量，不更新全局商品参数；ItemKNN/EASE用同一客户输入乘已冻结的商品关系矩阵。新客户只要买过已知商品也能评分。
-- 商品全集打分，不采样负商品；不默认屏蔽旧商品。推荐同分按全局180天不同发票购买次数降序、商品编码升序。无已知商品或无相似关系时，自然以共同的热门商品补位，另报比例。
-- 正确答案含候选集外新品时，保留为未命中；主指标不删这些商品，另报可推荐商品占比。
+- The global training data for all methods is the number of customer-commodity different invoices 180 days before the fitting time point. ItemKNN / EASE uses `x=log(1+times)`; ALS uses purchased preference 1, unobserved preference 0 and confidence level `c=1+alpha*x`. Unobserved behavior only has a low confidence level and is not interpreted as clear dislike.
+- Candidate products are all products that appear in the global fitting window. Each plan is exactly the same and is not filtered based on whether it will be sold or in stock in the future. The product description uses the last visible description before the fitting time point, and does not fill in the name from subsequent records. There is no inventory data, so there is no guarantee that items will be available at that time.
+- Global parameters and product scope are frozen at each stage. Only the purchase vectors 180 days before the customer cutoff are updated each forecast month. ALS only solves the customer vector under the fixed product vector and does not update the global product parameters; ItemKNN / EASE uses the same customer input to multiply the frozen product relationship matrix. New customers can also rate as long as they have purchased known products.
+- Score the entire collection of products, and do not sample negative products; do not block old products by default. It is recommended that the same score be sorted by the global 180 days with different invoice purchase times in descending order and product code in ascending order. If there is no known product or no similar relationship, the position will naturally be filled with a common popular product, and the proportion will be reported separately.
+- When the correct answer includes new products outside the candidate set, it is retained as a miss; the main indicator does not delete these products, and the proportion of recommendable products is reported separately.
 
-## 比较方法和固定预算
+## Comparison methods and fixed budgets
 
-- 热门商品规则：在拟合时点前30/90/180天分别按不同发票次数排序，三组候选。
-- 个人重复购买规则：截点前180天个人不同发票次数，分别不衰减或按30/90天半衰期衰减，三组候选；不足10件以共同热门商品补齐。
-- ItemKNN：余弦相似度并按共同购买客户数收缩；邻居数20/50/100/200 × 收缩0/20，共8组；对角线为0。
-- 隐式反馈ALS：隐向量维度16/32 × 正则0.1/1 × alpha1/10，共8组；15轮精确交替最小二乘，种子42。完整实现Hu等人的加权平方误差目标，不使用普通显式评分ALS冒充。
-- EASE：正则强度10/30/100/300/1000/3000/10000/30000，共8组；对角线0、正则化闭式解。比较实际运行时间，不宣称相同配置数等于相同算力。
+- Popular product rules: 30 / 90 / 180 days before the fitting time point, sorted by different number of invoices, three groups of candidates.
+- Individual repeat purchase rules: The number of individual invoices for 180 days before the cut-off will not decay or decay according to the half-life of 30 / 90 days. There are three groups of candidates; the shortfall of 10 pieces will be made up with common popular products.
+- ItemKNN: cosine similarity and shrink by the number of co-purchasing customers; the number of neighbors 20 / 50 / 100 / 200 × shrink 0 / 20, a total of 8 groups; the diagonal is 0.
+- Implicit feedback ALS: implicit vector dimension 16 / 32 × regular 0.1 / 1 × alpha 1 / 10, total 8 group; 15 round exact alternating least squares, seed 42. Complete implementation of Hu et al.'s weighted squared error objective without using ordinary explicit scoring ALS impersonation.
+- EASE: regular intensity 10 / 30 / 100 / 300 / 1000 / 3000 / 10000 / 30000, total 8 group; diagonal 0, regularized closed-form solution. Compare the actual running time and do not claim that the same number of configurations equals the same computing power.
 
-## 时间流程及选型
+## Time process and selection
 
-1. 2011年1–5月作5个向前开发折。每折全局模型只使用该月1日前180天交易。以五个月条件NDCG@10的平均值为每类方法选唯一参数；同分选择更简单参数。
-2. 所有选定配置的验证全局模型只拟合2011年6月1日前180天。6、7、8月客户输入分别截止当月1日；参数不随验证答案更新。
-3. 先按三个验证月平均NDCG@10确定最强规则与最强学习方案。学习方案须平均NDCG至少高0.002，至少2/3个月NDCG不退步，平均Recall@10不低于规则超过0.005；否则采用最强规则。相同分数选择较简单方案。区间和种子诊断不再改变胜者。
-4. 选型、全部参数、验证模型和用2011年9月1日前180天交易拟合的最终模型保存并锁定，随后才构建9–11月商品标签、评分及一次性结果。全局最终模型和候选商品在这三个月保持固定；客户输入按月使用当时已知的旧订单。不以测试指标改算法、参数、阈值或改选胜者。
+1. 2011, January-May 5 forward development fold. The global model for each fold only uses transactions 180 days before the 1 days of the month. Use the average value of the five-month condition NDCG@10 to select unique parameters for each type of method; select simpler parameters for the same score.
+2. The validation global model for all selected configurations only fits 2011, 6 months 1 days before 180 days. Monthly customer inputs for 6, 7, and 8 respectively end on 1 of the current month; parameters are not updated with the verification answers.
+3.  First press the three verification monthly averages NDCG@10 Determine the strongest rules and strongest learning plan. The study program must be average NDCG at least high 0.002,  At least 2/3 months NDCG Don't regress,  average Recall@10 no less than rule more than 0.005;  Otherwise, use the strongest rule. For the same score, choose the simpler option. Range and seed diagnostics no longer change the winner.
+4. The final model of model selection, all parameters, verification model and fitting with transactions of 2011, before September 1 180 days is saved and locked, and then September-November product labels, ratings and one-time results are constructed. Global final models and candidate items remain fixed over the three months; customer input is monthly using old orders known at that time. Do not use test indicators to change algorithms, parameters, thresholds or change winners.
 
-## 指标、稳健性与交付
+## Metrics, Robustness and Delivery
 
-- 主指标：有下一笔订单客户的宏平均NDCG@10，再对各月份等权平均。相关性为买到=1；理想DCG按完整下一笔订单商品数（包含候选集外商品）和10中较小者计算。
-- 同时报告Recall@10、Hit@10、Precision@10、全体客户Hit、商品覆盖率、平均下一单商品数、买家数、候选集外答案占比及无已知商品客户数；@5作敏感性分析。
-- 报告过去180天已买/未买商品的Recall，避免只靠补货掩盖新商品推荐不足。分组仅用于评估，不能事后屏蔽难预测客户。
-- 对最强学习方案和最强规则作500次验证客户成组配对重抽样，报告NDCG/Recall差值区间；同一客户的三个月一起抽样，条件买家分母随抽样变化。区间不解释为未来月份保证。
-- ALS入围配置增加种子7/2026诊断；ItemKNN/EASE无随机训练，不制造种子差异。保留全部参数比较和不利结果。
-- 页面只展示推荐日期、客户、名次、商品编码、当时商品名、过去180天是否买过及有依据的推荐说明。未来订单、是否命中、测试答案不进入页面推荐表或其导出。
-- 验证数据边界、下一单标签、公式、小型数学解、未知商品分母、排序、保存模型评分复现、页面和导出；在tests下增加本模块长期回归测试，使用已有页面测试模块扩展页面测试。原始CSV和其他三个模型不修改。
+- Main indicator: Macro average NDCG@10 of customers with next order, and then equal-weighted average for each month. The correlation is Buy = 1; the ideal DCG is calculated based on the smaller of the complete number of items in the next order (including items outside the candidate set) and 10.
+- Simultaneously report Recall@10, Hit@10, Precision@ 10, all customer hits, product coverage, average number of next orders, number of buyers, proportion of answers outside the candidate set, and number of customers without known products; @ 5 performs sensitivity analysis.
+- Report the Recall of purchased/unpurchased items in the past 180 days to avoid relying solely on replenishment to cover up the lack of new product recommendations. Grouping is for evaluation only and cannot be used to block difficult-to-predict customers afterwards.
+- Perform 500 verification customer group pairing resampling for the strongest learning plan and the strongest rule, and report the NDCG / Recall difference interval; three months of the same customer are sampled together, and the conditional buyer denominator changes with sampling. Ranges are not interpreted as guarantees of future months.
+- ALS shortlisted configuration adds seed 7 / 2026 diagnosis; ItemKNN / EASE has no random training and does not create seed differences. All parameter comparisons and adverse results are retained.
+- The page only displays the recommendation date, customer, ranking, product code, current product name, whether the product has been purchased in the past 180 days, and a well-founded recommendation description. Future orders, hits, and test answers do not enter the page recommendation table or its export.
+- Verify data boundaries, next order labels, formulas, small mathematical solutions, unknown product denominators, sorting, save model score reproduction, pages and exports; add long-term regression testing of this module under tests, and use the existing page testing module to expand page testing. The original CSV and the other three models are not modified.
 
-参考：Sarwar等Item-based CF (2001)；Hu/Koren/Volinsky Implicit Feedback (2008)；Steck EASE (2019)。
+Reference: Sarwar et al. Item-based CF ( 2001 ); Hu/Koren/Volinsky Implicit Feedback ( 2008 ); Steck EASE ( 2019 ).

@@ -129,21 +129,21 @@ def advancement_checks(summary: pd.DataFrame) -> dict:
 def make_report(summary: pd.DataFrame, checks: dict,
                 predictions: pd.DataFrame) -> str:
     lines = [
-        '# 已查看开发期：购买者双倍训练权重的金额模型', '',
-        '事前方案见 `buyer_weight_protocol.md`。只给已成熟、未来 30 天确实购买的历史训练行 2 倍权重；当前预测时不知道未来购买状态。',
-        '这不是新的独立测试，也不改变原强化目标。', '',
-        '| 期间 | 方法 | 全体 MAE | 购买者 MAE | Top20 消费覆盖 | 总额偏差 | Top20 群体偏差 |',
+        '# Viewed development period: Amount model with double training weight for buyers', '',
+        'See `buyer_weight_protocol.md` for the advance plan. Only give 2 times weight to historical training lines that are mature and will be purchased 30 days in the future; the future purchase status is not known when making current predictions.',
+        'This is not a new independent test, nor does it change the original hardening goals.', '',
+        '| Period | Method | All MAE | Buyers MAE | Top 20 Consumption Coverage | Total Deviation | Top 20 Group Deviation |',
         '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
     ]
     for row in summary.itertuples(index=False):
         lines.append(f'| {row.period} | {row.method} | {row.mae:.2f} | '
                      f'{row.positive_mae:.2f} | {row.top20_spend_capture:.2%} | '
                      f'{row.aggregate_bias:+.2%} | {row.top20_group_bias:+.2%} |')
-    lines += ['', '## 运行前锁定的开发期推进门槛', '']
+    lines += ['', '## Development period advancement threshold locked before running', '']
     for key, passed in checks.items():
-        lines.append(f'- `{key}`：{"满足" if passed else "未满足"}')
-    lines += ['', '## 事后误差分解（解释取舍，不用于调权重）', '',
-              '| 期间 | 方法 | 零消费客户占比 | 零消费客户 MAE | 购买者 MAE |',
+        lines.append(f'- `{key}`: {"satisfy" if passed else "not satisfied"}')
+    lines += ['', '## Post hoc error decomposition (explanation of trade-offs, not used for weight adjustment)', '',
+              '| Period | Method | Proportion of zero-spending customers | Zero-spending customers MAE | Buyers MAE |',
               '| --- | --- | ---: | ---: | ---: |']
     for period, dates in [('rolling_jan_may', DATES[:5]),
                           ('known_jun_aug', DATES[5:])]:
@@ -155,11 +155,11 @@ def make_report(summary: pd.DataFrame, checks: dict,
             lines.append(f'| {period} | {method} | {len(zero) / len(part):.2%} | '
                          f'{zero.predicted_spend_30d.mean():.2f} | '
                          f'{np.abs(buyer.predicted_spend_30d - buyer[TARGET]).mean():.2f} |')
-    lines += ['', '零消费客户的实际金额为 0，因此该组 MAE 就是平均预测金额。'
-              '双倍权重减少了购买者误差，却显著抬高零消费客户预测，说明两项目标目前存在冲突。',
-              '只有运行前四项推进条件全部满足才建议进入新数据的固定测试；'
-              '任何结果均不能作为原商家的独立验收。',
-              '逐月指标、客户级预测、训练标签截止和源哈希见同目录。', '']
+    lines += ['', 'The actual amount of zero-spending customers is 0, so the group MAE is the average predicted amount.'
+              'Double weighting reduces buyer error, but significantly increases zero-spending customer predictions, indicating that the two goals are currently in conflict.',
+              'It is recommended to enter the fixed test of new data only if all the first four advancement conditions are met;'
+              'Any results cannot be used as independent acceptance by the original merchant.',
+              'Month-by-month metrics, customer-level forecasts, training label cutoffs, and source hashes are found in the same directory.', '']
     return '\n'.join(lines)
 
 

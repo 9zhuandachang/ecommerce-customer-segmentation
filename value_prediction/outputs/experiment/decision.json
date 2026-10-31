@@ -6,5 +6,5 @@
   "integrated_in_dashboard": false,
   "test_period_previously_seen_for_repurchase": true,
   "note": "September-November spend results are a retrospective check; do not tune and reselect on them.",
-  "lock_sha256": "66b7d01f4a677b96ee062baf04cb102b43a2209bec59e5c0f71ead8999210781"
+  "lock_sha256": "d7d0136ee9323dd95dcdb88e3cb8ae5582e773eda2d1a69cda9455d800d4686c"
 }

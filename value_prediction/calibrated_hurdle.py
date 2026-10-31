@@ -226,28 +226,28 @@ def main() -> None:
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     lines = [
-        '# 复购概率 × 购买后金额：开发期实验', '',
-        '分类器复用阶段五选定的 A 组设置，并按阶段六方法只用成熟历史校准；'
-        '条件金额仍用 20 个截点前特征。1–5 月曾用于复购模型参数选择，'
-        '6–8 月也已查看；均非独立金额测试。9–11 月未参与本实验。', '',
-        '| 期间 | 方法 | 全体 MAE | 购买者 MAE | Top20 消费覆盖 | 总额偏差 | Top20 群体偏差 |',
+        '# Probability of repurchase × Amount after purchase: Development period experiment', '',
+        'The classifier reuses the Group A settings selected in stage five and is calibrated using only mature history according to the stage six method;'
+        'The conditional amount still uses 20 features before the cutoff point. 1 – 5 were used to select repurchase model parameters.'
+        '6 – 8 months have also been viewed; neither is an independent amount test. 9 – 11 did not participate in this experiment for months.', '',
+        '| Period | Method | All MAE | Buyers MAE | Top 20 Consumption Coverage | Total Deviation | Top 20 Group Deviation |',
         '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
     ]
     for row in summary.itertuples(index=False):
         lines.append(f'| {row.period} | {row.method} | {row.mae:.2f} | '
                      f'{row.positive_mae:.2f} | {row.top20_spend_capture:.2%} | '
                      f'{row.aggregate_bias:+.2%} | {row.top20_group_bias:+.2%} |')
-    lines += ['', '| 期间 | 购买 AP | 购买 Brier | 预测购买人数偏差 |',
+    lines += ['', '| Period | Buy AP | Buy Brier | Predicted purchase number deviation |',
               '| --- | ---: | ---: | ---: |']
     for row in summary.loc[summary.method.eq('stage6_probability_times_gamma')].itertuples(index=False):
         lines.append(f'| {row.period} | {row.purchase_ap:.4f} | '
                      f'{row.purchase_brier:.4f} | {row.predicted_buyer_count_bias:+.2%} |')
-    lines += ['', '## 事前固定的 1–5 月推进条件', '']
+    lines += ['', '## Fixed in advance 1 – 5 monthly advancement conditions', '']
     for name, passed in checks.items():
-        lines.append(f'- `{name}`：{"满足" if passed else "未满足"}')
-    lines += ['', f'是否值得进入新的独立检验：**{"是" if all(checks.values()) else "否"}**。'
-              '开发期结果只能用于研究；不据此接入仪表板。',
-              '逐月结果、开发期逐客户预测、训练与校准标签截止及输入哈希见同目录。', '']
+        lines.append(f'- `{name}`: {"satisfy" if passed else "not satisfied"}')
+    lines += ['', f'Whether it is worth entering into a new independent test: **{"Yes" if all(checks.values()) else "No"}**.'
+              'Development phase results may only be used for research; they will not be included in the dashboard.',
+              'Month-by-month results, development-period-by-customer forecasts, training and calibration label cutoffs, and input hashes are listed in the same directory.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote calibrated hurdle results to {OUTPUT}', flush=True)
 

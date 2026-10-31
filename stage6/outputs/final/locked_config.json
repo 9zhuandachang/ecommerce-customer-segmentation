@@ -16,16 +16,16 @@
   "threshold": 0.2804675246231565,
   "calibration": "sigmoid on validation; frozen train-fitted classifier",
   "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
-  "stage4_model_sha256": "63673be3b62b08d5a0873cc61eeae461a4dbe92e68e467cdcbfce449340b971a",
+  "stage4_model_sha256": "9e699526ff4184c6d5f16aa61b1e579bb08a27b6a12091dae65a7580f4edb719",
   "stage5_comparison_sha256": "d7529f0cf8052e5eff5e416c353f4257bd07a3f8aab9343aa3370a8a3ebe0a65",
-  "stage5_config_sha256": "518568cc854affdff3f5406aa2afbaed7489d859aff6cb2ace9c32fd5a7d4631",
+  "stage5_config_sha256": "d455912a1882c5e32ec2f2d869059da076cc2ec2132307c333a9fccb24cb7fc5",
   "post_test_reporting_change": {
     "reason": "Removed Recency-only baseline from stage-four/five reports and tables after the test evaluation; no model, threshold, or test metric was reselected",
     "original_stage5_comparison_sha256": "5b9ac9012e04599f399091b3599a5a0bed02bc23d7af87fa7059db60e317fd82",
     "original_stage5_config_sha256": "bea541763d49384cfcc30475a3f6fc6ba57e22125c6726fc3d36cd928c1799a4"
   },
-  "stage6_script_sha256": "5ddcc0848036b03f94dabaad7a8b67ff0b6081961637392de93bb196f14618b9",
-  "model_sha256": "27a94b6273b9da25210c15f38a440fa03420c41e54b81bba14b07eb863296038",
+  "stage6_script_sha256": "1b3aaef130ec32979ad552e80baf595c32364614198b85d46f3eadf1109067b8",
+  "model_sha256": "1af7717723f84fd200d928133324dbcfe7ed4a6f86db67582dd9a09fecb8dacd",
   "test_dates_reserved": [
     "2011-09-01",
     "2011-10-01",

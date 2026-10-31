@@ -187,23 +187,23 @@ def main() -> None:
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     lines = [
-        '# Olist 跨商家固定窗口：来源与样本量审计', '',
-        'Olist 官方公开的匿名订单只用于本次事前固定窗口的可行性检查。'
-        '金额为下单商品标价合计，不含运费；没有按最终履约状态筛选，以免把下单后信息引入截点前特征。',
-        f'源订单 {source_audit["source_orders"]:,}、商品行 {source_audit["source_items"]:,}；'
-        f'合格订单 {source_audit["eligible_orders"]:,}、稳定客户 {source_audit["eligible_stable_customers"]:,}；'
-        f'客户月快照 {len(snapshot):,}。商品金额及未来标签均核对通过。', '',
-        '| 锁定截点 | 快照数 | 未来购买者 | 是否达到每月 1,000/100 门槛 |',
+        '# Olist cross-merchant fixed window: source and sample size audit', '',
+        'The anonymous orders officially disclosed by Olist are only used for the feasibility check of this pre-fixed window.'
+        'The amount is the total price of the ordered goods, excluding shipping costs; it is not filtered according to the final performance status to avoid introducing post-order information into pre-cutoff characteristics.',
+        f'Source order {source_audit["source_orders"]:,}, product line {source_audit["source_items"]:,};'
+        f'Qualified orders {source_audit["eligible_orders"]:,}, stable customers {source_audit["eligible_stable_customers"]:,};'
+        f'Customer monthly snapshot {len(snapshot):,}. The product amount and future tags are verified and approved.', '',
+        '| Locking cutoff | Number of snapshots | Future buyers | Whether the monthly 1,000 / 100 threshold is reached |',
         '| --- | ---: | ---: | --- |',
     ]
     for row in test.itertuples(index=False):
         lines.append(f'| {row.snapshot_date:%Y-%m-%d} | '
                      f'{row.cohort_snapshots:,} | {row.positive_snapshots:,} | '
-                     f'{"是" if row.eligible_for_fixed_test else "否"} |')
-    lines += ['', f'三个月可行性：**{"满足" if passed else "不满足"}**。'
-              '按事前规则，任一月低于门槛即不计算候选模型验收指标。',
-              '原始文件只在系统临时目录；来源哈希、状态分布和逐月审计见同目录。'
-              '该跨商家来源也不能代替原英国商家的新月份独立验收。', '']
+                     f'{"Yes" if row.eligible_for_fixed_test else "No"} |')
+    lines += ['', f'Three-month feasibility: **{"satisfy" if passed else "dissatisfied"}**.'
+              'According to ex-ante rules, if the threshold is lower than the threshold in any month, the candidate model acceptance indicators will not be calculated.',
+              'The original files are only in the system temporary directory; the source hash, status distribution and monthly audit are in the same directory.'
+              'This cross-merchant source also does not replace the original UK merchant\'s independent acceptance of the new month.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'Olist locked test feasible={passed}; output={OUTPUT}', flush=True)
 

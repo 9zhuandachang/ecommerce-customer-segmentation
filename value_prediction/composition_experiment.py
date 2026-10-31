@@ -88,23 +88,23 @@ def advancement_checks(summary: pd.DataFrame) -> dict:
 
 def report_markdown(summary: pd.DataFrame, checks: dict) -> str:
     lines = [
-        '# 快照前购买构成特征：开发期固定候选', '',
-        '方案在模型运行前固定于 `composition_protocol.md`。'
-        '新特征来自每个快照前 180 天交易，仅用已成熟历史标签训练。'
-        '2011 年 6–8 月已查看，以下均非独立验收。', '',
-        '| 期间 | 方法 | 全体 MAE | 购买者 MAE | Top20 消费覆盖 | 总额偏差 | Top20 群体偏差 |',
+        '# Features of purchase before snapshot: fixed candidate during development period', '',
+        'The scheme is fixed at `composition_protocol.md` before running the model.'
+        'New features come from transactions 180 days before each snapshot, trained only with mature historical labels.'
+        '2011 years 6 – 8 months have been viewed. The following are not independent acceptances.', '',
+        '| Period | Method | All MAE | Buyers MAE | Top 20 Consumption Coverage | Total Deviation | Top 20 Group Deviation |',
         '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
     ]
     for row in summary.itertuples(index=False):
         lines.append(f'| {row.period} | {row.method} | {row.mae:.2f} | '
                      f'{row.positive_mae:.2f} | {row.top20_spend_capture:.2%} | '
                      f'{row.aggregate_bias:+.2%} | {row.top20_group_bias:+.2%} |')
-    lines += ['', '## 运行前锁定的开发期推进门槛', '']
+    lines += ['', '## Development period advancement threshold locked before running', '']
     for key, passed in checks.items():
-        lines.append(f'- `{key}`：{"满足" if passed else "未满足"}')
-    lines += ['', '只有四项都满足才建议进入新的外部固定测试。'
-              '不根据 6–8 月结果改变三项新特征或判定门槛。',
-              '逐月、客户级结果、训练截止和来源哈希见同目录。', '']
+        lines.append(f'- `{key}`: {"satisfy" if passed else "not satisfied"}')
+    lines += ['', 'Only when all four are met is it recommended to enter a new external fixation test.'
+              'The three new features or determination thresholds are not changed based on the 6 – 8 monthly results.',
+              'Month-by-month, client-level results, training cutoffs, and source hashes are found in the same directory.', '']
     return '\n'.join(lines)
 
 

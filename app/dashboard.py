@@ -143,13 +143,13 @@ def style_chart(figure, group_names):
 
 # Preserve selections when a previously opened Chinese-language session reloads.
 legacy_choices = {
-    '全部群体': 'All segments',
-    '客户ID升序': 'Customer ID (ascending)',
-    '近180天购买次数从高到低': 'Purchases in last 180 days (descending)',
-    '群 1｜较久未购': GROUP_NAMES[1],
-    '群 2｜近期高频': GROUP_NAMES[2],
-    '群 3｜近期低客单': GROUP_NAMES[0],
-    '群 4｜近期高客单': GROUP_NAMES[3],
+    '\u5168\u90e8\u7fa4\u4f53': 'All segments',
+    '\u5ba2\u6237ID\u5347\u5e8f': 'Customer ID (ascending)',
+    '\u8fd1180\u5929\u8d2d\u4e70\u6b21\u6570\u4ece\u9ad8\u5230\u4f4e': 'Purchases in last 180 days (descending)',
+    '\u7fa4 1\uff5c\u8f83\u4e45\u672a\u8d2d': GROUP_NAMES[1],
+    '\u7fa4 2\uff5c\u8fd1\u671f\u9ad8\u9891': GROUP_NAMES[2],
+    '\u7fa4 3\uff5c\u8fd1\u671f\u4f4e\u5ba2\u5355': GROUP_NAMES[0],
+    '\u7fa4 4\uff5c\u8fd1\u671f\u9ad8\u5ba2\u5355': GROUP_NAMES[3],
 }
 for selection_key in ('segment_group', 'repurchase_group', 'recommendation_customer_sort'):
     previous_choice = st.session_state.get(selection_key)
@@ -249,7 +249,7 @@ elif page == 'repurchase':
         with f3:
             limit = row_limit('repurchase_limit')
     filtered = customer_filter(month, segment, query)
-    ranked = review_list(filtered, '全部群体', limit)
+    ranked = review_list(filtered, 'All segments', limit)
     with st.container(border=True, key='card_repurchase_customers'):
         shown = customer_table(ranked)
         title_column, action_column = st.columns([3, 1], vertical_alignment='center')
@@ -309,7 +309,7 @@ else:
     if pd.notna(profile.historical_repeat_share):
         summary_columns[2].metric('Historical repeat-product share', f'{profile.historical_repeat_share:.1%}',
                                  help='Within the last 180 days, the first order establishes history. Average the share of previously purchased products across later orders.')
-    if profile.history_status != '可比较':
+    if profile.history_status != 'Comparable':
         st.caption('Purchase history is limited; interpret these habits with care.')
     with st.expander('Profile details'):
         st.table(profile_details(profile))

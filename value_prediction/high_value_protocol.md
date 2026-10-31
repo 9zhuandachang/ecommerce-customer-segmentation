@@ -1,26 +1,26 @@
-# 未来 30 天高消费潜力客户名单：课程演示口径
+#Future 30 Customer list with sky-high spending potential: Course demonstration definition
 
-本方案记录于实现名单功能之前，但**原项目 2011 年 1–11 月的金额实验结果均已被查看**。因此以下比较是历史回放，不是新独立测试，也不能证明营销活动会带来增量收入。
+This plan was recorded before the list function was implemented, but the experimental results of the original project amount 2011, 1 – 11 month have been reviewed**. Therefore, the following comparisons are historical replays, not new independent tests, and do not prove that campaigns result in incremental revenue.
 
-## 固定输入与用途
+## Fixed input and usage
 
-- 客户范围：每个 2011 年 6–11 月月初快照中，过去 180 天有合格购买记录的全部客户。每月独立排名，名单名额为 `ceil(客户数 × 20%)`。
-- 固定模型：既有 `extended_tweedie` 的按时间向前预测分数，只使用其**相对顺序**，不把分数解释为可靠的个人预计金额。固定对照：`historic_180d`，即过去 180 天消费额除以 6 后排序。
-- 预测文件与快照来源必须通过 `ranking_audit.load_predictions()` 的完整性、哈希、同批客户和历史标签成熟时间检查。客户 ID 仅用于关联及并列分数时确定性排序；未来 30 天实际消费额仅用于离线评价，绝不进入名单文件或仪表板导出。
-- 2011 年 6–8 月称“已查看的开发确认”；9–11 月称“已查看的回顾诊断”。不得把任何一段改称独立测试。
+- Customer range: All customers with qualifying purchase records in the past 180 days in the snapshot at the beginning of each 2011, 6 – 11 month. Independent ranking every month, the list quota is `ceil(Number of customers × 20%)`.
+- Fixed model: Existing time-forward prediction scores for `extended_tweedie` only use their **relative order** and do not interpret the scores as reliable individual expected amounts. Fixed comparison: `historic_180d`, that is, the consumption amount in the past 180 days is divided by 6 and then sorted.
+- Forecast files and snapshot sources must pass `ranking_audit.load_predictions()` integrity, hash, cohort and historical tag maturity time checks. The customer ID is only used for deterministic sorting when correlating and tying scores; the actual consumption amount in the next 30 days is only used for offline evaluation and will never be exported to the list file or dashboard.
+- 2011, June-August is called "viewed development confirmation"; September-November is called "viewed retrospective diagnosis". No paragraph may be renamed an independent test.
 
-## 固定评价与展示门槛
+## Fixed evaluation and display threshold
 
-每月按分数降序、客户 ID 升序取前 20%。`消费覆盖率 = 名单内客户未来 30 天实际合格消费额之和 / 当月全体快照客户的实际合格消费额之和`。两个三月期间各自用金额加总后计算覆盖率，比较相同客户和名额的历史金额基线。
+The first 20% is taken every month in descending order of score and ascending order of customer ID. `consumption coverage = Customers on the list in the future 30 Total actual qualifying consumption per day / The sum of the actual qualifying consumption of all snapshot customers in the month`. The coverage ratio is calculated by adding up the amount for each of the two three-month periods, and comparing the historical amount baseline for the same customers and quotas.
 
-课程仪表板可展示为**历史回放演示**的条件是：
+The conditions under which the course dashboard can be displayed as a **History Replay Demonstration** are:
 
-1. 两个三月期间的模型消费覆盖率均比基线至少高 **1 个百分点**；
-2. 六个月逐月的覆盖率均不低于基线；
-3. 输入来源校验通过，名单主键唯一、每月名额正确、导出没有未来标签或原始预计金额。
+1. Model consumption coverage for both March periods was at least **1 percentage points** higher than the baseline;
+2. The monthly coverage rate for six months is not lower than the baseline;
+3. The input source verification passed, the primary key of the list is unique, the monthly quota is correct, and the export does not have future tags or original estimated amounts.
 
-这是一项有限的实用性门槛，不替代原先“准确预测具体消费额”的强化验收。门槛设在已查看结果之后，只可作为课程演示的明确规则，不能声称预注册、统计显著或未来业务收益。若任一条件失败，报告全部结果，仪表板不展示模型名单。
+This is a limited practicality threshold and does not replace the original enhanced acceptance of "accurately predicting specific consumption amounts". Thresholds are set after the results have been viewed and should only be used as clear rules for course demonstrations, with no claims of pre-enrollment, statistical significance, or future business benefits. If any condition fails, all results are reported and the dashboard does not display the model list.
 
-## 界面含义
+## Interface meaning
 
-“高消费潜力”表示当前快照下模型排名前 20% 的客户，供人工审核联系优先级。导出的百分位只表示当月相对排名，既不是购买概率，也不是预计英镑金额。正式运营需要新时间段的前瞻验证，并进一步评估营销成本、触达与增量效果。
+"Spending-potential" means the top 20% customers in the current snapshot, for manual review and contact priority. The exported percentiles only represent the relative ranking for the month, not the probability of purchase nor the expected pound amount. Formal operation requires forward-looking verification in the new time period, and further evaluation of marketing costs, reach and incremental effects.

@@ -1,20 +1,20 @@
-# Online Retail II 两份原始文件的重叠与独立性核查
+# Online Retail II Overlap and independence check of two original documents
 
-核查日期：2026-10-23。数据来源：[UCI Machine Learning Repository: Online Retail II](https://archive.ics.uci.edu/dataset/502/online+retail+ii)。本项目的原始文件、清洗文件和快照均未因本核查改动。
+Verification date: 2026-10-23. Data source: [UCI Machine Learning Repository: Online Retail II](https://archive.ics.uci.edu/dataset/502/online+retail+ii). The original files, clean files, and snapshots of this project have not been altered as a result of this review.
 
-## 原始文件重叠
+## Original files overlap
 
-| 文件 | 原始行数 | 日期范围 |
+| File | Original number of rows | date range |
 | --- | ---: | --- |
-| `online_retail_II_2009-2010.csv` | 525,461 | 2009-12-01 07:45 至 2010-12-09 20:01 |
-| `online_retail_II_2010-2011.csv` | 541,910 | 2010-12-01 08:26 至 2011-12-09 12:50 |
+| `online_retail_II_2009-2010.csv` | 525,461 | 2009-12-01 07:45 to 2010-12-09 20:01 |
+| `online_retail_II_2010-2011.csv` | 541,910 | 2010-12-01 08:26 to 2011-12-09 12:50 |
 
-两个文件共有 **1,088 个发票号**，各有 **22,523 行**属于这些发票；其发票日期在 2010-12-01 至 2010-12-09。按全部八个规范化交易字段比对，两侧的不同交易行均可在另一侧找到相同记录（各 22,202 种）；两侧相互没有不匹配行。这里的“不同交易行”是按所有字段相同去重后的集合，不代表 22,202 笔订单。
+There are **1,088 invoice numbers** in both files, and each has **22,523 rows** belonging to those invoices; their invoice dates range from 2010-12-01 to 2010-12-09. Comparing all eight normalized transaction fields, different transaction lines on both sides can find the same records ( 22,202 each) on the other side; there are no mismatching lines on both sides. The "different transaction lines" here are the set after all fields are the same and deduplicated, and do not represent 22,202 orders.
 
-`src/data_cleaning.py` 将两份文件按顺序连接，并以八个规范化交易字段做完全相同交易行的去重。已生成的 `excluded_transactions.csv` 中，第二份文件该重叠区的 **22,523 行全部记为 `exact_duplicate`**；第一份文件重叠区另有 321 行内部完全重复。因而重叠区不会在已生成的清洗交易、客户快照和未来金额标签中重复计额。去重按完整交易行而非仅按发票号，保留同一发票中不同商品行。现有 `validation_report.csv` 的 `clean_unique_rows`、行数核对和金额标签核对均通过；新增回归测试覆盖跨文件完全相同商品行和同发票不同商品行。
+`src/data_cleaning.py` concatenates the two files in sequence and uses eight standardized transaction fields to deduplicate identical transaction lines. In the generated `excluded_transactions.csv`, the **22,523 lines in the overlapping area of ​​the second file are all recorded as `exact_duplicate`**; the 321 lines in the overlapping area of ​​the first file are completely repeated internally. The overlapping area is therefore not double-counted in generated wash transactions, customer snapshots, and future amount tags. De-duplicate by complete transaction lines instead of just by invoice number, retaining different product lines in the same invoice. The existing `clean_unique_rows`, line number check and amount label check of `validation_report.csv` all passed; the new regression test covers the same product rows across files and different product rows in the same invoice.
 
-## 独立验证边界
+## Independent verification boundaries
 
-项目 `cutoff_schedule.csv` 从 **2010-06-01** 开始生成客户月快照，2010 年 6–12 月及 2011 年 1–5 月均标为训练期。现有金额模型的向前训练文件也确认，2011-01-01 预测已使用 2010 年的成熟快照标签（20,584 条训练快照、5,932 条购买者训练快照）。因此，虽然第一份 CSV 提供了更早的同商家交易，**2010 年的结果已被当前模型训练使用，不能重新拿来声称独立验收**。2011 年 6–8 月及 9–11 月的结果也已查看。没有新的、与现有开发和评估完全隔离的同商家时间段。
+Project `cutoff_schedule.csv` generates customer monthly snapshots starting from **2010-06-01**, 2010, 6 – 12 months and 2011, January-May are marked as the training period. The forward training file for the existing model also confirms that 2011-01-01 predictions have been made using the 2010 years of maturity snapshot labels ( 20,584 training snapshot, 5,932 buyer training snapshot). Therefore, although the first CSV provides an earlier same-merchant transaction, the results of 2010 have been used by the current model training and cannot be reused to claim independent acceptance**. Results for 2011, June-August and September-November have also been viewed. There is no new, same-merchant time period that is completely isolated from existing development and evaluation.
 
-本核查只证明“重叠原始行已按规范化交易行去重”和“早期月份不具备新的独立性”。它不证明金额模型已经达到多指标强化标准，也不改变后续新数据验收的要求。
+This verification only proves that "overlapping original rows have been deduplicated according to normalized transaction rows" and "early months do not have new independence." It does not prove that the amount model has reached the multi-index enhancement standard, nor does it change the requirements for subsequent new data acceptance.

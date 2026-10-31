@@ -265,16 +265,16 @@ def official_validation(data: pd.DataFrame, selected: dict, bundle: dict) -> tup
 def write_report(comparison: pd.DataFrame, rolling: pd.DataFrame,
                  selected: dict, original: pd.DataFrame) -> str:
     lines = [
-        '# 阶段五扩展：行为特征、时间滚动验证和 LightGBM 调整', '',
-        '原有六组实验及其文件保留。新增 C 组：8 项基础特征 + 4 项截至快照日已知的购买节奏特征，'
-        '共比较 9 组模型。短于 90 天的记录不计算订单变化，缺失值仅用对应训练部分的中位数填补。', '',
-        '在训练期内部以 2011 年 3、4、5 月各做一次滚动验证；每轮清除跨越该月起点的 30 天训练标签，'
-        '并重新拟合填补、缩放、三群 K-means（B 组）和分类器。LightGBM 在每轮训练期内部再留一个月，'
-        '比较 15/31 个叶子、最多 500 棵树，连续 30 轮内部验证 AP 不改善时早停；'
-        '随后用完整的该轮训练部分重训，在外层验证月评分。用三轮外层平均 AP 选叶子数，'
-        '用所选设置的最佳轮数中位数定最终树数。软投票权重也按三轮平均 AP 选择。'
-        '这些滚动指标参与选参，不能当作独立测试结果。', '',
-        '| 特征组 | 模型 | 滚动 AP 均值 | 官方验证 AP | 官方 Precision@20% |',
+        '# Phase five expansion: behavioral characteristics, time rolling verification and LightGBM adjustment', '',
+        'The original six sets of experiments and their files are retained. Added Group C: 8 basic characteristics + 4 known purchasing rhythm characteristics as of the snapshot date,'
+        'A total of 9 sets of models are compared. Records shorter than 90 days do not count order changes, and missing values ​​are only filled with the median of the corresponding training part.', '',
+        'Within the training period, a rolling verification is performed in 2011 years, 3, 4, and 5 months; each round clears the training labels of 30 days that span the starting point of the month.'
+        'and refit the padded, scaled, three-group K-means (Group B) and classifiers. LightGBM stays for another month within each training period,'
+        'Compare 15 / 31 leaves, up to 500 trees, continuous 30 rounds of internal verification, stop early when AP does not improve;'
+        'Then retrain with the complete training part of the round and verify the monthly score in the outer layer. Use three rounds of outer layer average AP to select the number of leaves,'
+        'The final number of trees is determined using the median of the best number of rounds for the selected setup. Soft voting weights are also selected based on the three-round average AP.'
+        'These rolling indicators participate in the selection of parameters and cannot be regarded as independent test results.', '',
+        '| Feature Group | Model | Rolling AP Mean | Official Verification AP | Official Precision@ 20% |',
         '| --- | --- | ---: | ---: | ---: |',
     ]
     merged = comparison.merge(rolling[['feature_set', 'model', 'mean_fold_ap']],
@@ -282,8 +282,8 @@ def write_report(comparison: pd.DataFrame, rolling: pd.DataFrame,
     for row in merged.itertuples():
         lines.append(f'| {row.feature_set} | {row.model} | {row.mean_fold_ap:.4f} | '
                      f'{row.validation_average_precision:.4f} | {row.precision_at_20pct:.4f} |')
-    lines += ['', '滚动验证选定的 LightGBM 参数与软投票权重：', '',
-              '| 特征组 | 叶子数 | 树数 | LR 权重 |', '| --- | ---: | ---: | ---: |']
+    lines += ['', 'Rolling validation of selected LightGBM parameters with soft voting weights:', '',
+              '| Feature group | Number of leaves | Number of trees | LR weight |', '| --- | ---: | ---: | ---: |']
     for feature_set, config in selected.items():
         lines.append(f'| {feature_set} | {config["num_leaves"]} | {config["n_estimators"]} | '
                      f'{config["lr_weight"]:.2f} |')
@@ -293,17 +293,17 @@ def write_report(comparison: pd.DataFrame, rolling: pd.DataFrame,
     new_best = new_formal.loc[new_formal.validation_average_precision.idxmax()]
     c_best = new_formal.loc[new_formal.feature_set.eq('C_base_8_plus_4_behavior'),
                             'validation_average_precision'].max()
-    lines += ['', f'原六组中验证 AP 最高的是 {old_best.feature_set} / {old_best.model}：'
-              f'{old_best.validation_average_precision:.4f}。扩展实验当前最高的是 '
+    lines += ['', f'Among the original six groups, the highest verified AP is {old_best.feature_set} / {old_best.model}:'
+              f'{old_best.validation_average_precision:.4f}. The current highest level of extended experiments is'
               f'{new_best.feature_set} / {new_best.model}：{new_best.validation_average_precision:.4f}，'
-              f'差值 {new_best.validation_average_precision - old_best.validation_average_precision:+.4f}。'
-              f'C 组最高 AP 为 {c_best:.4f}，未超过扩展实验的最高值。'
-              '这些都是验证期结果，最终测试尚未进行。',
-              '', '官方验证期为 2011 年 6—8 月，只在滚动验证选定配置后评估。'
-              '9 月以后的测试期未用于调参或计算本报告指标。'
-              '逐月结果见 `monthly_validation.csv`，每折与候选参数见 `rolling_folds.csv`、'
-              '`lightgbm_tuning.csv`、`weight_candidates.csv`，逐条评分见 `validation_predictions.csv`。'
-              '若新特征或调整后的模型没有改善，应以结果为准。', '']
+              f'The difference is {new_best.validation_average_precision - old_best.validation_average_precision:+.4f}.'
+              f'The highest AP in group C is {c_best:.4f}, which does not exceed the highest value of the extended experiment.'
+              'These are validation period results and final testing has not yet been conducted.',
+              '', 'The official verification period is 2011 years and 6 — 8 months, and is only evaluated after rolling verification of selected configurations.'
+              'The test period after 9 months was not used for parameter adjustment or calculation of indicators in this report.'
+              'See `monthly_validation.csv` for month-by-month results, and see `rolling_folds.csv` and candidate parameters for each fold.'
+              '`lightgbm_tuning.csv`, `weight_candidates.csv`, see `validation_predictions.csv` for item-by-item ratings.'
+              'If there is no improvement with new features or adjusted models, the results should prevail.', '']
     return '\n'.join(lines)
 
 

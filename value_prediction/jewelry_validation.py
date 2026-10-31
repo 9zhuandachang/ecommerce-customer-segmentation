@@ -197,25 +197,25 @@ def main() -> None:
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     lines = [
-        '# 独立电商珠宝交易时序检验', '',
-        '固定方案：`jewelry_protocol.md`。来源：[REES46 数据目录]'
-        '(https://rees46.com/en/datasets) 发布并链接到 [Kaggle 珠宝交易数据]'
+        '# Independent e-commerce jewelry transaction timing inspection', '',
+        'Fixed scheme: `jewelry_protocol.md`. Source: [REES 46 data catalog]'
+        '( https://rees46.com/en/datasets ) published and linked to [Kaggle Jewelry Transaction Data]'
         '(https://www.kaggle.com/datasets/mkechinov/ecommerce-purchase-history-from-jewelry-store)。',
-        f'实际文件覆盖 {clean.invoice_date.min().date()} 至 {clean.invoice_date.max().date()}；'
-        f'{source_audit["source_rows"]:,} 条商品行中有 '
-        f'{source_audit["eligible_rows"]:,} 条满足预定清洗条件。'
-        '目录说明中的约两年、13 万笔与文件实际内容不一致，以下均以文件审计为准。',
-        '采用原有 8 个历史特征加 12 个时序特征及固定的 Tweedie 参数；原始行未写入仓库。',
-        f'适用性：{"只作可行性分析（测试月购买客户不足 100）" if feasibility_only else "测试月购买客户数达到预案下限"}。',
-        '', '| 截点 | 分区 | 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |',
+        f'The actual file covers {clean.invoice_date.min().date()} to {clean.invoice_date.max().date()};'
+        f'There are {source_audit["source_rows"]:,} product lines in'
+        f'{source_audit["eligible_rows"]:,} strips meet the predetermined cleaning conditions.'
+        'The description of approximately two years and 13 in the catalog description is inconsistent with the actual content of the file. The following shall be subject to file audit.',
+        'Use the original 8 historical features plus 12 time series features and fixed Tweedie parameters; the original rows are not written to the warehouse.',
+        f'Applicability: {"Feasibility analysis only (There are not enough purchasing customers in the test month 100)" if feasibility_only else "The number of purchasing customers in the test month reaches the lower limit of the plan"}.',
+        '', '| Cutoff | Partition | Method | MAE | Buyer MAE | Top 20 Coverage | Total Deviation |',
         '| --- | --- | --- | ---: | ---: | ---: | ---: |',
     ]
     for row in monthly.itertuples(index=False):
         lines.append(f'| {row.snapshot_date} | {row.split} | {row.method} | '
                      f'{row.mae:.2f} | {row.positive_mae:.2f} | '
                      f'{row.top20_spend_capture:.2%} | {row.aggregate_bias:+.2%} |')
-    lines += ['', '最后三个月合并（Top20 每月分别选取）：', '',
-              '| 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |',
+    lines += ['', 'Combined in the last three months (Top 20 selected each month):', '',
+              '| Method | MAE | Buyer MAE | Top 20 Coverage | Total Deviation |',
               '| --- | ---: | ---: | ---: | ---: |']
     for row in pooled.itertuples(index=False):
         lines.append(f'| {row.method} | {row.mae:.2f} | {row.positive_mae:.2f} | '
@@ -223,18 +223,18 @@ def main() -> None:
     base = pooled.set_index('method').loc['historic_180d']
     model = pooled.set_index('method').loc['extended_tweedie']
     lines += [
-        '', '## 结果解释', '',
-        f'测试期共有 {int(model.snapshot_count):,} 条客户月快照，其中 '
-        f'{int(model.buyer_count):,} 条在未来 30 天购买（'
+        '', '##Explanation of results', '',
+        f'There are {int(model.snapshot_count):,} customer monthly snapshots during the test period, among which'
+        f'{int(model.buyer_count):,} items will be purchased in the next 30 days ('
         f'{model.buyer_count / model.snapshot_count:.2%}）。',
-        f'模型整体 MAE 相对历史金额基线降低 '
-        f'{1 - model.mae / base.mae:.2%}；Top20 覆盖提高 '
-        f'{(model.top20_spend_capture - base.top20_spend_capture) * 100:.2f} 个百分点。'
-        '这是对同一批客户按不同评分排序的对照。',
-        f'购买者 MAE 只降低 {1 - model.positive_mae / base.positive_mae:.2%}；'
-        f'三个月合并预测总额偏差为 {model.aggregate_bias:+.2%}，'
-        '单月偏差方向也不稳定。不能把这组结果当作金额校准已经准确。',
-        '', '该数据来自另一商家，只能提供跨商家稳健性证据；原项目仍无新月份独立验收数据。',
+        f'The overall model MAE decreases relative to the historical amount baseline'
+        f'{1 - model.mae / base.mae:.2%}; Top 20 coverage improvement'
+        f'{(model.top20_spend_capture - base.top20_spend_capture) * 100:.2f} percentage points.'
+        'This is a comparison of the same customers sorted by different ratings.',
+        f'Buyer MAE only lowers {1 - model.positive_mae / base.positive_mae:.2%};'
+        f'The total deviation of the three-month combined forecast is {model.aggregate_bias:+.2%},'
+        'The direction of the single-month deviation is also unstable. This set of results cannot be regarded as the amount calibration has been accurate.',
+        '', 'This data comes from another merchant and can only provide evidence of robustness across merchants; the original project still does not have independent acceptance data for the new month.',
         '',
     ]
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')

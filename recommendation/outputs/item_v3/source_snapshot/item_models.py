@@ -12,10 +12,10 @@ from threadpoolctl import threadpool_limits
 from recommendation.item_features import FEATURE_INDEX, FEATURE_SETS, pair_features, GROUP_NAMES
 
 FAMILIES = ('lr', 'classifier', 'ranker')
-MODEL_NAMES = {'lr': '逻辑回归', 'classifier': 'LightGBM分类', 'ranker': 'LightGBM排序'}
+MODEL_NAMES = {'lr': 'logistic regression', 'classifier': 'LightGBM Classification', 'ranker': 'LightGBM sort'}
 NAMES = {f'{group}_{family}': f'{GROUP_NAMES[group]} · {MODEL_NAMES[family]}'
          for group in FEATURE_SETS for family in FAMILIES}
-NAMES.update(personal_repeat='原纯补货', pure_ease='原纯EASE', old_adaptive_ease='上一版画像混合')
+NAMES.update(personal_repeat='Original replenishment', pure_ease='Original pure EASE', old_adaptive_ease='Previous version profile blend')
 
 
 def model_specs(family: str) -> list[dict]:

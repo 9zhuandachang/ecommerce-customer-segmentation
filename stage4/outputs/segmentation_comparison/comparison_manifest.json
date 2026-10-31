@@ -1,6 +1,6 @@
 {
   "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
-  "protocol_sha256": "ec7fb94539836ec0daf6fa60e743e95ab6287698f19ceafb951397cc49bad4f4",
+  "protocol_sha256": "2abb6ff43643b47a3b27c1b7f5c5887f40b13e036eae4bc065d41b692427f630",
   "script_sha256": "681f83938182d928dafbd10c2b3d5d949a0c56e894bceacf726a6a77b15b66ab",
   "holdout_seed": 20261027,
   "resample_seeds": [

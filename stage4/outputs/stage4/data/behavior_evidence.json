@@ -1,5 +1,5 @@
 {
-  "description": "报告中的同日消费份额、购买节奏子组和按月复购对照；不含测试标签评估。",
+  "description": "Same-day consumption share, purchase rhythm subgroups, and monthly repurchase comparisons in the report; do not include test label evaluations.",
   "latest_training_snapshot": [
     {
       "snapshot_date": "2011-05-01T00:00:00.000",

@@ -1,15 +1,15 @@
-# 未来 30 天客户消费额预测
+# Forecast of customer consumption in the next 30 days
 
-标签基于合格交易行金额，覆盖 54,040 条客户月快照；零购买记为零。原始交易、清洗结果和原复购模型未改动。
-金额代表合格交易的消费额，不是净利润、CLV 或营销增量。
+Labels are based on qualifying transaction line amounts and cover 54,040 customer monthly snapshots; zero purchases are counted as zero. The original transactions, cleaning results, and original repurchase model remain unchanged.
+Amount represents spend on qualifying transactions, not net profit, CLV or marketing incrementality.
 
-模型只使用快照日前 180 天的 8 项特征。训练期至 2011 年 5 月；2011 年 6–8 月选模型；模型选择写入锁定配置后，才报告 9–11 月结果。这些测试月份在复购任务中曾被查看，不能称为整个项目完全未查看的时间段。
+The model only uses 8 features from 180 days before the snapshot date. The training period lasts to 2011, and 5 months; 2011, June-Augustly model selection; the September-Novemberly results will be reported only after the model selection is written into the locked configuration. These test months have been viewed in the repurchase task and cannot be called a period of time when the entire project has not been viewed at all.
 
-验收：整体 MAE 低于历史 180 天金额折算的 30 天基线，Top 20% 实际消费额覆盖率高于该基线，至少 2/3 个月两项均不退步，预测总额偏差不超过 ±10%。验证期选模，测试期只检查已固定的方案。
+Acceptance: The overall MAE is lower than the 30 -day baseline converted from the historical 180 -day amount, the actual consumption coverage of Top 20% is higher than the baseline, at least 2 / 3 months will not regress, and the total forecast deviation does not exceed ± 10%. Models are selected during the validation period, and only fixed solutions are checked during the testing period.
 
-Top 20% 覆盖率按每月评分选前 20% 客户月快照，再用入选客户的实际消费额除以当期全部客户的实际消费额。
+Top 20% coverage is based on the monthly snapshot of the top 20% customers selected based on their monthly ratings, and then the actual consumption of the selected customers is divided by the actual consumption of all customers in the current period.
 
-| 期间 | 方法 | MAE | Top 20% 实际消费额覆盖 | WAPE | 总额偏差 | Top 20% 金额提升倍数 |
+| period | method | MAE | Top 20% actual consumption coverage | WAPE | total deviation | Top 20% Amount increase multiple |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | validation | historic_30d | 203.66 | 71.38% | 108.89% | +8.15% | 3.56 |
 | validation | zero | 187.03 | — | 100.00% | -100.00% | — |
@@ -20,11 +20,11 @@ Top 20% 覆盖率按每月评分选前 20% 客户月快照，再用入选客户�
 | test | zero | 280.03 | — | 100.00% | -100.00% | — |
 | test | direct_l2 | 281.39 | 67.52% | 100.49% | -5.58% | 3.37 |
 
-验证期历史金额基线：MAE 203.66，Top 20% 消费额覆盖 71.38%。
-选定方案：**direct_l2**。
-验证期验收：**通过**；已查看时间段的事后测试门槛：**未通过**。离线模型结论：**暂不接受**。
-零预测只用于检验 MAE，不提供可用的客户排序；因此其 Top 20% 指标不计算。验证期零预测 MAE 低于候选模型，表明只看 MAE 会偏向全部预测不购买。
-针对 direct_tweedie，训练期内部 3–5 月前向预测得到金额缩放系数 1.0425；用于验证期后 MAE 190.01、总额偏差 -13.70%，仍未通过预设门槛，因此没有采用该缩放。
-固定方案在 9–11 月的 MAE 为 281.39，历史金额基线为 263.47；三个测试月中只有 0 个月的 MAE 更低。Top 20% 消费额覆盖率为 67.52%，基线为 67.28%。总额偏差只衡量群体总量，不能证明单个客户金额准确。
-验证期实际购买占比 26.72%，测试期 34.08%；每条客户月快照的实际平均消费额从 187.03 增至 280.03。这是期间分布变化的观察，尚不能单凭汇总指标确定误差原因。
-逐月指标、逐条预测、标签审计、冻结配置和采用决定见输出目录。当前未接入仪表板；测试月份已在复购任务中被查看，不能作为全项目全新独立验证。
+Historical amount baseline during the validation period: MAE 203.66, Top 20% consumption covers 71.38%.
+Selected plan: **direct_l 2**.
+Acceptance during the validation period: **passed**; post-test threshold for the viewed time period: **failed**. Offline model conclusion: **Not accepted yet**.
+The zero prediction is only used to test MAE and does not provide usable customer ranking; therefore its Top 20% indicator is not calculated. The zero prediction of MAE in the validation period is lower than the candidate model, indicating that looking only at MAE will bias all predictions and not buy.
+For direct_tweedie, the 3 – 5 monthly forward prediction within the training period resulted in the amount scaling factor 1.0425; it was used for MAE 190.01 and the total deviation - 13.70% after the validation period. It still did not pass the preset threshold, so this scaling was not used.
+The fixed scheme's MAE in the September-November is 281.39, and the historical amount baseline is 263.47; among the three test months, only the 0 month's MAE is lower. Top 20% consumption coverage is 67.52%, and the baseline is 67.28%. Total deviation only measures the group total and cannot prove that individual customer amounts are accurate.
+The actual purchase proportion during the validation period is 26.72% and during the test period 34.08%; the actual average consumption of each customer's monthly snapshot increases from 187.03 to 280.03. This is an observation of distribution changes during the period, and the cause of the error cannot yet be determined based on summary indicators alone.
+Monthly indicators, item-by-item forecasts, label audits, frozen configurations and adoption decisions are shown in the output directory. It is not currently connected to the dashboard; the test month has been viewed in the repurchase task and cannot be used as a new independent verification of the entire project.

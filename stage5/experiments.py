@@ -180,29 +180,29 @@ def main() -> None:
     base = table.loc[table.feature_set.eq('A_base_8')].set_index('model')
     added = table.loc[table.feature_set.eq('B_base_8_plus_3_distances')].set_index('model')
     lines = [
-        '# 阶段五：六组复购预测实验', '',
-        '两组特征使用相同的训练期 37,019 条和验证期 8,146 条客户月记录。'
-        'A 为阶段四的 8 项基础交易特征；B 另加已在训练期拟合的三群中心距离。'
-        'LR、GBDT 各训练一次，每组的软投票权重只用验证集 AP 从 0.25、0.50、0.75 选出。'
-        '未计算测试期指标。', '',
-        '| 特征组 | 模型 | 验证 AP | ROC-AUC | Precision@20% | Recall@20% |',
+        '# Stage 5: Six groups of repurchase prediction experiments', '',
+        'The two sets of features use the same 37,019 customer-month records in the training period and 8,146 customer-month records in the validation period.'
+        'A is the 8 basic transaction characteristics of stage four; B plus the three cluster center distances that have been fitted in the training period.'
+        'LR and GBDT are each trained once, and the soft voting weight of each group is selected from 0.25, 0.50 and 0.75 using only the verification set AP.'
+        'Test period metrics are not calculated.', '',
+        '| Feature Group | Model | Validation AP | ROC-AUC | Precision@ 20% | Recall@20% |',
         '| --- | --- | ---: | ---: | ---: | ---: |',
     ]
     for row in table.itertuples():
         lines.append(f'| {row.feature_set} | {row.model} | {row.validation_average_precision:.4f} | '
                      f'{row.validation_roc_auc:.4f} | {row.precision_at_20pct:.4f} | '
                      f'{row.recall_at_20pct:.4f} |')
-    lines += ['', '软投票中 LR 的验证期选定权重：A 为 '
+    lines += ['', 'The weight selected for the verification period of LR in soft voting: A is'
               f'{float(weights.loc[(weights.feature_set == "A_base_8") & weights.selected, "lr_weight"].iloc[0]):.2f}，'
-              'B 为 '
+              'B is'
               f'{float(weights.loc[(weights.feature_set == "B_base_8_plus_3_distances") & weights.selected, "lr_weight"].iloc[0]):.2f}。',
-        '', '加入聚类距离后的 AP 变化（B 减 A）：' + '；'.join(
+        '', 'Changes in AP after adding clustering distance (B minus A):' + '；'.join(
         f'{name} {added.loc[name, "validation_average_precision"] - base.loc[name, "validation_average_precision"]:+.4f}'
         for name in ('LR', 'GBDT', 'SoftVote')) + '。',
-        '', 'Top 20% 名额按每个验证月份分别取 ceil(0.2 × 当月客户数)，再汇总命中数。'
-        '结果只表示历史验证期的排序表现；概率校准、阈值和最终测试留到阶段六。',
-        '', '逐条验证评分见 `validation_predictions.csv`；三个候选权重及选值见 `weight_selection.csv`；'
-        '完整特征、版本、来源哈希见 `run_config.json`。',
+        '', 'The Top 20% quota is calculated as ceil ( 0.2 × number of customers in the month) for each verification month, and then the number of hits is summarized.'
+        'Results only represent ranking performance for the historical validation period; probability calibration, thresholds, and final testing are left to phase six.',
+        '', 'See `validation_predictions.csv` for item-by-item verification scores; see `weight_selection.csv` for the weights and selection values of the three candidates;'
+        'See `run_config.json` for complete characteristics, versions, and source hashes.',
     ]
     (output / 'stage5_report.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
 

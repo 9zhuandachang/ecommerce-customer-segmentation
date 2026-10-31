@@ -254,31 +254,31 @@ def main() -> None:
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     lines = [
-        '# 订单笔数 × 单均金额：开发期实验', '',
-        '事前固定的唯一候选是用成熟历史标签分别预测订单数与每笔金额，'
-        '再相乘得到未来 30 天无条件预计消费额。订单数按唯一发票计，'
-        '同笔多商品不重复计数。2011 年 9–11 月未用于本实验。', '',
-        '| 期间 | 方法 | 全体 MAE | 购买者 MAE | Top20 消费覆盖 | 总额偏差 | Top20 群体偏差 |',
+        '# Number of orders × Average order amount: Development period experiment', '',
+        'The only candidate for ex ante fixation is to use mature historical labels to separately predict the number of orders and the amount of each transaction.'
+        'Then multiply them to get the unconditional estimated consumption amount in the next 30 days. The number of orders is based on unique invoices.'
+        'Multiple items in the same order will not be counted repeatedly. 2011 years 9 – 11 months were not used in this experiment.', '',
+        '| Period | Method | All MAE | Buyers MAE | Top 20 Consumption Coverage | Total Deviation | Top 20 Group Deviation |',
         '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
     ]
     for row in summary.itertuples(index=False):
         lines.append(f'| {row.period} | {row.method} | {row.mae:.2f} | '
                      f'{row.positive_mae:.2f} | {row.top20_spend_capture:.2%} | '
                      f'{row.aggregate_bias:+.2%} | {row.top20_group_bias:+.2%} |')
-    lines += ['', '## 事后拆解：订单数和单均金额', '',
-              '| 期间 | 实际订单数 | 预测订单数/实际 | 按实际订单数加权的预测单均金额/实际金额 |',
+    lines += ['', '## Post-disassembly: number of orders and average order amount', '',
+              '| Period | Actual number of orders | Forecast number of orders/actual | Forecast average order amount/actual amount weighted by actual order number |',
               '| --- | ---: | ---: | ---: |']
     for row in diagnostics.itertuples(index=False):
         lines.append(f'| {row.period} | {row.actual_invoice_count:,} | '
                      f'{row.predicted_count_to_actual:.2%} | '
                      f'{row.predicted_order_amount_on_actual_orders_to_actual_spend:.2%} |')
-    lines += ['', '这一拆解只用于误差诊断。实际未来订单数没有用于生成预测分数。']
-    lines += ['', '## 事前固定的 1–5 月推进条件', '']
+    lines += ['', 'This teardown is only used for error diagnosis. Actual future order numbers are not used to generate forecast scores.']
+    lines += ['', '## Fixed in advance 1 – 5 monthly advancement conditions', '']
     for name, passed in checks.items():
-        lines.append(f'- `{name}`：{"满足" if passed else "未满足"}')
-    lines += ['', f'是否值得进入新的外部固定测试：**{"是" if all(checks.values()) else "否"}**。'
-              '即使满足，也只能说明值得再检验，不能作为独立验收或系统接入依据。',
-              '客户级开发预测、逐月指标、标签核对、训练截止与文件哈希见同目录。', '']
+        lines.append(f'- `{name}`: {"satisfy" if passed else "not satisfied"}')
+    lines += ['', f'Is it worth going into a new external fixation test: **{"Yes" if all(checks.values()) else "No"}**.'
+              'Even if it is satisfied, it can only mean that it is worthy of re-inspection and cannot be used as a basis for independent acceptance or system access.',
+              'Customer-level development forecasts, month-by-month metrics, tag checks, training cutoffs and file hashes are in the same directory.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote count-amount development comparison to {OUTPUT}', flush=True)
 

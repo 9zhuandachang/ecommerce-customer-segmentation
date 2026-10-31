@@ -315,47 +315,47 @@ def run() -> None:
 
 
 def write_report(comparison, lock, propensity_monthly, profiles, seconds):
-    lines = ['# 购买习惯画像与商品推荐：比较结果', '', f'默认方案：**{lock["selected_name"]}**。', '',
-             '画像由截点前180天订单统计；机器学习预测的是“如果随后30天有下一单，其中老商品占多少”，'
-             '不是复购概率。推荐权重通过开发期的排名效果确定，不直接等同于比例预测。', '',
-             f'画像价值门槛是否满足：**{lock["profile_value_demonstrated"]}**。', '',
-             '| 方案 | 验证NDCG@10 | 验证Recall@10 | 验证未买Recall | 复核NDCG@10 | 复核Recall@10 | 复核未买Recall |',
+    lines = ['# Purchasing Habits Profiles and Product Recommendations: Comparison Results', '', f'Default scheme: **{lock["selected_name"]}**.', '',
+             'The profile is based on the statistics of orders 180 days before the cutoff point; the machine learning prediction is "if there is an order 30 days later, how much of the old products will account for it",'
+             'Not the probability of repurchase. The recommendation weight is determined by the ranking effect during the development period and is not directly equivalent to proportional prediction.', '',
+             f'Whether the profile value threshold is met: **{lock["profile_value_demonstrated"]}**.', '',
+             '| Plan | Verify NDCG@10 | Verify Recall@10 | Verify but not bought Recall | Review NDCG@10 | Review Recall@10 | Review but not buy Recall |',
              '|---|---:|---:|---:|---:|---:|---:|']
     for method in METHODS:
         a = comparison.loc[comparison.phase.eq('validation') & comparison.method.eq(method)].iloc[0]
         b = comparison.loc[comparison.phase.eq('test') & comparison.method.eq(method)].iloc[0]
         lines.append(f'| {NAMES[method]} | {a.mean_ndcg_10:.4f} | {a.mean_recall_10:.2%} | {a.mean_new_recall_10:.2%} | '
                      f'{b.mean_ndcg_10:.4f} | {b.mean_recall_10:.2%} | {b.mean_new_recall_10:.2%} |')
-    lines += ['', '每月先在有下一单客户中计算，再对月份等权平均。每人均推荐10件；'
-              '未买指截点前180天没买过，未知商品保留答案分母。各纯算法仍可推荐老商品；混合中老/未买两路互斥。', '',
-              '## 画像增益与最终选择', '',
-              f'- 最强固定混合：{NAMES[lock["best_fixed"]]}。最强画像混合：{NAMES[lock["best_adaptive"]]}。',
-              f'- 画像相对固定：{json.dumps(lock["adaptive_vs_fixed"], ensure_ascii=False)}。',
-              f'- 画像相对纯补货：{json.dumps(lock["adaptive_vs_repeat"], ensure_ascii=False)}。',
-              f'- 画像相对纯补货的未买商品Recall提升：{lock["adaptive_new_recall_gain_vs_repeat"]:+.2%}。',
-              f'- 配对客户抽样区间：`{json.dumps(lock["adaptive_vs_fixed_intervals"]["metrics"], ensure_ascii=False)}`。',
-              '区间为选型后的内部诊断；不承诺新月份收益。画像方案须同时超过固定混合和纯补货，'
-              '不能仅因增加了模型而称为改进。最终参数见locked_selection.json。', '',
-              '## 条件重复比例预测', '',
-              f'开发期选中的方法：{PROPENSITY_NAMES[lock["selected_propensity"]["family"]]}，'
-              f'参数`{json.dumps(lock["selected_propensity"], ensure_ascii=False)}`。', '',
-              '| 方法 | 验证MAE | 验证RMSE | 验证平均偏差 | 复核MAE |', '|---|---:|---:|---:|---:|']
+    lines += ['', 'Each month, it is first calculated among customers with next orders, and then the monthly equal-weighted average is calculated. Everyone recommends 10 pieces;'
+              'Unbought means no purchases were made 180 days before the cutoff, and unknown products retain the denominator of the answer. Each pure algorithm can still recommend old products; the mixed old/unbought two ways are mutually exclusive.', '',
+              '## Profile Gain and Final Selection', '',
+              f'- Strongest fixed mix: {NAMES[lock["best_fixed"]]}. The strongest image blend: {NAMES[lock["best_adaptive"]]}.',
+              f'- The profile is relatively fixed: {json.dumps(lock["adaptive_vs_fixed"], ensure_ascii=False)}.',
+              f'- The profile is relatively pure replenishment: {json.dumps(lock["adaptive_vs_repeat"], ensure_ascii=False)}.',
+              f'- The image of the unbought product Recall is improved compared to pure replenishment: {lock["adaptive_new_recall_gain_vs_repeat"]:+.2%}.',
+              f'- Paired customer sampling interval: `{json.dumps(lock["adaptive_vs_fixed_intervals"]["metrics"], ensure_ascii=False)}`.',
+              'The range is internal diagnosis after selection; no new monthly income is promised. The imaging solution must exceed both fixed mix and pure replenishment,'
+              'Simply adding a model cannot be called an improvement. See locked_selection.json for final parameters.', '',
+              '## Conditional repetition ratio prediction', '',
+              f'The method selected during the development period: {PROPENSITY_NAMES[lock["selected_propensity"]["family"]]},'
+              f'Parameter `{json.dumps(lock["selected_propensity"], ensure_ascii=False)}`.', '',
+              '| Method | Verify MAE | Verify RMSE | Verify mean deviation | Review MAE |', '|---|---:|---:|---:|---:|']
     for family in PROP_FAMILIES:
         a = propensity_monthly.loc[propensity_monthly.phase.eq('validation') & propensity_monthly.family.eq(family)]
         b = propensity_monthly.loc[propensity_monthly.phase.eq('test') & propensity_monthly.family.eq(family)]
         lines.append(f'| {PROPENSITY_NAMES[family]} | {a.mae.mean():.4f} | {a.rmse.mean():.4f} | {a.bias.mean():+.4f} | {b.mae.mean():.4f} |')
-    lines += ['', 'MAE=预测比例与实际比例绝对差的平均值，例如0.15表示平均相差15个百分点。'
-              '首次订单没有此前参照，不记为尝新；无可比较记录时使用拟合期答案均值。'
-              '近期变化至少需要4笔可比较订单，其余留缺失。记录数量和缺失状态均进入审计。', '',
-              '## 时间、公平比较与打开', '',
-              '1–5月向前开发：每折拟合只使用截至该折已完整观察30天的答案；6–8月验证确定默认。'
-              '模型和选择在计算9–11月混合推荐结果前锁定。9–11月答案此前已用于v1，属于复核，不是新的独立测试。'
-              '阶段内全局模型与目录冻结，客户历史只更新到该月截点。', '',
-              '固定混合每算法11组，画像混合每算法33组，均报告完整开发结果。'
-              '画像组表现见validation_groups.csv/test_groups.csv；安全名单与离线答案分文件保存。', '',
+    lines += ['', 'MAE = the average absolute difference between the predicted proportion and the actual proportion, for example, 0.15 means the average difference is 15 percentage points.'
+              'The first order has no previous reference and is not recorded as a new one; when there is no comparable record, the mean answer value during the fitting period is used.'
+              'Recent changes require at least 4 comparable orders, the rest are missing. Both the record quantity and missing status are entered into audit.', '',
+              '## Time, fair comparison and opening', '',
+              '1 – 5 month forward development: Each fold fit only uses answers that have been fully observed 30 days as of that fold; 6 – 8 month validation determines the default.'
+              'Models and selections are locked before calculating the 9 – 11 monthly mixed recommendation results. 9 – 11 Monthly answers have been used previously for v 1 and are a review, not a new independent test.'
+              'The global model and catalog are frozen during the stage, and customer history is only updated to the cut-off point of the month.', '',
+              'Fixed mixing per algorithm 11 group, profile mixing per algorithm 33 group, both report complete development results.'
+              'See validation_groups.csv/test_groups.csv for profile group performance; the safe list and offline answers are saved in separate files.', '',
               '`python -B -m recommendation.profile_experiment`', '',
-              '`python -m streamlit run app/dashboard.py` → **Product recommendations** → 选择画像推荐版本。', '',
-              f'全部18月画像行数{len(profiles):,}；运行约{seconds:.0f}秒。模型、目录和CSV均有哈希核对。', '']
+              '`python -m streamlit run app/dashboard.py` → **Product recommendations** → Select the profile recommended version.', '',
+              f'All 18 Number of monthly profile lines {len(profiles):,}; run for about {seconds:.0f} seconds. Models, directories, and CSV all have hash checks.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
 
 

@@ -184,24 +184,24 @@ def main() -> None:
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     lines = [
-        '# 两年零售交易的固定时间检验', '',
-        '真实时间信息只有 DAY 日序号；截点依 `two_year_protocol.md` 固定。',
-        '同一零售商的公开一年版此前曾用于研究；本次最后三个截点处于更晚的第二年。',
-        '原始行及家庭级预测没有写入仓库。', '',
-        '| 截点 DAY | 分区 | 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |',
+        '# Two-year fixed time test for retail transactions', '',
+        'The real time information only has the DAY serial number; the cutoff point is fixed according to `two_year_protocol.md`.',
+        'The same retailer\'s public one-year version was previously used in the study; this time the last three cutoff points are in the later second year.',
+        'Raw row and household level forecasts are not written to the warehouse.', '',
+        '| Cutoff DAY | Partition | Method | MAE | Buyer MAE | Top 20 Coverage | Total Deviation |',
         '| ---: | --- | --- | ---: | ---: | ---: | ---: |',
     ]
     for row in monthly.itertuples(index=False):
         lines.append(f'| {row.source_day} | {row.split} | {row.method} | '
                      f'{row.mae:.2f} | {row.positive_mae:.2f} | '
                      f'{row.top20_spend_capture:.2%} | {row.aggregate_bias:+.2%} |')
-    lines += ['', '最后三个截点合并（仍按每截点分别选 Top 20%）：', '',
-              '| 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |',
+    lines += ['', 'Combine the last three intercept points (still select Top 20% for each intercept point):', '',
+              '| Method | MAE | Buyer MAE | Top 20 Coverage | Total Deviation |',
               '| --- | ---: | ---: | ---: | ---: |']
     for row in pooled.itertuples(index=False):
         lines.append(f'| {row.method} | {row.mae:.2f} | {row.positive_mae:.2f} | '
                      f'{row.top20_spend_capture:.2%} | {row.aggregate_bias:+.2%} |')
-    lines += ['', '这是跨零售商的方法检验，不能代替原在线零售项目未来新月份的验收。', '']
+    lines += ['', 'This is a cross-retailer method inspection and cannot replace the acceptance of the original online retail project in future months.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote two-year aggregate report to {OUTPUT}', flush=True)
 

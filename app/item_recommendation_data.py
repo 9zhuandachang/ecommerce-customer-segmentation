@@ -97,10 +97,10 @@ def item_recommendation_list(package: dict, date: str, customer: str, method: st
     if method[0] in GROUP_NAMES:
         group, family = method.split('_', 1)
         group_name, family_name = GROUP_NAMES[group], MODEL_NAMES[family]
-        reason = f'{group_name}的历史信息经{family_name}统一打分；购买次数和时间供核对'
+        reason = f'The historical information of {group_name} has been uniformly scored by {family_name}; the number and time of purchases are for verification'
     else:
-        group_name, family_name = '旧方案对照', NAMES[method]
-        reason = '原冻结方案的推荐，按其规则或模型排序'
+        group_name, family_name = 'Comparison with old plan', NAMES[method]
+        reason = 'Recommendations of original frozen solutions, sorted by their rules or models'
     rows = []
     for rank, (code, count, age, score) in enumerate(zip(codes, counts, ages, scores), 1):
         rows.append(dict(snapshot_date=date, customer_id=customer, rank=rank, stock_code=code,

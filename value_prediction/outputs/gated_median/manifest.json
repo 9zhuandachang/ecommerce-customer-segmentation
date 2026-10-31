@@ -1,7 +1,7 @@
 {
   "status": "development_only_not_independent_acceptance",
-  "protocol_sha256": "98ff641d9768c4eefe6cbfd8e793878c5d6ed7505e57ffd884767e99f901306e",
-  "script_sha256": "f1b08ed59066c86f662fb1727ffb719aed6f553044340840d1148dab8616a145",
+  "protocol_sha256": "b89b9319e7d3f690cf2787c944f12526e30d55bc5e758be203b0ec5d5c683530",
+  "script_sha256": "9fcf3614a19f78712786551cb29b5e9006c8328373020c325576b4ed05c5da5d",
   "hurdle_predictions_sha256": "d010aec70b96f93bd6549ea3dc59260957c6ef1d2534c047e7198cffbd9f1650",
   "conditional_predictions_sha256": "315c4ee784c7bea95dfd3ad3a7f872df328f26ae0647c01365d201c2b379f62c",
   "development_predictions_sha256": "be8a3ba5d072a57f5119daa00830ae672ea61e42857da86b96bfe99124db89ab",

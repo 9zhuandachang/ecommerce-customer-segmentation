@@ -2,10 +2,10 @@
   "input_file": "data/processed/customer_snapshot_pipeline/customer_snapshots.csv",
   "source_urls": [
     "https://github.com/9zhuandachang/ecommerce-customer-segmentation/blob/main/data/processed/customer_snapshot_pipeline/customer_snapshots.csv",
-    "https://github.com/9zhuandachang/ecommerce-customer-segmentation/blob/main/docs/项目任务流程与验收清单.md"
+    "https://github.com/9zhuandachang/ecommerce-customer-segmentation/blob/main/docs/project_workflow_and_acceptance_checklist.md"
   ],
   "input_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
-  "script_sha256": "16e38df4bbc81031f4ea18ee7750923adf4b4dbb3f5792b67bc506699e2145cc",
+  "script_sha256": "bbe678e38928fbd012cbdd79c4ceef7eeace7b7bde459e93ed828d54682d57b5",
   "features": [
     "recency_days",
     "invoice_frequency_180d",

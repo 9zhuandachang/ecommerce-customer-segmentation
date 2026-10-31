@@ -1,7 +1,7 @@
 {
   "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
-  "stage4_model_sha256": "63673be3b62b08d5a0873cc61eeae461a4dbe92e68e467cdcbfce449340b971a",
-  "script_sha256": "8ff3a437531bb4cf3b92afb5ef466894c5a4d91123859dd710317ec063125d63",
+  "stage4_model_sha256": "9e699526ff4184c6d5f16aa61b1e579bb08a27b6a12091dae65a7580f4edb719",
+  "script_sha256": "4ab82ec64d4e846602cd554ec12c4beff7883f3c652d6faa8aa803cd812dd95f",
   "original_stage5_comparison_sha256": "886f1b6770140947a277c7ddd5faf60f636d6481f2b30c5c524894751cc50488",
   "feature_sets": {
     "A_base_8": [

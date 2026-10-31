@@ -82,18 +82,18 @@ def profile_recommendation_list(package: dict, date: str, customer: str, method:
     rows = []
     for rank, (code, bought) in enumerate(zip(codes, flags), 1):
         if method.startswith(('fixed_', 'adaptive_')):
-            reason = '按个人购买次数进入补货路，再按混合分排序' if bought else '按算法得分进入发现路；同分按热门程度'
+            reason = 'Enter the replenishment path according to the number of personal purchases, and then sort by mixed points' if bought else 'Score according to the algorithm to enter the discovery path; with the same score, according to the popularity'
             if match.repeat_weight in (0., 1.):
-                reason += '；零分同分时按热门程度补齐'
+                reason += '; Zero points and same time points will be supplemented according to popularity'
         elif method == 'personal_repeat':
-            reason = '按个人购买次数排序' if bought else '老商品不足10件，按热门程度补齐'
+            reason = 'Sort by individual purchases' if bought else 'There are insufficient 10 pieces of old products, please fill them in according to their popularity.'
         elif method == 'popular':
-            reason = '按训练期热门程度排序'
+            reason = 'Sort by popularity during training period'
         else:
-            reason = f'{NAMES[method]}根据过去购买关系评分；同分按热门程度'
+            reason = f'{NAMES[method]} is rated based on past purchasing relationships; same score based on popularity'
         rows.append(dict(snapshot_date=date, customer_id=customer, rank=rank, stock_code=code,
                          description=catalog.loc[code, 'description'], purchased_in_past_180d=bought,
-                         recommendation_method=method, recommendation_route='已买商品候选' if bought else '未买商品候选',
+                         recommendation_method=method, recommendation_route='Bought product candidates' if bought else 'Unbought product candidates',
                          reason=reason, repeat_weight=match.repeat_weight,
                          **{column: profile[column] for column in EXPORT_COLUMNS
                             if column in profile.index and column not in ('snapshot_date', 'customer_id')}))

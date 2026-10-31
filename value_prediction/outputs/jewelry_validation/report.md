@@ -1,11 +1,11 @@
-# 独立电商珠宝交易时序检验
+# Independent e-commerce jewelry transaction timing inspection
 
-固定方案：`jewelry_protocol.md`。来源：[REES46 数据目录](https://rees46.com/en/datasets) 发布并链接到 [Kaggle 珠宝交易数据](https://www.kaggle.com/datasets/mkechinov/ecommerce-purchase-history-from-jewelry-store)。
-实际文件覆盖 2018-12-01 至 2021-12-01；95,911 条商品行中有 90,559 条满足预定清洗条件。目录说明中的约两年、13 万笔与文件实际内容不一致，以下均以文件审计为准。
-采用原有 8 个历史特征加 12 个时序特征及固定的 Tweedie 参数；原始行未写入仓库。
-适用性：测试月购买客户数达到预案下限。
+Fixed scheme: `jewelry_protocol.md`. Source: [REES 46 data catalog](https://rees46.com/en/datasets) published and linked to [Kaggle jewelry transaction data](https://www.kaggle.com/datasets/mkechinov/ecommerce-purchase-history-from-jewelry-store).
+The actual files cover 2018-12-01 to 2021-12-01; among the 95,911 product lines, 90,559 meet the scheduled cleaning conditions. The description of approximately two years and 13 in the catalog description is inconsistent with the actual content of the file. The following shall be subject to file audit.
+Use the original 8 historical features plus 12 time series features and fixed Tweedie parameters; the original rows are not written to the warehouse.
+Applicability: The number of purchasing customers in the test month reaches the lower limit of the plan.
 
-| 截点 | 分区 | 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |
+| cutoff point | Partition | method | MAE | Buyer MAE | Top 20 coverage | total deviation |
 | --- | --- | --- | ---: | ---: | ---: | ---: |
 | 2021-06-01 | validation | historic_180d | 112.89 | 1272.35 | 91.79% | +131.76% |
 | 2021-06-01 | validation | recent_90d | 97.04 | 1194.18 | 91.31% | +117.86% |
@@ -26,18 +26,18 @@
 | 2021-11-01 | test | recent_90d | 187.49 | 1632.07 | 87.43% | +113.56% |
 | 2021-11-01 | test | extended_tweedie | 92.26 | 1596.23 | 91.95% | -27.21% |
 
-最后三个月合并（Top20 每月分别选取）：
+Combined in the last three months (Top 20 selected each month):
 
-| 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |
+| method | MAE | Buyer MAE | Top 20 coverage | total deviation |
 | --- | ---: | ---: | ---: | ---: |
 | historic_180d | 157.64 | 1491.02 | 87.58% | +99.55% |
 | recent_90d | 171.89 | 1565.58 | 89.55% | +137.51% |
 | extended_tweedie | 85.37 | 1464.02 | 93.85% | +11.39% |
 
-## 结果解释
+##Explanation of results
 
-测试期共有 33,182 条客户月快照，其中 1,220 条在未来 30 天购买（3.68%）。
-模型整体 MAE 相对历史金额基线降低 45.85%；Top20 覆盖提高 6.27 个百分点。这是对同一批客户按不同评分排序的对照。
-购买者 MAE 只降低 1.81%；三个月合并预测总额偏差为 +11.39%，单月偏差方向也不稳定。不能把这组结果当作金额校准已经准确。
+There are 33,182 customer monthly snapshots during the test period, of which 1,220 will be purchased in the next 30 days ( 3.68% ).
+The overall model MAE decreases by 45.85% relative to the historical amount baseline; the Top 20 coverage increases by 6.27 percentage points. This is a comparison of the same customers sorted by different ratings.
+Buyer MAE only reduces 1.81%; the three-month combined forecast total deviation is + 11.39%, and the direction of the single-month deviation is also unstable. This set of results cannot be regarded as the amount calibration has been accurate.
 
-该数据来自另一商家，只能提供跨商家稳健性证据；原项目仍无新月份独立验收数据。
+This data comes from another merchant and can only provide evidence of robustness across merchants; the original project still does not have independent acceptance data for the new month.

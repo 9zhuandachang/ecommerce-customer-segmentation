@@ -1,23 +1,25 @@
-# 阶段五：复购模型重新对比的预设方案
+# Stage 5: Prespecified Repurchase Model Comparison
 
-## 问题与数据
+## Task and data
 
-在每月 1 日，根据此前 180 天的合格交易，预测客户随后 30 天是否有合格购买。只比较同一批客户月快照；训练为 2010-06 至 2011-05，正式验证为 2011-06 至 2011-08。2011-09 至 2011-11 测试标签不参与本实验的拟合、调参、模型选择或指标计算。这个历史数据此前已被其他阶段查看过，因此正式验证只能算同一数据集上的回顾性比较，不声称是新获得的独立证据。
+On each month's first day, use eligible purchases in the preceding 180 days to predict whether a customer makes an eligible purchase in the next 30 days. Compare the same customer-month snapshots: training June 2010-May 2011; formal validation June-August 2011. September-November test labels are excluded from this experiment's fitting, tuning, selection, and metric calculations. Earlier project stages have inspected these historical data; this is a retrospective comparison within the same dataset, not newly obtained independent evidence.
 
-## 候选输入
+## Candidate inputs
 
-1. `base_8`：原有八项历史特征。
-2. `base_8_plus_trend`：增加近 90 天发票占 180 天发票的比例、最近 30 天相对之前 60 天的月均订单变化、是否拥有至少 90 天可见历史。短历史客户的变化值记 0，并由标记说明不能判断完整 90 天趋势。
-3. `base_8_plus_trend_and_rhythm`：再增加过去 180 天活跃的 30 天时段数、最后两张发票的间隔、是否至少有两张发票。只有一张发票时，间隔填 180 天，并由标记说明它是占位值。发票特征严格使用快照日以前 180 天内的清洗记录；逐快照核对发票数与原快照一致。
+1. `base_8`: the eight existing historical features.
+2. `base_8_plus_trend`: add the 90-day/180-day invoice ratio, the change between the latest 30-day order count and the preceding 60-day monthly average, and a flag for at least 90 days of visible history. For shorter histories, set the change to zero and use the flag to indicate an incomplete trend window.
+3. `base_8_plus_trend_and_rhythm`: also add the number of active 30-day periods within 180 days, the gap between the last two invoices, and a flag for at least two invoices. For one-invoice customers, use a 180-day placeholder gap and preserve its validity flag. Invoice features use only cleaned purchases in the preceding 180 days. Verify each snapshot's invoice count against the base snapshot.
 
-RFM 手工打分、旧三群中心距离和分群标签不列入候选。三项 RFM 原始信息仍包含在基础八项中。衍生特征不能使用未来标签。所有预处理只在当轮训练部分拟合。
+Manual RFM scores, old three-cluster distances, and cluster labels are excluded. The underlying recency, frequency, and monetary information remains in the base eight features. Derived features cannot use future labels. Fit all preprocessing on the current fold's training data only.
 
-## 候选模型与选择
+## Models and selection
 
-四种模型：L2 正则逻辑回归、仅对 `recency_days` 加四个分位数节点三次样条的逻辑回归、深度受限的 XGBoost `hist`、小叶数的 LightGBM。逻辑回归对右偏非负金额/计数做 `log1p` 后标准化，其他数值标准化；树模型使用原值。正类比例约四分之一，不自动加类别权重。固定 `random_state=42`，树模型单机 CPU 运行。
+Compare four models: L2 logistic regression; logistic regression with a cubic spline using four quantile knots for `recency_days`; depth-limited XGBoost with `hist`; and LightGBM with few leaves. Logistic regression applies `log1p` to right-skewed non-negative amounts/counts, then standardizes features. Trees use original values. About one-quarter of labels are positive; class weighting is not added automatically. Use `random_state=42` and CPU tree training.
 
-每个模型设两个预先指定的复杂度候选：LR/样条 LR 的 `C=0.1,1`；XGBoost 的 `max_depth=2,3`；LightGBM 的 `num_leaves=7,15`。树模型均用 300 轮、学习率 0.05，其他正则参数见脚本。先在训练期内对 2011-03、04、05 三个月做向前验证；每折仅用标签窗口已完整结束的更早快照训练。每个“特征组 × 模型”取三折平均 AP 最高的复杂度，平局取较简单的。然后用完整训练期重训，在 2011-06 至 08 的正式验证期比较 12 个候选。
+Each model has two prespecified complexity settings: `C=0.1,1` for LR/spline LR, `max_depth=2,3` for XGBoost, and `num_leaves=7,15` for LightGBM. Both tree families use 300 rounds and learning rate 0.05; other regularization settings are in the implementation.
 
-正式选择以验证期 AP 最大为主，但候选的三折平均 AP 不得低于基础八项 LR，验证期 Top 20% 精确率也不得低于基础八项 LR。若最高 AP 候选不满足，就按 AP 顺序选下一个满足者；基础八项 LR 总能入选。AP 按所有验证客户月记录计算；Top 20% 在每个月内分别取前 20% 后合并。并报告逐月 AP、Top 20% 精确率、ROC-AUC、Brier 分数和平均预测分数与真实复购率。相近结果不解释成算法本质优劣。
+First perform forward validation on March, April, and May 2011. Each fold trains only on earlier snapshots with fully completed label windows. For each feature-group/model pair, select the complexity with the highest three-fold mean AP; break ties toward simpler settings. Refit on the complete training period and compare the twelve candidates on June-August.
 
-此实验只生成独立对比产物，不改阶段六冻结模型或仪表板。最终选择仍需在后续阶段审查时间稳定性、概率校准和部署边界。
+Select by validation AP, subject to two conditions: forward-fold mean AP and validation Precision@20% must both be at least as high as base-eight-feature LR. If the highest-AP candidate fails, consider the next eligible candidate; base LR remains available. AP pools validation customer-month records. Select the top 20% separately within each month before combining lists. Report monthly AP, Precision@20%, ROC-AUC, Brier, mean score, and actual repurchase rate. Close results do not establish an inherent algorithm advantage.
+
+This experiment writes separate comparison artifacts and does not modify the frozen Stage 6 model or dashboard. Subsequent stages review temporal stability, calibration, and deployment boundaries.

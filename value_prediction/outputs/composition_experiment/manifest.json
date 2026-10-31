@@ -14,15 +14,15 @@
   },
   "gate_passed": false,
   "composition_features_sha256": "23b190d5eb17b5e72e99da9f0e8d2b5c77f47b66f8b3cf7af94583da1d4edec0",
-  "composition_feature_manifest_sha256": "94dcb9718587f581c3d4f55252a463b822ba7decbf897ddc60d97917b6cea4ea",
+  "composition_feature_manifest_sha256": "37fe537aa02faaa10312fc96375b633c5eb0ecb6847e6de41ae5ecb0492f0277",
   "reference_predictions_sha256": "a8ebe44cc265bc85eb30b7c7d6687430d0f473f8a4419c3f940c5077cdf468e4",
-  "protocol_sha256": "50ef89b1ec67c390ebc64fbb5a49988c87818c27abcb275afaf8f12227fd5f76",
-  "script_sha256": "0f3f5ae463303db441afa4965aa0684aee5b16b050bceff6666da04c036b691e",
+  "protocol_sha256": "43e26a16ac3869b3f9f1f5aba0a395981d4b790a489d7063deaf117c01c2bc82",
+  "script_sha256": "09fee5aed8756e2d1aa224251d16dc8659214f1e3e6787d48458b0cf64546cfd",
   "output_sha256": {
     "customer_predictions": "f5e6a6e18c211b3cabaf1bc3d9017f3c17b01f9694897c8a43c1c0804b093809",
     "monthly_metrics": "b726c688bd33b9fb5a06e8cc9eebc74dd3842cb2bb8aed57f0626615a2e4aafd",
     "period_metrics": "0a9fd42ebac09df5eb8ddc36b8c5c003cca7ab14b9c769e72ce4161de876e170",
     "folds": "4ddd8ba5987a5536efc43033acbc537ccc6397a517835a5eb60fb19f5a20a1d1"
   },
-  "report_sha256": "4bf3eff75b24ab3c6bf034f3dc03f1a1c0c4c726c8c61262055125a65b37b66f"
+  "report_sha256": "e3cf874c8fb043ffc3131c529d8e3cf886f37429aaf62a531cbc6bc605cf7aec"
 }

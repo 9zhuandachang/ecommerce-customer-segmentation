@@ -31,10 +31,10 @@ OUTPUT = ROOT / 'stage6/outputs/reanalysis_v2'
 VERSION = 'reanalysis-v2'
 TEST_DATES = ('2011-09-01', '2011-10-01', '2011-11-01')
 SEGMENT_NAMES = {
-    0: '群 0｜近期低客单',
-    1: '群 1｜较久未购',
-    2: '群 2｜近期高频',
-    3: '群 3｜近期高客单',
+    0: 'Group 0 | Recent low order value',
+    1: 'Group 1 | Long inactive',
+    2: 'Group 2 | Recent frequent buyers',
+    3: 'Group 3 | Recent high order value',
 }
 
 
@@ -251,12 +251,12 @@ def main() -> None:
     selected = comparison.iloc[0]
     baseline = comparison.iloc[1]
     lines = [
-        '# 新分群与复购模型：统一历史回放', '',
-        '新 K-means 4 群与新阶段五选出的 14 项特征 XGBoost 已装入同一模型包。'
-        '模型均只用原训练期拟合；验证期评分和分群结果与上游产物逐条复现。',
-        '2011 年 9–11 月曾在早期项目中被查看，以下检查是回顾性诊断，'
-        '不能称为全新独立测试。复购评分未经概率校准，只用于相对排序。', '',
-        '| 方法 | AP | Top 20% 精确率 | ROC-AUC | Brier |',
+        '# New grouping and repurchase model: unified historical playback', '',
+        'The new K-means 4 group and the new phase five selected 14 features XGBoost have been loaded into the same model package.'
+        'The models are only fitted using the original training period; the scoring and grouping results of the validation period are reproduced one by one with the upstream products.',
+        '2011 years 9 – 11 months were viewed in earlier projects, the following examinations are retrospective diagnostics,'
+        'It cannot be called a new independent test. Repurchase scores are not calibrated for probability and are only used for relative ranking.', '',
+        '| Method | AP | Top 20% Accuracy | ROC-AUC | Brier |',
         '| --- | ---: | ---: | ---: | ---: |',
     ]
     for row in comparison.itertuples():
@@ -264,20 +264,20 @@ def main() -> None:
                      f'{row.average_precision:.4f} | {row.precision_at_20pct:.2%} | '
                      f'{row.roc_auc:.4f} | {row.brier:.4f} |')
     lines += [
-        '', '逐月检查：',
-        '| 月份 | 方法 | AP | Top 20% 精确率 |',
+        '', 'Check monthly:',
+        '| Month | Method | AP | Top 20% Precision |',
         '| --- | --- | ---: | ---: |',
     ]
     for row in monthly.itertuples():
         lines.append(f'| {row.snapshot_date} | {row.model} | '
                      f'{row.average_precision:.4f} | {row.precision_at_20pct:.2%} |')
     lines += [
-        '', f'XGBoost 相对基础逻辑回归：AP 差 {selected.average_precision - baseline.average_precision:+.4f}，'
-        f'Top 20% 精确率差 {(selected.precision_at_20pct - baseline.precision_at_20pct) * 100:+.2f} 个百分点。',
-        '这说明同一批历史记录上的排序差异，不能推断接触客户会增加收入。',
-        '', '运行：`python -B -m stage6.integrate_reanalysis`；'
-        '页面：`python -m streamlit run app/dashboard.py`。'
-        '逐条评分在 `test_predictions.csv`，仪表板导出不含事后标签。',
+        '', f'XGBoost relative to basic logistic regression: AP is worse than {selected.average_precision - baseline.average_precision:+.4f},'
+        f'Top 20% accuracy difference {(selected.precision_at_20pct - baseline.precision_at_20pct) * 100:+.2f} percentage points.',
+        'This illustrates the ranking differences on the same batch of historical records and does not infer that reaching customers increases revenue.',
+        '', 'Run: `python -B -m stage6.integrate_reanalysis`;'
+        'Page: `python -m streamlit run app/dashboard.py`.'
+        'Item-by-item scoring is at `test_predictions.csv`, and the dashboard export does not include post-event tags.',
     ]
     (OUTPUT / 'report.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
     print(f'Integrated {len(test_input)} retrospective customer-months; '

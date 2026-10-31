@@ -1,6 +1,6 @@
 {
   "input_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
-  "script_sha256": "e54a5ef74290b18bde884a16a74149b848fc4388f97324d3406afee67325cbe7",
+  "script_sha256": "09c247311fe8cb141baabb00a22e47ce8dbc8baed94b5e1db42ae9d355fdc701",
   "evaluation_rule": "fixed random 2000 training snapshots, excluded from every fit",
   "evaluation_seed": 2026,
   "training_sample_fraction": 0.8,

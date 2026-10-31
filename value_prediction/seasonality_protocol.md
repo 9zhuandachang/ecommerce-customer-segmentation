@@ -1,16 +1,16 @@
-# 月份季节信号：模型运行前锁定
+# Monthly seasonal signal: locked before running the model
 
-此方案在新候选运行与查看新结果前记录。问题来自已查看月份的金额尺度漂移；因此本轮只检查**预测日已知**的日历月份是否能让模型学到跨月模式，不对预测后金额乘倍率。不更改 `optimization_protocol.md` 的强化目标。
+This scenario is logged before a new candidate is run and new results are viewed. The problem comes from the drift of the amount scale in the viewed months; therefore, this round only checks whether the calendar month for which the prediction date is known can allow the model to learn the cross-month pattern, and does not multiply the amount after prediction. Does not change `optimization_protocol.md` 's enhancement target.
 
-## 唯一候选
+## The only candidate
 
-- 保留 `extended_tweedie` 的原 20 个快照前特征、LightGBM Tweedie 目标、120 棵树、学习率 0.05、15 个叶、方差幂 1.5、随机种子 42、训练标签成熟规则和客户月样本。
-- 只加两个确定性日历特征：`sin(2π×月份/12)` 和 `cos(2π×月份/12)`，月份取客户月快照的自然月，1–12；不加入年份、当前月未来销售额或任何事后标签。
-- 与同批客户的原 `extended_tweedie` 和 `historic_180d` 对照，不在本轮搜索树数、损失函数、月编码或后处理。
+- Retain the original 20 pre-snapshot features of `extended_tweedie`, LightGBM Tweedie targets, 120 trees, learning rates 0.05, 15 leaves, variance power 1.5, random seeds 42, training label maturity rules and customer monthly samples.
+- Only add two deterministic calendar features: `sin(2π×month/12)` and `cos(2π×month/12)`, the month is the natural month of the customer's monthly snapshot, 1 – 12; do not add the year, future sales of the current month or any post-event tags.
+- Compared with the original `extended_tweedie` and `historic_180d` of the same batch of customers, the number of trees, loss function, monthly encoding or post-processing is not searched in this round.
 
-## 固定评估
+## Fixed evaluation
 
-- 2011 年 1–5 月为滚动开发，6–8 月为已查看的开发确认，9–11 月为已查看的回顾诊断。每个目标月只训练未来 30 天标签窗口已经完整结束的更早快照。9–11 月既然已被查看，绝不用于候选选择或宣称独立验收。
-- 每月和分段报告全体 MAE、购买者 MAE、预测 Top20 客户实际消费额覆盖、全体金额偏差、Top20 群体偏差和零消费比例；保留客户级预测、来源与结果哈希、训练标签截止。另将按预测分数选出的前 1% 客户作为**诊断组**报告其预测/实际金额比，不把这个事后报告项加入推进门槛。
-- 固定开发推进门槛仍以 1–5 月原 20 特征模型为对照：购买者 MAE 至少降低 5%，全体 MAE 增加不超过 2%，Top20 消费覆盖不下降，金额总额偏差绝对值不扩大。6–11 月结果只揭示稳定性，不能据其更改候选或门槛。满足门槛也只允许进入新的外部固定测试，不等于原商家最终验收。
-- 日历月份完全可在预测日知道，但单个商家只有很短的历史。任何改善都可能是特定年份季节性，必须经未查看的较长时间序列检验后才能考虑系统接入。
+- 2011 years, January-May are rolling development, June-August are viewed development confirmations, September-November are viewed retrospective diagnoses. Each target month only trains earlier snapshots 30 days in the future where the label window has completely ended. The September-November, now that they have been viewed, are in no way used for candidate selection or claims of independent acceptance.
+- Monthly and segmented reports of all MAE, buyers MAE, predicted Top 20 customers' actual consumption coverage, overall amount deviation, Top 20 group deviation and zero consumption ratio; retain customer-level predictions, source and result hashes, and training label cutoffs. In addition, the former 1% customers selected according to the prediction scores will be used as a **diagnostic group** to report their prediction/actual amount ratio, and this post-report reporting item will not be added to the promotion threshold.
+- The fixed development promotion threshold is still based on the 1 – 5 Tsukihara 20 characteristic model: the purchaser MAE at least decreases by 5%, the increase in all MAE does not exceed 2%, the top 20 consumption coverage does not decrease, and the absolute value of the total amount deviation does not expand. 6 – 11 Monthly results only reveal stability and cannot be used to change candidates or thresholds. Meeting the threshold will only allow entry into the new external fixed test, which does not equal the final acceptance by the original merchant.
+- The calendar month is fully known at the forecast date, but individual merchants only have a short history. Any improvement is likely to be year-specific seasonality and must be tested on unviewed longer time series before system access can be considered.

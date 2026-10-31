@@ -1,32 +1,32 @@
-# 商品级推荐：四组特征与三类模型
+# Product-level recommendation: four groups of features and three types of models
 
-默认选择：**原纯补货**。
+Default selection: **Original Pure Replenishment**.
 
-整体替换门槛满足：False；所选方案的画像额外价值：False。
+The overall replacement threshold is met: False; the additional value of the profile of the selected solution: False.
 
-所有方案每人10件，对完整相同商品目录打分；主指标为有下一单客户的月均NDCG@10，月份等权。目录外真实商品保留分母。没有下一单仍生成名单，不当作不喜欢所有商品。
+All plans require 10 pieces per person, and the complete catalog of the same product is scored; the main indicator is the monthly average NDCG@10 of customers with next orders, with equal weight for each month. The denominator is reserved for real products outside the catalog. If there is no next order, the list will still be generated. It does not mean that you do not like all the products.
 
-| 方案 | 验证NDCG | 验证Recall | 验证未买Recall | 复核NDCG | 复核Recall | 复核未买Recall |
+| Plan | Verify NDCG | Verify Recall | Verify not buying Recall | Review NDCG | Review Recall | Reviewed but not bought Recall |
 |---|---:|---:|---:|---:|---:|---:|
-| A基础 · 逻辑回归 | 0.3408 | 20.85% | 0.24% | 0.2952 | 17.33% | 0.15% |
-| A基础 · LightGBM分类 | 0.3415 | 20.89% | 0.23% | 0.2996 | 17.76% | 0.13% |
-| A基础 · LightGBM排序 | 0.0701 | 3.36% | 2.86% | 0.0659 | 2.68% | 3.09% |
-| B基础＋画像 · 逻辑回归 | 0.3445 | 21.21% | 0.24% | 0.2992 | 17.67% | 0.12% |
-| B基础＋画像 · LightGBM分类 | 0.3424 | 21.08% | 0.21% | 0.2999 | 17.80% | 0.14% |
-| B基础＋画像 · LightGBM排序 | 0.1090 | 7.29% | 2.72% | 0.0987 | 5.76% | 3.13% |
-| C基础＋EASE · 逻辑回归 | 0.3394 | 20.52% | 0.61% | 0.2928 | 17.19% | 0.27% |
-| C基础＋EASE · LightGBM分类 | 0.3422 | 21.02% | 0.56% | 0.3000 | 17.60% | 0.32% |
-| C基础＋EASE · LightGBM排序 | 0.0870 | 4.44% | 3.26% | 0.0789 | 3.43% | 3.37% |
-| D完整 · 逻辑回归 | 0.3443 | 21.01% | 0.83% | 0.2978 | 17.67% | 0.43% |
-| D完整 · LightGBM分类 | 0.3448 | 21.21% | 0.63% | 0.3001 | 17.79% | 0.32% |
-| D完整 · LightGBM排序 | 0.1054 | 6.69% | 3.63% | 0.1070 | 5.87% | 3.41% |
-| 原纯补货 | 0.3226 | 20.01% | 0.17% | 0.2863 | 17.17% | 0.14% |
-| 原纯EASE | 0.2779 | 16.81% | 2.28% | 0.2418 | 13.91% | 1.74% |
-| 上一版画像混合 | 0.3228 | 20.04% | 0.22% | 0.2861 | 17.13% | 0.15% |
+| A Basics · Logistic Regression | 0.3408 | 20.85% | 0.24% | 0.2952 | 17.33% | 0.15% |
+| A Basics · LightGBM Classification | 0.3415 | 20.89% | 0.23% | 0.2996 | 17.76% | 0.13% |
+| A Basics · LightGBM Sorting | 0.0701 | 3.36% | 2.86% | 0.0659 | 2.68% | 3.09% |
+| B Basics + Profile · Logistic Regression | 0.3445 | 21.21% | 0.24% | 0.2992 | 17.67% | 0.12% |
+| BBasics + Profiles · LightGBM Classification | 0.3424 | 21.08% | 0.21% | 0.2999 | 17.80% | 0.14% |
+| BBasics + Profiles · LightGBM Sorting | 0.1090 | 7.29% | 2.72% | 0.0987 | 5.76% | 3.13% |
+| C Basics + EASE · Logistic Regression | 0.3394 | 20.52% | 0.61% | 0.2928 | 17.19% | 0.27% |
+| C Basics + EASE · LightGBM Classification | 0.3422 | 21.02% | 0.56% | 0.3000 | 17.60% | 0.32% |
+| C basics + EASE · LightGBM sorting | 0.0870 | 4.44% | 3.26% | 0.0789 | 3.43% | 3.37% |
+| D Complete · Logistic Regression | 0.3443 | 21.01% | 0.83% | 0.2978 | 17.67% | 0.43% |
+| DComplete · LightGBM Category | 0.3448 | 21.21% | 0.63% | 0.3001 | 17.79% | 0.32% |
+| DComplete · LightGBM sort | 0.1054 | 6.69% | 3.63% | 0.1070 | 5.87% | 3.41% |
+| Original replenishment | 0.3226 | 20.01% | 0.17% | 0.2863 | 17.17% | 0.14% |
+| Original pure EASE | 0.2779 | 16.81% | 2.28% | 0.2418 | 13.91% | 1.74% |
+| Previous version profile blend | 0.3228 | 20.04% | 0.22% | 0.2861 | 17.13% | 0.15% |
 
-## 同模型同参数的特征归因
+## Feature attribution of the same model and the same parameters
 
-| 对照 | 模型 | NDCG差值 | Recall差值 | 不退步月份 | 达到额外价值门槛 |
+| control | model | NDCG difference | Recall difference | Month of no regression | Reach additional value threshold |
 |---|---|---:|---:|---:|---|
 | B_lr − A_lr | lr | +0.0037 | +0.36% | 3/3 | True |
 | D_lr − C_lr | lr | +0.0049 | +0.50% | 3/3 | True |
@@ -41,28 +41,28 @@
 | C_ranker − A_ranker | ranker | +0.0169 | +1.08% | 3/3 | True |
 | D_ranker − B_ranker | ranker | -0.0036 | -0.60% | 1/3 | False |
 
-A基础；B基础+画像及交互；C基础+EASE；D完整。同类模型四组使用相同参数，参数仅由五个开发月、四组平均NDCG确定。B-A及D-C检验画像，C-A及D-B检验EASE信号。
+A basic; B basic + profile and interaction; C basic + EASE; D complete. Four groups of similar models use the same parameters, and the parameters are only determined by the average NDCG of the four groups over five development months. B-A and D-C check the image, C-A and D-B check the EASE signal.
 
-## 选择、参数和边界
+## Selection, parameters and bounds
 
-- 最佳新方案：D完整 · LightGBM分类。相对纯补货：`{"challenger": "D_classifier", "reference": "personal_repeat", "ndcg_gain": 0.02217870449366066, "recall_gain": 0.01202996217324806, "new_recall_gain": 0.004549881179631312, "nonworse_months": 3}`。
-- 默认替换门槛：NDCG+0.01、Recall+1个百分点、未买Recall+1个百分点，至少2/3月NDCG不退步。
-- 画像额外价值门槛：同模型同参数NDCG+0.002、至少2/3月不退步、Recall下降不超过0.5个百分点。
-- 各类共同参数：`{"lr": {"id": "lr_0.01", "family": "lr", "c": 0.01}, "classifier": {"id": "classifier_15_120", "family": "classifier", "leaves": 15, "trees": 120}, "ranker": {"id": "ranker_15_120", "family": "ranker", "leaves": 15, "trees": 120}}`。
-- 阶段固定EASE参数：`{"id": "ease_10", "method": "ease", "regularization": 10}`。
-- 最佳新方案减纯补货客户抽样：`{"ndcg_10": {"point": 0.022178704493660672, "lower_95": 0.01741174604238775, "upper_95": 0.027038263219146885}, "recall_10": {"point": 0.012029962173248088, "lower_95": 0.00860986372676089, "upper_95": 0.015750682466942112}}`。
-抽样为多次选型后的内部诊断，不是新的独立显著性证明。
+- Best New Solution: D Complete · LightGBM Category. Relatively pure restock: `{"challenger": "D_classifier", "reference": "personal_repeat", "ndcg_gain": 0.02217870449366066, "recall_gain": 0.01202996217324806, "new_recall_gain": 0.004549881179631312, "nonworse_months": 3}`.
+- Default replacement threshold: NDCG + 0.01, Recall + 1 percentage points, unbought Recall + 1 percentage points, at least 2 / 3 months NDCG does not regress.
+- The additional value threshold for images: the same model and the same parameters NDCG + 0.002, 2 / 3 does not decline for at least one month, and Recall declines by no more than 0.5 percentage points.
+- Common parameters of various types: `{"lr": {"id": "lr_0.01", "family": "lr", "c": 0.01}, "classifier": {"id": "classifier_15_120", "family": "classifier", "leaves": 15, "trees": 120}, "ranker": {"id": "ranker_15_120", "family": "ranker", "leaves": 15, "trees": 120}}`.
+- Phase fixed EASE parameter: `{"id": "ease_10", "method": "ease", "regularization": 10}`.
+- Best New Solution Reduction Pure Replenishment Customer Sampling: `{"ndcg_10": {"point": 0.022178704493660672, "lower_95": 0.01741174604238775, "upper_95": 0.027038263219146885}, "recall_10": {"point": 0.012029962173248088, "lower_95": 0.00860986372676089, "upper_95": 0.015750682466942112}}`.
+Sampling is an internal diagnosis after multiple selections and is not a new independent proof of significance.
 
-历史训练EASE逐月只使用此前交易，其正则也只由更早已成熟标签决定。元模型拟合只用30天答案已成熟的客户月。训练负例含难例及均匀样本，所有特征组共用；分类训练校正入样概率，并按客户月等权。排序在相同抽样查询组上优化LambdaRank，不声称无偏还原全目录损失；验证和复核对完整目录打分。分数只用于同一客户同一方法的推荐排序，不是校准购买概率。
+Historical training EASE only uses previous transactions every month, and its regularity is only determined by earlier mature labels. Meta-model fitting only took 30 days and the answer was mature customer months. Training negative examples include difficult examples and uniform samples, which are shared by all feature groups; classification training corrects the sampling probability, and is equally weighted according to customer months. Ranking optimizes LambdaRank on the same sampled query group and does not claim to be unbiased in restoring the full catalog loss; verification and review score the full catalog. Scores are only used to rank recommendations by the same method for the same customer, not to calibrate purchase probability.
 
-1–5月五轮向前开发共240次模型拟合；6–8月确定默认并锁定最终模型；9–11月结果此前已查看，这里只作固定复核，不据此改参数。全局模型/目录阶段内冻结，客户历史与可观察商品统计按月更新。
+January-May are developed in five rounds forward for a total of 240 model fittings; June-August are determined by default and the final model is locked; September-Novemberly results have been viewed before, and are only fixed for review here, and the parameters will not be changed accordingly. The global model/catalog stage is frozen, and customer history and observable product statistics are updated monthly.
 
-## 打开与复现
+## Open and reproduce
 
 `python -B -m recommendation.item_experiment`
 
-`python -m streamlit run app/dashboard.py` → Product recommendations → 商品级打分对比。
+`python -m streamlit run app/dashboard.py` → Product recommendations → Product-level scoring comparison.
 
-development_monthly.csv为240次开发结果；validation_ablations.csv为完整同参数对照；training_audit.json为时间/采样审计；training_samples.joblib为正式可复现训练资料，含标签，仅供离线。页面只读profiles.csv及*_lists.csv，不读取*_customers.csv中的未来答案。
+development_monthly.csv is the development results of 240 times; validation_ablations.csv is the complete comparison with the same parameters; training_audit.json is the time/sampling audit; training_samples.joblib is the official reproducible training data, including labels, and is only for offline use. The page only reads profiles.csv and *_lists.csv, and does not read future answers in *_customers.csv.
 
-运行耗时约1447秒；全部模型、代码、来源及产物有哈希核对。
+The operation takes about 1447 seconds; all models, codes, sources and products are hash checked.

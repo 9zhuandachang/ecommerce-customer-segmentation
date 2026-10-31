@@ -1,7 +1,7 @@
 {
   "status": "development_only_empirical_interval_coverage",
-  "protocol_sha256": "2dd8a3efef709c0db50589f0105bd0d6bcb4706c0ff3fea906416d67793a99a4",
-  "script_sha256": "e44625a13064a8b5129dc94821da1746a4825c3d9e6b6f137e9eef109f1e5c7a",
+  "protocol_sha256": "e3c42f5277861828184193af3741f43f6cc58f6be24e175dd029daf2c864fb2f",
+  "script_sha256": "a7d3d50dc6cf5b33195fdc5f78f6efbc24317300b116b4bf3a46c0b434587474",
   "hurdle_predictions_sha256": "50cbd77e5f723fd324b5272a41e4a8ae931f5000bfbd7d4cd837302c28f7ad11",
   "optimization_predictions_sha256": "a8ebe44cc265bc85eb30b7c7d6687430d0f473f8a4419c3f940c5077cdf468e4",
   "intervals_sha256": "ce7926573bf86737c96a2784b7ba473fe392735b56afd4373d0af508d9bd5083",

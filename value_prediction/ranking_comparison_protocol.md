@@ -1,33 +1,33 @@
-# 高消费潜力排序：统一模型比较方案 v1
+# Spending-Potential Ranking: Unified Model Comparison Protocol v1
 
-本方案先于本轮比较程序运行和结果生成写入。原有实验和名单保留。项目全部月份的金额结果此前已被查看；本轮是重新规范的内部比较，不能声称获得新的独立测试。
+This protocol was written before this comparison was run and its results were generated. Earlier experiments and lists are retained. Amount results for all project months had already been inspected, so this is a structured internal comparison rather than a new independent test.
 
-## 固定任务与数据
+## Fixed task and data
 
-- 每月1日，给既有快照中过去180天有合格购买的客户排名，取 `ceil(客户数 × 20%)`。预测目标为随后30天合格商品消费额 `spend_30d`，金额不含已排除的退货、取消及非商品交易。
-- 三类学习方案一律使用原快照8项加时序表12项，共20项预测日之前的数值特征。客户ID仅作关联及同分排序；未来消费、未来复购标签、分区和日期不作模型输入。不增加新特征。
-- 主指标为各月Top20实际消费覆盖率的算术平均，各月权重相同。另报告金额加总覆盖率、最差月份、逐月差值、Top10/Top30覆盖率及MAE。个人金额准确度不是本轮通过标准。
+- On each month's first day, rank eligible snapshot customers with purchases in the preceding 180 days. Select `ceil(customer_count × 20%)`. The target, `spend_30d`, is eligible product spending over the following 30 days, excluding rejected returns, cancellations, and non-product transactions.
+- All three learned approaches use the same 20 numerical historical features: eight snapshot features and twelve temporal features. Customer IDs support joins and tie-breaking. Future spending, repurchase labels, split labels, and dates are excluded from model inputs. No new features are added.
+- The primary metric is mean monthly Top20 spending capture, giving each month equal weight. Also report pooled spending capture, the worst month, monthly differences, Top10/Top30 capture, and MAE. Individual amount accuracy is not this round's acceptance target.
 
-## 时间划分与冻结顺序
+## Temporal splits and freezing order
 
-1. 2011年1–5月五个向前开发折调参。每折仅训练于更早、完整30天答案已结束的快照；例如2月1日的标签到3月3日才结束，不能用于3月1日训练。
-2. 每个学习方案按开发折平均Top20覆盖率选出唯一参数；并列时先选更少树、更少叶、较保守配置。随后只用原 `train` 分区（2010年6月至2011年5月）拟合，冻结后统一评分6–8月验证集。验证集标签不加入训练，不用验证集早停。
-3. 在6–8月比较三个学习方案和三个规则，选出最强规则与最强学习方案。学习方案必须同时满足：平均覆盖率至少高1个百分点；至少2/3个月不差；最差月落后不超过1个百分点；配对客户重抽样区间下界大于0。否则最终采用最强规则。这些是内部选型条件，并非独立测试验收或统计显著性声明。
-4. 参数和最终方法写入 `locked_selection.json`，验证模型与用train+validation重拟合的最终模型保存并记录哈希，然后才计算本轮9–11月指标。最终模型对9、10、11月保持不变；任何test标签均不进入训练、校准、调参或选型。9–11月原本就已被查看，因此结果仅为复核，不能改名为新独立测试，也不能据此更换本轮胜者。
+1. Tune on five forward development folds, January-May 2011. Each fold uses earlier snapshots whose full 30-day labels have ended. For example, February 1 labels end on March 3 and cannot train a March 1 model.
+2. Select one configuration per learned approach by mean development-fold Top20 capture. Break ties toward fewer trees, fewer leaves, and more conservative regularization. Fit only the original `train` partition, June 2010-May 2011, then freeze and score June-August. Validation labels are excluded from fitting and early stopping.
+3. Compare three learned approaches and three rules on June-August. Identify the strongest rule and learned approach. A learned approach replaces the rule only if its mean capture improves by at least 1 percentage point, it is no worse in at least two of three months, its worst monthly deficit is no more than 1 percentage point, and the lower bound of its paired customer-resampling interval is above zero. Otherwise, use the strongest rule. These are internal selection conditions, not independent-test acceptance or a significance claim.
+4. Save parameters and the final choice in `locked_selection.json`. Save and hash both the validation model and the final model refitted on train + validation before calculating this round's September-November metrics. The final model stays fixed across those three months. Test labels are excluded from fitting, calibration, tuning, and selection. Previously viewed September-November results are a review, and do not change the winner.
 
-## 候选与预算
+## Candidates and budget
 
-- 三个规则：过去30天消费额、过去90天消费额、过去180天消费额降序；为报告辅助MAE，分别除以1、3、6转换为30天速率，排序不受此缩放影响。
-- LightGBM Tweedie：方差幂1.5；单个模型直接学习全部零和正金额。
-- XGBoost Tweedie：方差幂1.5；使用相同输入与目标，比较具体实现。
-- 两步LightGBM：所有训练客户训练购买分类器，实际购买客户训练Gamma金额回归器；排名值为两者乘积。
-- 每类学习方案8组配置：回归树数120/240 × 最大叶数15/31 × 标准/保守正则，共五折；学习率0.05，随机种子42，单线程。标准LightGBM参数保留原单模型设置；保守设置提高最小叶样本并增加L2。XGBoost使用对应叶数约束和库自身的最小子节点权重。两步模型的分类树数为回归树数的2/3（至少80）。预算按配置数相同，两步方案实际拟合模型数较多，训练时间另报。
-- 参数表由程序写入 `locked_plan.json`，包括具体库参数和来源哈希。计划/代码/源数据变化时原输出目录拒绝被静默复用。
+- Three rules: rank by spending in the preceding 30, 90, or 180 days. For supporting MAE, divide these amounts by 1, 3, or 6 to estimate 30-day spending; scaling does not affect ranks.
+- LightGBM Tweedie: variance power 1.5; one model learns from both zero and positive amounts.
+- XGBoost Tweedie: variance power 1.5; the same inputs and target compare another implementation.
+- Two-stage LightGBM: fit a purchase classifier on all training customers and a Gamma amount regressor on actual purchasers. Rank by their product.
+- Each learned approach has eight configurations: 120/240 regression trees × 15/31 maximum leaves × standard/conservative regularization, across five folds. Learning rate is 0.05, seed 42, and one thread. Standard LightGBM retains the earlier single-model settings. Conservative regularization increases minimum leaf samples and L2. XGBoost uses corresponding leaf constraints and its own minimum child-weight parameter. The two-stage classifier uses two-thirds as many trees as the regressor, with a minimum of 80. Configuration counts are equal; the two-stage approach fits more individual models, and training time is reported separately.
+- The program writes parameters and source hashes to `locked_plan.json`. A changed plan, code, or input cannot silently reuse the original output directory.
 
-## 稳健性和交付
+## Robustness and delivery
 
-- 对最强学习方案与最强规则进行500次配对客户成组重抽样：同一客户在三个验证月的记录一起抽取，每次重新按20%名额选单。固定种子42。区间只反映这些月份中客户构成的波动，且是在选型后计算，不能解释为未来月份置信保证或未经选择偏差影响的显著性检验。
-- 对三个入围学习方案的开发选定参数另外使用种子7和2026重训并报告验证表现；这些结果只作诊断，不改选型。
-- 报告全部规则、候选参数、逐月结果、时间边界、最终选择理由及未获新独立测试的限制；即使规则胜出也按规则交付，不强行让复杂模型获胜。
-- 名单页面展示最终规则或模型名称、名次和当月排名百分位，导出不含未来答案或个人预计金额。保持既有分群、复购预测和商品推荐流程不变。
-- 使用已有测试模块扩展回归覆盖，并运行项目测试与页面检查。旧金额实验、旧名单产物不覆盖。
+- Run 500 paired customer-cluster bootstrap draws for the strongest learned approach and rule. Sample each customer's records across all three validation months together, and reselect the top 20% within every draw. Use seed 42. These post-selection intervals describe customer-composition variation in these months, not guarantees for future months or selection-free significance.
+- Refit the development-selected configurations with seeds 7 and 2026 and report validation results for all three learned approaches. These are diagnostics and do not change selection.
+- Report all rules, candidate settings, monthly results, temporal boundaries, selection reasons, and the absence of a new independent test. Deliver the rule if it wins.
+- Display the selected method, rank, and within-month percentile. Exports exclude future answers and individual amount estimates. Existing segmentation, repurchase, and recommendation workflows remain unchanged.
+- Extend existing regression tests and run project and page checks. Preserve earlier amount experiments and priority-list artifacts.

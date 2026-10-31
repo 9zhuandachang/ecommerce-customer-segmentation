@@ -278,17 +278,17 @@ def main() -> None:
     (OUTPUT / 'decision.json').write_text(json.dumps(decision, ensure_ascii=False, indent=2) + '\n',
                                           encoding='utf-8')
     report_lines = [
-        '# 复购模型定向优化：前向校准实验', '',
-        '固定 A 组 8 特征及阶段五选出的 LightGBM 参数；每个月预测前，'
-        '先留出最近三个已完整标注的月度快照做校准，再用更早月份拟合分类器。'
-        '对比原始评分、最近 1/2/3 个月 sigmoid 和最近 3 个月 isotonic。', '',
-        '2011 年 3–5 月选校准方法，6–8 月确认；9–11 月仅作事后诊断。'
-        '现有阶段六模型曾查看 9–11 月结果，因此这些月份不再是整个项目未查看过的测试。', '',
-        f'选中方法：**{selected}**；确认门槛：**{"通过" if confirmation_passed else "未通过"}**；'
-        f'确认期 Brier 胜出 {brier_wins}/3 月。'
-        f'与现有模型的排序门槛：**{"通过" if incumbent_guard_passed else "未通过"}**。', '',
-        '| 阶段 | 方法 | AP（月均） | Top 20% 精确率（月均） | Brier（月均） | '
-        '绝对平均校准差（月均） | ECE-10（月均） |',
+        '# Directional optimization of repurchase model: forward calibration experiment', '',
+        'Fixed the 8 features of group A and the LightGBM parameters selected in stage five; before each month\'s prediction,'
+        'First, set aside the most recent three fully annotated monthly snapshots for calibration, and then use earlier months to fit the classifier.'
+        'Compare raw score, recent 1 / 2 / 3 months sigmoid and recent 3 months isotonic.', '',
+        '2011 year 3 – 5 month selection calibration method, 6 – 8 month confirmation; 9 – 11 month only for post-diagnosis.'
+        'The existing Phase Six model looked at the 9 – 11 month results, so these months are no longer unlooked at tests for the entire project.', '',
+        f'Selection method: **{selected}**; Confirmation threshold: **{"Pass" if confirmation_passed else "failed"}**;'
+        f'The confirmation period Brier wins over {brier_wins} / 3 months.'
+        f'Sorting threshold with existing models: **{"Pass" if incumbent_guard_passed else "failed"}**.', '',
+        '| Stage | Method | AP (monthly average) | Top 20% accuracy (monthly average) | Brier (monthly average) |'
+        'Absolute average calibration difference (monthly average) | ECE- 10 (monthly average) |',
         '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
     ]
     for row in summary.itertuples(index=False):
@@ -299,18 +299,18 @@ def main() -> None:
             f'{row.mean_precision_at_20pct:.2%} | {row.mean_brier:.4f} | '
             f'{row.mean_absolute_calibration_gap:.2%} | {row.mean_ece_10:.2%} |')
     report_lines += [
-        '', 'AP 与 Top 20% 精确率用于保护排序；Brier、平均校准差和十分箱 ECE 用于检查概率。'
-        '所有校准均只用目标月份之前已结束的 30 天标签。',
-        '现有阶段六验证评分的校准器是在整个 6–8 月验证集上拟合的；其验证期 Brier '
-        '因此不作为严格前向校准对照。这里仅用其 AP 和 Top 20% 精确率作为排序守门指标。',
-        f'与现有模型相比，新方案确认期 AP 月均低 '
+        '', 'AP and Top 20% accuracy are used for guard ranking; Brier, mean calibration difference and ten-bin ECE are used for checking probabilities.'
+        'All calibrations use only 30 day labels that have ended before the target month.',
+        'The calibrator for the existing stage six validation score was fitted on the entire 6 – 8 monthly validation set; its validation period is Brier'
+        'Therefore it is not used as a strict forward calibration control. Here only its AP and Top 20% precision rates are used as ranking gatekeeping indicators.',
+        f'Compared with the existing model, the new plan confirmation period AP monthly average is lower'
         f'{(incumbent_summary.mean_ap - chosen_confirm.mean_ap):.4f}，'
-        f'Top 20% 精确率月均低 '
+        f'Top 20% accuracy rate is low on average every month'
         f'{(incumbent_summary.mean_precision_at_20pct - chosen_confirm.mean_precision_at_20pct):.2%}，'
-        '超过本实验采用的 0.005 容差，因此不替换现有模型。'
-        '9–11 月事后诊断不改变这一决定。',
-        '现有 stage6/outputs/final 模型与报告保持原样；本实验不会自动替换线上或仪表板评分。',
-        '完整逐月结果、逐条评分及固定规则见同目录 CSV 和 decision.json。', '',
+        'The 0.005 tolerance used for this experiment is exceeded and therefore does not replace existing models.'
+        '9 – 11 Monthly post-mortem diagnosis does not change this decision.',
+        'Existing stage 6 /outputs/final models and reports remain intact; this experiment does not automatically replace online or dashboard scoring.',
+        'Complete monthly results, item-by-item ratings and fixed rules can be found in the same directories CSV and decision.json.', '',
     ]
     (OUTPUT / 'report.md').write_text('\n'.join(report_lines), encoding='utf-8')
     print(f'Selected={selected}; confirmation_passed={confirmation_passed}; '

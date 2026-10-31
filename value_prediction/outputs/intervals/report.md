@@ -1,9 +1,9 @@
-# 未来 30 天金额预测区间：开发期检查
+# Future 30 days amount prediction interval: development period check
 
-固定方案：`interval_protocol.md`。无条件金额采用去年同期直接模型；“若购买”金额采用条件中位数。区间只利用当时已结束的过去月份预测残差。
-名义覆盖率 90%，同时比较原金额绝对残差与 `log1p` 金额残差。6–8 月此前已查看，以下是开发确认结果而非独立验收。
+Fixed scheme: `interval_protocol.md`. The unconditional amount uses the year-ago direct model; the "if purchased" amount uses the conditional median. The range utilizes only forecast residuals from past months that have ended at that time.
+Nominal coverage 90%, while comparing the original amount absolute residual with the `log1p` amount residual. 6 – 8 Viewed months ago, the following are development confirmation results rather than independent acceptance.
 
-| 期间 | 目标 | 形式 | 客户组 | 经验覆盖 | 高于上界 | 平均宽度 | 中位宽度 |
+| period | target | form | customer group | Experience coverage | higher than upper bound | average width | median width |
 | --- | --- | --- | --- | ---: | ---: | ---: | ---: |
 | rolling_feb_may | unconditional | absolute | all | 91.12% | 7.04% | 408.30 | 377.58 |
 | rolling_feb_may | unconditional | absolute | predicted_top10 | 56.60% | 25.00% | 630.55 | 631.06 |
@@ -38,9 +38,9 @@
 | known_jun_aug | if_purchase | log1p_grouped | all | 90.26% | 3.58% | 1461.77 | 794.58 |
 | known_jun_aug | if_purchase | log1p_grouped | predicted_top10 | 92.60% | 2.30% | 4843.24 | 2586.61 |
 
-## 逐月覆盖率
+## Month-by-month coverage
 
-| 截点 | 目标 | 形式 | 全体覆盖 | 预测前 10% 覆盖 |
+| cutoff point | target | form | full coverage | Pre-forecast 10% coverage |
 | --- | --- | --- | ---: | ---: |
 | 2011-02-01 | unconditional | absolute | 92.80% | 62.69% |
 | 2011-02-01 | unconditional | log1p | 97.22% | 72.24% |
@@ -99,4 +99,4 @@
 | 2011-08-01 | if_purchase | absolute_grouped | 89.09% | 85.93% |
 | 2011-08-01 | if_purchase | log1p_grouped | 90.63% | 88.15% |
 
-区间宽度与覆盖率是同一组已查看月份的经验结果。客户跨月重复、金额长尾和季节变化意味着 90% 名义值不保证未来覆盖。区间不代替原单点金额模型的强化验收，也未接入仪表板。
+Interval width and coverage are empirical results for the same set of months viewed. Customer duplication across months, long tail amounts and seasonal variations mean that the 90% notional does not guarantee future coverage. The interval does not replace the enhanced acceptance of the original single point amount model, nor is it connected to the dashboard.

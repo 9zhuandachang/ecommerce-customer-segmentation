@@ -12,8 +12,8 @@
   "seasonal_features_sha256": "4ce9d12f22855885ec622ac3efbacbe2d8a6f3593857345d6b6e361e18287219",
   "composition_features_sha256": "23b190d5eb17b5e72e99da9f0e8d2b5c77f47b66f8b3cf7af94583da1d4edec0",
   "hurdle_predictions_sha256": "50cbd77e5f723fd324b5272a41e4a8ae931f5000bfbd7d4cd837302c28f7ad11",
-  "protocol_sha256": "52f6628ef9510e30913ad3c5447fb2d7885c1f3c46eb84d31d8fc1cbaab0d8a5",
-  "script_sha256": "6d778b2be8ad8dc34de4e9a3aaec155aa40510f9960531f63481d3c7dc829101",
+  "protocol_sha256": "6bdcd2cadc6ab393bed9a05ed66b432521356f8ff8c5ecba38aa9875b2b693b3",
+  "script_sha256": "ff08bbc994c51b273e0983afd6901d7c18768ff157ec82c33590d6d32efcc04b",
   "outputs_sha256": {
     "monthly_tail_metrics": "a8d5b2f2a36466d5c7ad81416a6cf49051c40491b9a3ac7cdf260cb33ed625d5",
     "period_metrics": "0b50b71acb4ea1078909ca53dc02af16d0d3f5827077dc05b13fce6be4d2c08d",
@@ -22,5 +22,5 @@
     "predicted_tail_monthly": "c466f4a5a308960433c25d5f6a3c1d5852fbf5235c99b9800bf64cc8d82f3181",
     "predicted_tail_period": "4f0e30a48e18cd75f574580d17703ce7e51ee0eaaa795c9f7c77ced064dde750"
   },
-  "report_sha256": "57b57413895a3bd30c1ac0a61b6a90e60a6e462519e25f8d7f88a1cd7a2f62d5"
+  "report_sha256": "ff4573c76b9f9ae925ee7fce71b0f1240bbe5930e8a42096c154313e2fcf8b33"
 }

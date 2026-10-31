@@ -200,20 +200,20 @@ def main() -> None:
     }
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    lines = ['# 订单金额变化特征：购买后金额研发结果', '',
-             '本实验只检验“若未来购买，会花多少”。1–5 月用于开发；已查看的 6–8 月'
-             '仅作方向核对；9–11 月未读取。不能把条件金额当成全体客户的预计消费额。', '',
-             '| 期间 | 方法 | 购买者 MAE | 购买者金额偏差 | 购买者数 |',
+    lines = ['#Characteristics of order amount changes: R&D results of amount after purchase', '',
+             'This experiment only tests "how much it will cost if you buy it in the future." 1 – 5 months for development; 6 – 8 months viewed'
+             'Only for direction verification; 9 – 11 months are not read. The conditional amount cannot be regarded as the estimated consumption amount of all customers.', '',
+             '| Period | Method | Buyer MAE | Buyer Amount Deviation | Number of Buyers |',
              '| --- | --- | ---: | ---: | ---: |']
     for row in summary.itertuples(index=False):
         lines.append(f'| {row.period} | {row.method} | {row.buyer_mae:.2f} | '
                      f'{row.buyer_amount_bias:+.2%} | {row.buyer_count:,} |')
-    lines += ['', '## 事前固定的研发推进条件', '']
+    lines += ['', '## Fixed R&D promotion conditions in advance', '']
     for name, passed in checks.items():
-        lines.append(f'- `{name}`：{"满足" if passed else "未满足"}')
-    lines += ['', f'值得进入新的独立检验：**{"是" if all(checks.values()) else "否"}**。'
-              '这不改变原无条件金额强化目标，也不能作为系统接入依据。',
-              '逐月、逐客户、训练标签截止、特征逐分核对及哈希见同目录。', '']
+        lines.append(f'- `{name}`: {"satisfy" if passed else "not satisfied"}')
+    lines += ['', f'Worth entering new independent inspection: **{"Yes" if all(checks.values()) else "No"}**.'
+              'This does not change the original unconditional amount enhancement target, nor can it be used as a basis for system access.',
+              'Month-by-month, customer-by-customer, training label cutoff, feature-by-point verification and hashing are in the same directory.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote order dynamics results to {OUTPUT}', flush=True)
 

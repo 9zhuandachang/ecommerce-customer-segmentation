@@ -2,8 +2,8 @@
   "status": "cross_retailer_only_not_same_retailer_acceptance",
   "source_url": "https://brucehardie.com/datasets/CDNOW_master.zip",
   "source_sha256": "94081977a983e80dff8edfa58c83a97db33ec2bdd553151987f0dd2f63aaff49",
-  "protocol_sha256": "eee0e5f8d0d01402dabba3313c8b8134febd17974611d59ae4db1420f26dca88",
-  "script_sha256": "adefaca62492e4090617e3287e93bb989f81175039235d5002a1317c15e817fc",
+  "protocol_sha256": "4b851a7084ed8bc0c7560adf48d78a52453a9e44e72e3bf53d13bb42a273d9d1",
+  "script_sha256": "41a2655d478d09aece42ae970e32b3c6e1c31834bca613612a13b7dddae5a507",
   "source_audit": {
     "source_rows": 69659,
     "eligible_rows": 69579,

@@ -1,34 +1,44 @@
-# 客户分群重新比较：实验口径
+# Customer Segmentation Recomparison Protocol
 
-本协议记录最终完整比较采用的口径。一次初步试跑后，发现留出客户仍可贡献多个月的评估记录，于是改为每名留出客户固定取一条记录，并将初步试跑结果作废；同时澄清商品广度比不是每单真实商品数。这两处修正在最终完整比较前完成。既有阶段四和后续月份的历史结果也曾被查看；本轮属于重新分析，**不是预注册或全新独立测试**。新产物写入 `stage4/outputs/segmentation_comparison/`，不覆盖既有分群器或阶段五至七产物。
+This protocol records the final comparison design. A preliminary run allowed multiple evaluation months per held-out customer; the final design keeps one fixed snapshot per held-out customer and discards the preliminary results. It also clarifies that product breadth per invoice is not actual mean basket size. Both corrections preceded the complete comparison. Earlier Stage 4 and later-month results had already been inspected, so this is reanalysis, **not preregistration or a new independent test**. Outputs go to `stage4/outputs/segmentation_comparison/`; existing segmentation and Stage 5-7 artifacts are preserved.
 
-## 研究问题与样本
+## Research question and samples
 
-- 每条样本代表一名过去 180 天有合格购买的客户在某月 1 日的购买状态。群体可以随月份改变；不将群名理解为终身不变的客户类型。
-- 仅用截至快照日以前的数据构造分群输入。`repurchase_30d`、未来金额、未来商品、已有模型评分、客户 ID 和月份均不参与拟合。
-- 沿用快照文件现有的训练期（2010-06 至 2011-05）、验证期（2011-06 至 2011-08）与回顾期（2011-09 至 2011-11）。算法与参数只根据训练期客户留出集和验证期**无标签**的群体结构选择；回顾期在选定后展示，不参与选择。
-- 训练期按客户 ID 整体留出 20% 客户作为固定结构评估集，其余客户的全部训练月用于拟合。固定结构评估集再为每名留出客户用固定种子抽取一个月的状态，避免记录月份多的客户在轮廓系数和 ARI 中反复计权。另以 5 次不同种子，从拟合客户中各抽取 80% 客户及其全部月份重新拟合，检查稳定性；不是随机抽客户月记录。最终选中方案再用全部训练期拟合。
+- Each sample represents an eligible customer's purchase state on a month's first day, following at least one purchase in the preceding 180 days. Membership can change across months; segment names are not permanent customer identities.
+- Use only information available before the snapshot date. Repurchase labels, future amounts/products, existing model scores, customer IDs, and month values are excluded from fitting.
+- Retain training June 2010-May 2011, validation June-August 2011, and review September-November 2011. Select algorithms and settings from held-out training customers and **unlabeled** validation structure. Review-period results are displayed after selection.
+- Hold out 20% of training customers by ID for structural evaluation. Fit on all training-month records of the remaining customers. With a fixed seed, select one snapshot per held-out customer, avoiding repeated weighting of customers with more months in silhouette and ARI. For stability, refit five times with different seeds, sampling 80% of fitting customers and keeping all their months. This resamples customers rather than individual customer-month rows. Refit the selected approach on the full training period.
 
-## 固定特征和处理
+## Fixed features and preprocessing
 
-五项业务维度：`recency_days`、`invoice_frequency_180d`、`average_order_value_180d`、`product_diversity_180d / invoice_frequency_180d`、`invoice_count_90d / invoice_frequency_180d`。分别表示最近购买间隔、半年订单频率、平均单笔金额、半年去重商品编码数相对发票数的广度、近期订单占比。第四项是跨半年去重商品数除以发票数，**不是**真正的每张发票商品数均值。半年总额约由订单数和平均单笔金额相乘得到，故不再重复作为距离维度。可见历史长度保留在画像中检查，避免将数据起点误当成真实注册时间。模型输入全部非负，比例在合法范围内。
+Use five dimensions:
 
-对订单频率、平均单笔金额和每笔商品广度做 `log1p`，然后对五项统一标准化。变换参数只在各次拟合样本上学习；固定评估集、验证期和回顾期仅使用已拟合变换。所有算法使用完全相同的五项输入、变换、拟合样本和评估样本。
+1. `recency_days`.
+2. `invoice_frequency_180d`.
+3. `average_order_value_180d`.
+4. `product_diversity_180d / invoice_frequency_180d`.
+5. `invoice_count_90d / invoice_frequency_180d`.
 
-## 候选算法与参数范围
+They describe recency, six-month invoice frequency, average order value, distinct-product breadth relative to invoice count, and recent order share. The fourth feature divides distinct product codes over the whole period by invoices; it is not actual mean products per invoice. Total spending is approximately frequency × average order value, so it is not repeated as another distance dimension. Visible history length remains in descriptive profiles; its starting point is not interpreted as registration. Validate non-negative inputs and legal ratios.
 
-| 算法 | 群数 | 其他固定/待比较参数 |
+Apply `log1p` to frequency, average order value, and breadth, then standardize all five features. Fit transformations only on the current fitting sample and reuse them for held-out, validation, and review customers. Every algorithm uses the same inputs, transformations, fitting rows, and evaluation rows.
+
+## Candidate methods and settings
+
+| Algorithm | Cluster counts | Other settings |
 | --- | --- | --- |
-| K-means | 2、3、4、5、6 | `n_init=20`、`max_iter=500`、`random_state=42` |
-| 二分 K-means | 2、3、4、5、6 | `init=k-means++`、`n_init=10`、`bisecting_strategy=biggest_inertia`、`random_state=42` |
-| Gaussian Mixture | 2、3、4、5、6 | `covariance_type=diag/full` 各一组、`n_init=5`、`reg_covar=1e-4`、`max_iter=300`、`random_state=42` |
+| K-means | 2, 3, 4, 5, 6 | `n_init=20`, `max_iter=500`, `random_state=42` |
+| Bisecting K-means | 2, 3, 4, 5, 6 | `init=k-means++`, `n_init=10`, `bisecting_strategy=biggest_inertia`, `random_state=42` |
+| Gaussian mixture | 2, 3, 4, 5, 6 | Both `covariance_type=diag/full`; `n_init=5`, `reg_covar=1e-4`, `max_iter=300`, `random_state=42` |
 
-共 20 个候选设置。GMM 以最大成分归属值转换为一个主群，方便与另两种方法在同一批记录上对照；同时另报最高归属概率的分布，不能将模型归属概率误称为真实客户类型的概率。
+There are 20 candidate settings. Assign GMM's most probable component as the main cluster for comparison with the other methods, while also reporting maximum-membership probabilities. Model component probabilities are not probabilities of a true customer type.
 
-## 比较和选择
+## Evaluation and selection
 
-每个候选都记录：固定客户留出集的轮廓系数、5 次客户整体重抽样后在同一留出集上的 ARI 一致性、验证期逐月群体人数与最小群占比、群体五项输入的原单位中位数、训练期收敛状态和实际群数。GMM 另报 BIC 与归属模糊程度。轮廓系数在同一批固定评估行、同一变换空间计算；BIC 只在 GMM 内比较；K-means 惯性也不能与 GMM 的 BIC 当同一指标比较。
+For every candidate, report held-out silhouette; ARI on the same held-out customers after five customer-level resamples; monthly validation group sizes and smallest-group share; original-unit medians of the five features; convergence; and the actual number of clusters. For GMM, also report BIC and membership ambiguity. Silhouette uses identical evaluation rows and transformed feature space. Compare BIC only within GMM; K-means inertia and GMM BIC are not interchangeable.
 
-首先排除未收敛、未形成指定群数、或验证期某月出现不足 50 名客户群的候选；50 人约为验证期单月客户的 2%，用于避免把偶然小群当成稳定经营单元。再联合审视分离程度、客户重抽样稳定性和跨月画像。若新增群体的特征差异无法在多个验证月份复现，则不为增加群数而选它；在证据接近时优先较少群数和较简单的方法。最终报告列出全部候选与选择理由，包括取舍，而非把不同指标拼成一个任意总分。若没有稳定、可解释的细分，也仍选出最可靠候选，并明确其探索性限制。
+Exclude candidates that fail to converge, fail to form the requested number of groups, or produce a validation-month group with fewer than 50 customers. Fifty is approximately 2% of a validation month's customers, avoiding tiny incidental groups as business units.
 
-本阶段只评价分群质量。未来 30 天复购、金额及商品标签不用于选模；它们以后可以作为分群的外部业务检查，但不得冒充本轮独立证据。
+Then assess separation, resampling stability, and monthly profiles together. Extra groups should have distinctions reproducible across validation months. Prefer fewer groups and simpler methods when evidence is close. Report every candidate, selection reasons, and tradeoffs; do not combine unrelated metrics into an arbitrary total. If no stable, interpretable subdivision emerges, select the most reliable candidate and describe its exploratory scope.
+
+This stage evaluates segmentation quality only. Future repurchase, spending, and product labels do not select the model. They may later support external business checks, but are not independent evidence from this comparison.

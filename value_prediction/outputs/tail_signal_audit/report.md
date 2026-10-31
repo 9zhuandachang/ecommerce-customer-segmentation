@@ -1,18 +1,18 @@
-# 高额未来消费的截点前信号：事后审计
+# Pre-cutoff signals of high future consumption: post-event audit
 
-事先口径见 `tail_signal_protocol.md`。高额组由真实未来消费定义，只能用于诊断；所有排名分数和特征本身均为截点前可得。所有月份此前已查看，不是独立验收。
+See `tail_signal_protocol.md` for the definition in advance. The high-value group is defined by real future consumption and can only be used for diagnosis; all ranking scores and characteristics themselves are available before the cutoff point. All months have been viewed previously and are not independently accepted.
 
-| 期间 | 购买快照 | 实际前 1% 人数 | 该组实际消费份额 | 模型预测/该组实际 | 该组进入预测 Top20 | 历史 180 天金额中位百分位 | 未来/旧月均中位倍数 |
+| period | buy snapshot | Actual number of people before 1% | The group's actual consumption share | Model prediction/actual for the group | This group enters the prediction Top 20 | Historical 180 day amount median percentile | Future/old monthly average median multiple |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | rolling_jan_may | 3,414 | 37 | 19.26% | 41.32% | 97.30% | 99.8% | 1.40× |
 | known_jun_aug | 2,177 | 24 | 25.42% | 39.23% | 100.00% | 99.7% | 1.97× |
 | viewed_sep_nov | 3,025 | 32 | 25.39% | 43.53% | 96.88% | 99.7% | 2.25× |
 
-历史金额百分位在同月全部 eligible 客户中计算。“未来/旧月均”中的未来结果只用于事后波动审计，不能作为预测时的输入。
+Historical amount percentiles are calculated across all eligible customers in the same month. The future results in "Future/Old Monthly Average" are only used for post-event fluctuation audit and cannot be used as input for forecasting.
 
-## 截点前特征：高额组与其他实际购买者
+## Pre-cutoff characteristics: high-value group and other actual buyers
 
-| 期间 | 特征 | 高额组 | 其他购买者 |
+| period | Features | High stakes group | other buyers |
 | --- | --- | ---: | ---: |
 | rolling_jan_may | monetary_value_180d | 39112.42 | 1162.98 |
 | rolling_jan_may | max_invoice_value_180d | 14662.58 | 470.10 |
@@ -42,25 +42,25 @@
 | viewed_sep_nov | non_uk_180d | 28.1% | 9.9% |
 | viewed_sep_nov | prior_year_available | 100.0% | 100.0% |
 
-## 两阶段金额分解（首轮结果后的解释性补充）
+## Two-stage amount decomposition (explanatory supplement after the first round results)
 
-仅 1–8 月有已保存的两阶段样本外预测；以下均按事后实际高额组计算。
+Only months 1 – 8 have saved two-stage out-of-sample forecasts; the following are calculated based on the actual high-value group after the fact.
 
-| 期间 | 实际高额组人数 | 平均购买概率 | 假定会买时的金额预测/实际 | 概率×金额预测/实际 | 直接模型预测/实际 |
+| period | Actual number of people in the high stakes group | average purchase probability | Estimated amount/actual amount when assumed to be purchased | Probability×amount forecast/actual | Direct model prediction/actual |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | rolling_jan_may | 37 | 74.67% | 59.29% | 46.22% | 41.32% |
 | known_jun_aug | 24 | 81.90% | 46.45% | 39.88% | 39.23% |
 
-“假定会买时”的金额预测仍来自截点前模型，这里仅用真实结果选事后审计组。条件金额也显著偏低时，低估不能只归因于购买概率折减；但按实际极值选组本身也会造成向下的选择偏差。
+The amount prediction "when assumed to buy" is still from the pre-cutoff model, here only the real results are used to select the post-audit group. When the conditional amount is also significantly lower, the underestimation cannot only be attributed to the reduction in purchase probability; but group selection based on the actual extreme value itself will also cause a downward selection bias.
 
-## 按预测分数事先选出的前 1% 客户
+## Top 1% customers selected in advance based on predicted scores
 
-| 期间 | 名单客户月 | 命中实际极高消费组 | 名单预测金额/实际金额 | 名单实际消费份额 |
+| period | list customer month | Hit the actual extremely high consumption group | List forecast amount/actual amount | List actual consumption share |
 | --- | ---: | ---: | ---: | ---: |
 | rolling_jan_may | 167 | 81.08% | 102.26% | 27.50% |
 | known_jun_aug | 83 | 91.67% | 79.10% | 32.90% |
 | viewed_sep_nov | 90 | 84.38% | 73.88% | 31.56% |
 
-这个名单只依据截点前的预测分数选择，因此它的预测/实际金额比更适合检查高分客户的校准；逐月数据见 `predicted_tail_monthly.csv`。
+This list is selected only based on predicted scores before the cutoff, so its predicted/actual amount ratio is more suitable for checking the calibration of high-scoring clients; see `predicted_tail_monthly.csv` for month-by-month data.
 
-逐月高额组人数、波动和历史最大订单百分位见 `monthly_tail_metrics.csv`。所有特征的分组汇总见 `feature_signals.csv`。这些差异不能证明某特征能因果解释未来高额购买，也不能据此在已看过月份调参。
+See `monthly_tail_metrics.csv` for the number of people in high-value groups month by month, fluctuations, and the percentile of historical largest orders. See `feature_signals.csv` for a grouped summary of all features. These differences cannot prove that a certain feature can causally explain future high-value purchases, nor can they be used to adjust parameters in the months that have been seen.

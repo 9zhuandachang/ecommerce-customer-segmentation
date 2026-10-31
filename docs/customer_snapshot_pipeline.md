@@ -1,26 +1,26 @@
-# 客户快照数据流水线
+#Customer snapshot data pipeline
 
-该流水线保留两份原始 CSV 不变，生成可追溯的数据清洗结果和月度客户快照。
+The pipeline leaves the two original CSV unchanged, producing traceable data cleaning results and monthly customer snapshots.
 
-清洗规则实现位于 `src/data_cleaning.py`，客户特征、标签和时间划分实现位于 `src/features.py`；`build_customer_snapshots.py` 负责调用并写出产物。后续训练直接读取 `customer_snapshots.csv`，不再重复清洗原始数据。
+The cleaning rule implementation is located at `src/data_cleaning.py`, and the customer feature, label and time division implementation is located at `src/features.py`; `build_customer_snapshots.py` is responsible for calling and writing out the product. Subsequent training directly reads `customer_snapshots.csv` without repeatedly cleaning the original data.
 
-## 清洗规则
+## Cleaning rules
 
-- 完全重复行仅保留第一次出现的记录。
-- 缺失 Customer ID 的记录不进入客户级建模。
-- 取消订单、数量或价格非正的记录不作为合格购买。
-- 邮费、手续费、折扣、人工调整、测试、样品和礼品券等非商品编码不进入购买特征。
-- 每条被排除记录保留来源文件、原始行号和一个主要排除原因。
+- Exact duplicate rows keep only the first occurrence of the row.
+- Records with missing Customer IDs do not enter customer-level modeling.
+- Cancellations of orders, records of incorrect quantities or prices are not considered qualifying purchases.
+- Non-commodity codes such as postage, handling fees, discounts, manual adjustments, testing, samples and gift certificates do not enter the purchase features.
+- Each excluded record retains the source file, original line number, and a primary reason for exclusion.
 
-## 快照规则
+## Snapshot rules
 
-- 每月 1 日生成快照。
-- 特征窗口为 `[t-180天, t)`，严格不使用截止时点及之后的数据。
-- 客户必须在特征窗口内至少有一次合格购买。
-- 标签窗口为 `[t, t+30天)`；窗口内至少有一次合格购买时，`repurchase_30d=1`。
-- 训练、验证和测试按时间顺序划分。跨越下一分区起点的标签窗口会被标记为 purge，不用于建模。
+- Snapshots are generated on 1 day every month.
+- The feature window is `[t-180day, t)`, and data after the cut-off time point is strictly not used.
+- Customer must have at least one qualifying purchase within the feature window.
+- The tag window is `[t, t+30day)`; when there is at least one qualifying purchase within the window, `repurchase_30d=1`.
+- Training, validation and testing are divided in chronological order. Label windows spanning the start of the next partition are marked as purge and are not used for modeling.
 
-## 运行
+## Run
 
 ```powershell
 python build_customer_snapshots.py `
@@ -29,17 +29,17 @@ python build_customer_snapshots.py `
   --output-dir data/processed/customer_snapshot_pipeline
 ```
 
-主要输出：
+Main output:
 
-- `clean_transactions.csv`：合格交易明细。
-- `excluded_transactions.csv`：被排除记录及原因。
-- `cleaning_audit.csv`：各规则命中数与主要排除数。
-- `cutoff_schedule.csv`：快照、特征、标签和数据分区边界。
-- `customer_snapshots.csv`：客户特征及未来 30 天复购标签。
-- `validation_report.csv`：行数对账、快照唯一性和防泄漏检查。
-- `run_manifest.json`：源文件哈希、配置、日期范围和输出规模。
+- `clean_transactions.csv`: Qualified transaction details.
+- `excluded_transactions.csv`: Excluded records and reasons.
+- `cleaning_audit.csv`: Number of hits and main exclusions for each rule.
+- `cutoff_schedule.csv`: Snapshots, features, labels and data partition boundaries.
+- `customer_snapshots.csv`: Customer characteristics and future 30 days repurchase tag.
+- `validation_report.csv`: Line number reconciliation, snapshot uniqueness and anti-leakage check.
+- `run_manifest.json`: Source file hash, configuration, date range and output size.
 
-## 测试
+## Test
 
 ```powershell
 python -m unittest discover -s tests -v

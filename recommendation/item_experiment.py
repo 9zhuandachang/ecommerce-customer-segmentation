@@ -364,45 +364,45 @@ def run():
 
 
 def write_report(comparison, lock, ablations, elapsed):
-    lines = ['# 商品级推荐：四组特征与三类模型', '', f'默认选择：**{lock["selected_name"]}**。', '',
-             f'整体替换门槛满足：{lock["deployment_gate_passed"]}；所选方案的画像额外价值：'
+    lines = ['# Product-level recommendation: four groups of features and three types of models', '', f'Default selection: **{lock["selected_name"]}**.', '',
+             f'The overall replacement threshold meets: {lock["deployment_gate_passed"]}; the additional value of the profile of the selected plan:'
              f'{lock["selected_profile_value_demonstrated"]}。', '',
-             '所有方案每人10件，对完整相同商品目录打分；主指标为有下一单客户的月均NDCG@10，'
-             '月份等权。目录外真实商品保留分母。没有下一单仍生成名单，不当作不喜欢所有商品。', '',
-             '| 方案 | 验证NDCG | 验证Recall | 验证未买Recall | 复核NDCG | 复核Recall | 复核未买Recall |',
+             'All plans have 10 pieces per person, and the complete catalog of the same product is scored; the main indicator is the monthly average NDCG@10 of customers with next orders,'
+             'Monthly equal rights. The denominator is reserved for real products outside the catalog. If there is no next order, the list will still be generated. It does not mean that you do not like all the products.', '',
+             '| Plan | Verify NDCG | Verify Recall | Verify but not bought Recall | Review NDCG | Review Recall | Review but not buy Recall |',
              '|---|---:|---:|---:|---:|---:|---:|']
     for method in NAMES:
         a = comparison.loc[comparison.phase.eq('validation') & comparison.method.eq(method)].iloc[0]
         b = comparison.loc[comparison.phase.eq('test') & comparison.method.eq(method)].iloc[0]
         lines.append(f'| {NAMES[method]} | {a.mean_ndcg_10:.4f} | {a.mean_recall_10:.2%} | {a.mean_new_recall_10:.2%} | '
                      f'{b.mean_ndcg_10:.4f} | {b.mean_recall_10:.2%} | {b.mean_new_recall_10:.2%} |')
-    lines += ['', '## 同模型同参数的特征归因', '',
-              '| 对照 | 模型 | NDCG差值 | Recall差值 | 不退步月份 | 达到额外价值门槛 |', '|---|---|---:|---:|---:|---|']
+    lines += ['', '## Feature attribution of the same model and the same parameters', '',
+              '| Comparison | Model | NDCG Difference | Recall Difference | No Retrograde Month | Extra Value Threshold Reached |', '|---|---|---:|---:|---:|---|']
     for row in ablations.itertuples():
         lines.append(f'| {row.challenger} − {row.reference} | {row.family} | {row.ndcg_gain:+.4f} | '
                      f'{row.recall_gain:+.2%} | {row.nonworse_months}/3 | {row.demonstrated} |')
-    lines += ['', 'A基础；B基础+画像及交互；C基础+EASE；D完整。同类模型四组使用相同参数，'
-              '参数仅由五个开发月、四组平均NDCG确定。B-A及D-C检验画像，C-A及D-B检验EASE信号。', '',
-              '## 选择、参数和边界', '',
-              f'- 最佳新方案：{NAMES[lock["best_new"]]}。相对纯补货：`{json.dumps(lock["improvement_vs_default"], ensure_ascii=False)}`。',
-              '- 默认替换门槛：NDCG+0.01、Recall+1个百分点、未买Recall+1个百分点，至少2/3月NDCG不退步。',
-              '- 画像额外价值门槛：同模型同参数NDCG+0.002、至少2/3月不退步、Recall下降不超过0.5个百分点。',
-              f'- 各类共同参数：`{json.dumps(lock["shared_shortlist"], ensure_ascii=False)}`。',
-              f'- 阶段固定EASE参数：`{json.dumps(lock["ease_spec"], ensure_ascii=False)}`。',
-              f'- 最佳新方案减纯补货客户抽样：`{json.dumps(lock["best_vs_default_intervals"]["metrics"], ensure_ascii=False)}`。',
-              '抽样为多次选型后的内部诊断，不是新的独立显著性证明。', '',
-              '历史训练EASE逐月只使用此前交易，其正则也只由更早已成熟标签决定。元模型拟合只用30天答案已成熟的客户月。'
-              '训练负例含难例及均匀样本，所有特征组共用；分类训练校正入样概率，并按客户月等权。'
-              '排序在相同抽样查询组上优化LambdaRank，不声称无偏还原全目录损失；验证和复核对完整目录打分。'
-              '分数只用于同一客户同一方法的推荐排序，不是校准购买概率。', '',
-              '1–5月五轮向前开发共240次模型拟合；6–8月确定默认并锁定最终模型；9–11月结果此前已查看，'
-              '这里只作固定复核，不据此改参数。全局模型/目录阶段内冻结，客户历史与可观察商品统计按月更新。', '',
-              '## 打开与复现', '', '`python -B -m recommendation.item_experiment`', '',
-              '`python -m streamlit run app/dashboard.py` → Product recommendations → 商品级打分对比。', '',
-              'development_monthly.csv为240次开发结果；validation_ablations.csv为完整同参数对照；'
-              'training_audit.json为时间/采样审计；training_samples.joblib为正式可复现训练资料，含标签，仅供离线。'
-              '页面只读profiles.csv及*_lists.csv，不读取*_customers.csv中的未来答案。', '',
-              f'运行耗时约{elapsed:.0f}秒；全部模型、代码、来源及产物有哈希核对。', '']
+    lines += ['', 'A basic; B basic + profile and interaction; C basic + EASE; D complete. Four groups of similar models use the same parameters.'
+              'Parameters were determined by only five development months, four group averages NDCG. B-A and D-C check the image, C-A and D-B check the EASE signal.', '',
+              '## Selection, parameters and bounds', '',
+              f'- Best New Solution: {NAMES[lock["best_new"]]}. Relatively pure restock: `{json.dumps(lock["improvement_vs_default"], ensure_ascii=False)}`.',
+              '- Default replacement threshold: NDCG + 0.01, Recall + 1 percentage points, unbought Recall + 1 percentage points, at least 2 / 3 months NDCG does not regress.',
+              '- The additional value threshold for images: the same model and the same parameters NDCG + 0.002, 2 / 3 does not decline for at least one month, and Recall declines by no more than 0.5 percentage points.',
+              f'- Common parameters of various types: `{json.dumps(lock["shared_shortlist"], ensure_ascii=False)}`.',
+              f'- Phase fixed EASE parameter: `{json.dumps(lock["ease_spec"], ensure_ascii=False)}`.',
+              f'- Best New Solution Reduction Pure Replenishment Customer Sampling: `{json.dumps(lock["best_vs_default_intervals"]["metrics"], ensure_ascii=False)}`.',
+              'Sampling is an internal diagnosis after multiple selections and is not a new independent proof of significance.', '',
+              'Historical training EASE only uses previous transactions every month, and its regularity is only determined by earlier mature labels. Meta-model fitting only took 30 days and the answer was mature customer months.'
+              'Training negative examples include difficult examples and uniform samples, which are shared by all feature groups; classification training corrects the sampling probability, and is equally weighted according to customer months.'
+              'Ranking optimizes LambdaRank on the same sampled query group and does not claim to be unbiased in restoring the full catalog loss; verification and review score the full catalog.'
+              'Scores are only used to rank recommendations by the same method for the same customer, not to calibrate purchase probability.', '',
+              '1 – 5 months are developed in five rounds forward for a total of 240 model fittings; 6 – 8 months are determined by default and the final model is locked; 9 – 11 monthly results have been viewed previously,'
+              'This is only a fixed review, and the parameters will not be changed accordingly. The global model/catalog stage is frozen, and customer history and observable product statistics are updated monthly.', '',
+              '## Open and reproduce', '', '`python -B -m recommendation.item_experiment`', '',
+              '`python -m streamlit run app/dashboard.py` → Product recommendations → Product-level scoring comparison.', '',
+              'development_monthly.csv is the development result of 240 times; validation_ablations.csv is the complete comparison with the same parameters;'
+              'training_audit.json is the time/sampling audit; training_samples.joblib is the official reproducible training data, including labels, and is only for offline use.'
+              'The page only reads profiles.csv and *_lists.csv, and does not read future answers in *_customers.csv.', '',
+              f'The operation takes about {elapsed:.0f} seconds; all models, codes, sources and products are hash checked.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
 
 

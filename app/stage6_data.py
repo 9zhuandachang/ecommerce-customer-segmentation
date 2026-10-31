@@ -32,7 +32,7 @@ def sha256(path: Path) -> str:
 
 def review_list(frame: pd.DataFrame, segment: str, top_n: int) -> pd.DataFrame:
     """Apply the visible filter and deterministic rank used for CSV export."""
-    if segment != '全部群体':
+    if segment != 'All segments':
         frame = frame.loc[frame.segment_name.eq(segment)]
     if frame.empty:
         return frame.copy()

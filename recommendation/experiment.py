@@ -279,60 +279,60 @@ def make_figure(monthly: pd.DataFrame, selected: str) -> None:
 def write_report(comparison: pd.DataFrame, monthly: pd.DataFrame, lock: dict, audit: dict,
                  validation_labels: pd.DataFrame, test_labels: pd.DataFrame) -> None:
     selected = lock['selected_method']
-    lines = ['# 下一笔订单商品推荐：比较结果', '', f'**最终采用：{NAMES[selected]}。**', '',
-             '每月为过去180天买过东西的客户推荐10种商品。答案是随后30天内下一笔订单的不同商品，'
-             '允许推荐以前买过的商品。主指标NDCG@10同时衡量是否命中及命中商品的排名。', '',
-             '## 五种方法的公平比较', '',
-             '| 方法 | 验证NDCG@10 | 验证Recall@10 | 验证Hit@10 | 测试NDCG@10 | 测试Recall@10 | 测试Hit@10 |',
+    lines = ['# Product recommendations for next order: comparison results', '', f'**Final adoption: {NAMES[selected]}.**', '',
+             'Recommend 10 products each month to customers who have purchased something in the past 180 days. The answer is an order of different items in the next 30 days,'
+             'Allows recommendations for previously purchased items. The main indicator NDCG@10 simultaneously measures whether the product is hit and the ranking of the hit product.', '',
+             '## Fair comparison of five methods', '',
+             '| Method | Verify NDCG@10 | Verify Recall@10 | Verify Hit@10 | Test NDCG@10 | Test Recall@10 | Test Hit@10 |',
              '|---|---:|---:|---:|---:|---:|---:|']
     for method in FAMILIES:
         a = comparison.loc[comparison.phase.eq('validation') & comparison.method.eq(method)].iloc[0]
         b = comparison.loc[comparison.phase.eq('test') & comparison.method.eq(method)].iloc[0]
         lines.append(f'| {NAMES[method]} | {a.mean_ndcg_10:.4f} | {a.mean_recall_10:.2%} | '
                      f'{a.mean_hit_10:.2%} | {b.mean_ndcg_10:.4f} | {b.mean_recall_10:.2%} | {b.mean_hit_10:.2%} |')
-    lines += ['', '各月份等权平均。上述三个指标仅评价有下一笔订单的客户；所有合格客户都会生成名单。'
-              '完整表另报全体客户命中率、@5、商品覆盖、已买/未买商品的召回及未知新品占比。', '',
-              '## 为什么选它', '',
-              f'- 验证期最强规则为{NAMES[lock["best_rule"]]}，最强学习方案为{NAMES[lock["best_learner"]]}。',
-              f'- 最强学习方案相对最强规则的验证平均NDCG差值：{lock["mean_validation_ndcg_gain"]:+.4f}。',
-              '- 事先条件：平均NDCG至少高0.002、至少2/3个月不退步、平均Recall落后不超过0.005。',
-              f'- 条件结果：`{json.dumps(lock["conditions"], ensure_ascii=False)}`。',
-              f'- 最终参数：`{json.dumps(lock["selected_config"], ensure_ascii=False)}`。', '',
-              '## 数据与时间顺序', '',
-              f'清洗交易{audit["source_lines"]:,}行；合并同一发票同一商品的多行后，'
-              f'得到{audit["distinct_invoice_item_events"]:,}条购买互动。数量和金额不参与互动加权，减少批发大单影响。', '',
-              '| 用途 | 客户月 | 有下一笔订单的客户月 |', '|---|---:|---:|']
-    for phase, frame in [('验证：6–8月', validation_labels), ('测试：9–11月', test_labels)]:
+    lines += ['', 'Equally weighted average for each month. The above three indicators only evaluate customers with next orders; a list is generated for all qualified customers.'
+              'The complete table also reports the hit rate of all customers, @ 5, product coverage, recalls of purchased/unpurchased products, and the proportion of unknown new products.', '',
+              '## Why choose it?', '',
+              f'- The strongest rule during the verification period is {NAMES[lock["best_rule"]]}, and the strongest learning plan is {NAMES[lock["best_learner"]]}.',
+              f'- The average NDCG difference between the strongest learning scheme and the strongest rule is: {lock["mean_validation_ndcg_gain"]:+.4f}.',
+              '- Prior conditions: the average NDCG is at least 0.002 higher, at least 2 / 3 does not regress for months, and the average Recall lags no more than 0.005.',
+              f'- Condition result: `{json.dumps(lock["conditions"], ensure_ascii=False)}`.',
+              f'- Final parameters: `{json.dumps(lock["selected_config"], ensure_ascii=False)}`.', '',
+              '## Data and time sequence', '',
+              f'Clean transaction line {audit["source_lines"]:,}; after merging multiple lines of the same invoice and the same product,'
+              f'Received {audit["distinct_invoice_item_events"]:,} purchase interactions. Quantity and amount do not participate in interactive weighting, reducing the impact of large wholesale orders.', '',
+              '| Purpose | Customer Months | Customer Months with Next Order |', '|---|---:|---:|']
+    for phase, frame in [('Verification: 6 – 8 months', validation_labels), ('Test: 9 – 11 months', test_labels)]:
         lines.append(f'| {phase} | {len(frame):,} | {int(frame.target_count.gt(0).sum()):,} |')
-    lines += ['', '1–5月向前开发，每类学习方案8组参数。6–8月用6月1日前的全局商品关系选型；'
-              '选定后，用9月1日前交易拟合并冻结最终商品关系，再一次性计算9–11月商品推荐结果。'
-              '客户自身输入按月只使用当时已发生的订单，全部方法遵守相同规则。'
-              '9–11月此前已用于复购和金额任务，本轮商品答案未参与选型。', '',
-              '候选商品由各阶段训练期180天内全部已售商品确定，各方法一致；'
-              '同分统一按训练期热门程度及编码排序；测试中出现的新品保留在答案分母中。'
-              '没有库存数据，商品清单不代表当时有货。', '',
-              '## 逐月效果与难点', '',
-              '| 月份 | 用途 | 有下一单客户 | NDCG@10 | Recall@10 | Hit@10 | 候选内答案占比 | 已买商品Recall | 未买商品Recall |',
+    lines += ['', '1 – 5 is developed monthly, and each type of learning program has 8 set of parameters. 6 – 8 monthly 6 monthly 1 global product relationship selection;'
+              'After selection, use the 9 month- 1 day-ahead transactions to fit and freeze the final product relationship, and then calculate the 9 – 11 month product recommendation results at once.'
+              'The customer\'s own input only uses orders that have occurred at that time on a monthly basis, and all methods follow the same rules.'
+              '9 – 11 have been used for repurchase and amount tasks before this month, and the product answers in this round are not involved in the selection.', '',
+              'Candidate products are determined by all sold products within the 180 days of the training period in each stage, and the methods are consistent;'
+              'The same scores are sorted according to popularity and coding during the training period; new products that appeared in the test are retained in the denominator of the answer.'
+              'There is no inventory data, and product listings do not represent availability at that time.', '',
+              '## Month by month effects and difficulties', '',
+              '| Month | Purpose | Customers with next order | NDCG@10 | Recall@10 | Hit@10 | Proportion of answers among candidates | Bought items Recall | Unbought items Recall |',
               '|---|---|---:|---:|---:|---:|---:|---:|---:|']
     for row in monthly.loc[monthly.method.eq(selected)].itertuples():
-        lines.append(f'| {row.snapshot_date[:7]} | {"验证" if row.phase == "validation" else "测试"} | '
+        lines.append(f'| {row.snapshot_date[:7]} | {"Verify" if row.phase == "validation" else "test"} |'
                      f'{row.buyers:,} | {row.ndcg_10:.4f} | {row.recall_10:.2%} | {row.hit_10:.2%} | '
                      f'{row.known_target_share:.2%} | {row.repeat_recall_10:.2%} | {row.new_recall_10:.2%} |')
-    lines += ['', '已买/未买指过去180天是否买过。下一单可能包含很多商品，因此推荐10件的Recall可能较低；'
-              'Hit只要求至少命中一件，不能单独用它宣称推荐非常准确。', '',
-              '验证期500次客户成组配对抽样（最强学习方案减最强规则）：']
+    lines += ['', 'Bought/Not Bought refers to whether the item was purchased in the past 180 days. The next order may contain many items, so the recommended Recall for 10 pieces may be lower;'
+              'Hit only requires at least one hit, and it cannot be used alone to claim that the recommendation is very accurate.', '',
+              'Verification period 500 customer group paired sampling (the strongest learning plan minus the strongest rule):']
     for metric, values in lock['validation_customer_intervals']['metrics'].items():
-        lines.append(f'- {metric}：{values["point"]:+.4f}，95%客户抽样区间'
+        lines.append(f'- {metric}: {values["point"]:+.4f}, 95% customer sampling interval'
                      f'[{values["lower_95"]:+.4f}, {values["upper_95"]:+.4f}]。')
-    lines += ['抽样是选型后的内部稳健性检查，不是新月份效果保证。ALS额外种子结果见als_seed_monthly.csv。', '',
-              '![逐月推荐比较](comparison.png)', '', '## 打开与复现', '',
+    lines += ['Sampling is an internal robustness check after selection and is not a guarantee of new month results. ALS Additional seed results are available in als_seed_monthly.csv.', '',
+              '![Monthly recommended comparison ](comparison.png)', '', '## Open and reproduce', '',
               '`python -B -m recommendation.experiment`', '',
-              '`python -m streamlit run app/dashboard.py` → **Product recommendations** → 选择日期和客户。', '',
-              'recommendations.csv用于页面和导出，不含未来订单、命中结果或答案。'
-              'validation_labels.csv/test_labels.csv和逐客户指标仅作离线核对；'
-              'locked_selection.json保存选型、参数和模型哈希，tuning_comparison.csv保存全部30组配置。', '',
-              '算法依据：[ItemKNN](https://www.ra.ethz.ch/CDstore/www10/papers/519/) · '
-              '[隐式反馈ALS](https://yifanhu.net/PUB/cf.pdf) · [EASE](https://arxiv.org/abs/1905.03375)。', '']
+              '`python -m streamlit run app/dashboard.py` → **Product recommendations** → Select date and customer.', '',
+              'recommendations.csv is used for pages and exports and does not contain future orders, hits or answers.'
+              'validation_labels.csv/test_labels.csv and customer-by-customer indicators are only verified offline;'
+              'locked_selection.json saves the selection, parameters and model hash, and tuning_comparison.csv saves all 30 group configurations.', '',
+              'Algorithm basis: [ ItemKNN ](https://www.ra.ethz.ch/CDstore/www10/papers/519/) ·'
+              '[Implicit feedback ALS ](https://yifanhu.net/PUB/cf.pdf) · [ EASE ](https://arxiv.org/abs/1905.03375).', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
 
 

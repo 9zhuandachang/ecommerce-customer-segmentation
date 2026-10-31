@@ -357,19 +357,19 @@ def main() -> None:
         json.dumps(decision, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     baseline = val_metrics.set_index('method').loc['historic_30d']
     lines = [
-        '# 未来 30 天客户消费额预测', '',
-        f'标签基于合格交易行金额，覆盖 {label_manifest["snapshot_count"]:,} 条客户月快照；'
-        '零购买记为零。原始交易、清洗结果和原复购模型未改动。',
-        '金额代表合格交易的消费额，不是净利润、CLV 或营销增量。', '',
-        '模型只使用快照日前 180 天的 8 项特征。训练期至 2011 年 5 月；'
-        '2011 年 6–8 月选模型；模型选择写入锁定配置后，才报告 9–11 月结果。'
-        '这些测试月份在复购任务中曾被查看，不能称为整个项目完全未查看的时间段。', '',
-        '验收：整体 MAE 低于历史 180 天金额折算的 30 天基线，'
-        'Top 20% 实际消费额覆盖率高于该基线，至少 2/3 个月两项均不退步，'
-        '预测总额偏差不超过 ±10%。验证期选模，测试期只检查已固定的方案。', '',
-        'Top 20% 覆盖率按每月评分选前 20% 客户月快照，再用入选客户的实际消费额'
-        '除以当期全部客户的实际消费额。', '',
-        '| 期间 | 方法 | MAE | Top 20% 实际消费额覆盖 | WAPE | 总额偏差 | Top 20% 金额提升倍数 |',
+        '# Forecast of customer consumption in the next 30 days', '',
+        f'The label is based on the amount of the eligible transaction line, covering {label_manifest["snapshot_count"]:,} customer monthly snapshots;'
+        'Zero purchases are counted as zero. The original transactions, cleaning results, and original repurchase model remain unchanged.',
+        'Amount represents spend on qualifying transactions, not net profit, CLV or marketing incrementality.', '',
+        'The model only uses 8 features from 180 days before the snapshot date. The training period lasts to 2011 years and 5 months;'
+        '2011 year 6 – 8 monthly model selection; 9 – 11 monthly results are reported only after the model selection is written into the locked configuration.'
+        'These test months have been viewed in the repurchase task and cannot be called a period of time when the entire project has not been viewed at all.', '',
+        'Acceptance: The overall MAE is lower than the 30 day baseline converted from the historical 180 day amount,'
+        'The actual consumption coverage rate of Top 20% is higher than the baseline, and neither of the two items has declined in at least 2 / 3 months.'
+        'The total forecast deviation does not exceed ± 10%. Models are selected during the verification period, and only fixed solutions are checked during the testing period.', '',
+        'Top 20% coverage is selected based on monthly ratings. Monthly snapshot of 20% customers is used, and then the actual consumption amount of the selected customers is used.'
+        'Divided by the actual consumption of all customers in the current period.', '',
+        '| Period | Method | MAE | Top 20% Actual consumption coverage | W AP E | Total deviation | Top 20% Amount increase multiple |',
         '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
     ]
     for row in pd.concat([val_metrics, test_metrics]).itertuples(index=False):
@@ -379,33 +379,33 @@ def main() -> None:
             row.top20_spend_lift) else '—'
         lines.append(f'| {row.period} | {row.method} | {row.mae:.2f} | '
                      f'{capture} | {row.wape:.2%} | {row.aggregate_bias:+.2%} | {lift} |')
-    lines += ['', f'验证期历史金额基线：MAE {baseline.mae:.2f}，'
-              f'Top 20% 消费额覆盖 {baseline.top20_spend_capture:.2%}。',
-              f'选定方案：**{selected if selected else "无（未达到验收门槛）"}**。',
-              f'验证期验收：**{"通过" if validation_passed else "未通过"}**；'
-              f'已查看时间段的事后测试门槛：**{"通过" if test_passed else "未通过"}**。'
-              f'离线模型结论：**{"接受" if validation_passed and test_passed else "暂不接受"}**。',
-              '零预测只用于检验 MAE，不提供可用的客户排序；因此其 Top 20% 指标不计算。'
-              '验证期零预测 MAE 低于候选模型，表明只看 MAE 会偏向全部预测不购买。',
-              f'针对 direct_tweedie，训练期内部 3–5 月前向预测得到金额缩放系数 {oof_factor:.4f}；'
-              f'用于验证期后 MAE {scaled_validation["mae"]:.2f}、'
-              f'总额偏差 {scaled_validation["aggregate_bias"]:+.2%}，'
-              '仍未通过预设门槛，因此没有采用该缩放。',
-              (f'固定方案在 9–11 月的 MAE 为 {test_selected.mae:.2f}，'
-               f'历史金额基线为 {test_baseline.mae:.2f}；'
-               f'三个测试月中只有 {test_mae_wins} 个月的 MAE 更低。'
-               f'Top 20% 消费额覆盖率为 {test_selected.top20_spend_capture:.2%}，'
-               f'基线为 {test_baseline.top20_spend_capture:.2%}。'
-               '总额偏差只衡量群体总量，不能证明单个客户金额准确。'
-               if test_selected is not None else '验证期没有达标候选方案。'),
-              (f'验证期实际购买占比 {baseline.buyer_count / baseline.snapshot_count:.2%}，'
-               f'测试期 {test_baseline.buyer_count / test_baseline.snapshot_count:.2%}；'
-               f'每条客户月快照的实际平均消费额从 '
-               f'{baseline.actual_spend / baseline.snapshot_count:.2f} 增至 '
+    lines += ['', f'Historical amount baseline during the verification period: MAE {baseline.mae:.2f},'
+              f'Top 20% consumption covers {baseline.top20_spend_capture:.2%}.',
+              f'Selected plan: **{selected if selected else "None (Acceptance threshold not met)"}**.',
+              f'Acceptance during the verification period: **{"Pass" if validation_passed else "failed"}**;'
+              f'Post-test threshold for the time period viewed: **{"Pass" if test_passed else "failed"}**.'
+              f'Offline model conclusion: **{"accept" if validation_passed and test_passed else "Not accepted yet"}**.',
+              'The zero prediction is only used to test MAE and does not provide usable customer ranking; therefore its Top 20% indicator is not calculated.'
+              'The zero prediction of MAE in the validation period is lower than the candidate model, indicating that looking only at MAE will bias all predictions and not buy.',
+              f'For direct_tweedie, the 3 – 5 month forward prediction within the training period obtains the amount scaling factor {oof_factor:.4f};'
+              f'Used after the verification period MAE {scaled_validation["mae"]:.2f},'
+              f'Total deviation {scaled_validation["aggregate_bias"]:+.2%},'
+              'Still does not pass the preset threshold, so this scaling is not applied.',
+              (f'Fixed scheme in 9 – 11 month MAE is {test_selected.mae:.2f},'
+               f'The historical amount baseline is {test_baseline.mae:.2f};'
+               f'Of the three test months, only {test_mae_wins} months had MAE lower.'
+               f'Top 20% consumption coverage is {test_selected.top20_spend_capture:.2%},'
+               f'The baseline is {test_baseline.top20_spend_capture:.2%}.'
+               'Total deviation only measures the group total and cannot prove that individual customer amounts are accurate.'
+               if test_selected is not None else 'There are no qualified candidate solutions during the verification period.'),
+              (f'The actual purchase proportion during the verification period is {baseline.buyer_count / baseline.snapshot_count:.2%},'
+               f'Test period {test_baseline.buyer_count / test_baseline.snapshot_count:.2%};'
+               f'Actual average spend per customer monthly snapshot ranges from'
+               f'{baseline.actual_spend / baseline.snapshot_count:.2f} increased to'
                f'{test_baseline.actual_spend / test_baseline.snapshot_count:.2f}。'
-               '这是期间分布变化的观察，尚不能单凭汇总指标确定误差原因。'),
-              '逐月指标、逐条预测、标签审计、冻结配置和采用决定见输出目录。'
-              '当前未接入仪表板；测试月份已在复购任务中被查看，不能作为全项目全新独立验证。', '']
+               'This is an observation of distribution changes during the period, and the cause of the error cannot yet be determined based on summary indicators alone.'),
+              'Monthly indicators, item-by-item forecasts, label audits, frozen configurations and adoption decisions are shown in the output directory.'
+              'It is not currently connected to the dashboard; the test month has been viewed in the repurchase task and cannot be used as a new independent verification of the entire project.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'validation selected={selected}; baseline MAE={baseline.mae:.2f} '
           f'capture={baseline.top20_spend_capture:.2%}; outputs={OUTPUT}', flush=True)

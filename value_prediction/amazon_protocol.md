@@ -1,21 +1,21 @@
-# 公开亚马逊购买历史的独立商家时序检验预案
+# Disclose Amazon purchase history independent merchant timing verification plan
 
-记录：2026-10-23，在下载完整购买文件或查看金额标签、模型结果前固定。来源为研究团队公开的 [Open e-commerce 1.0](https://doi.org/10.7910/DVN/YGLYDY)，约 5,027 名自愿参与者的 2018–2022 年亚马逊购买历史。原始文件仅留在操作系统临时目录，仓库只保存聚合指标、时间审计与哈希。若官方源不可直接获取，可从公开 Kaggle 镜像读取，但需核对字段、记录规模、日期和镜像文件哈希，并明确镜像来源。
+Records: 2026-10-23, fixed before downloading the complete purchase file or viewing the amount label or model results. The source is [Open e-commerce 1.0](https://doi.org/10.7910/DVN/YGLYDY) published by the research team, 2018 – 2022 years of Amazon purchase history of approximately 5,027 voluntary participants. The original files are only left in the temporary directory of the operating system, and the warehouse only saves aggregated indicators, time audits and hashes. If the official source is not directly available, you can read it from the public Kaggle image, but you need to check the fields, record size, date and image file hash, and make sure the image source is clear.
 
-## 固定清洗与语义
+## Fixed cleaning and semantics
 
-- 只读取匿名用户 `Survey ResponseID`、`Order date`、`Purchase price per unit`、`Quantity` 和 `ASIN/ISBN (Product Code)`。要求客户 ID、日期、商品码非空，价格与数量可解析且大于零。合格行金额为单价乘数量后四舍五入到分；记录所有排除数和清洗金额对账。没有收货州、标题或品类的记录不因此删除。
-- 发行文件未提供订单 ID。按发布者“每行对应一笔购买记录”的说明，以文件行序号作唯一购买记录 ID；因此订单频次在这里实为购买记录频次，不能与原商家真实发票频次视作完全同义。若这项语义差异过大，在报告中降级为方法可行性证据，不声称严格同构验证。
-- 研究论文说明参与者于 2022 年 11 月至 2023 年 3 月提供从 2018-01-01 起的历史。为避开不同参与者提交日期造成的右删失，评估只用标签结束不晚于 2022-10-01 的月截点；2022 年 7、8、9 月为锁定测试，4、5、6 月为开发确认，其余更早完整截点为训练。不得使用 2022 年 10 月及以后标签。
+- Only read anonymous users `Survey ResponseID`, `Order date`, `Purchase price per unit`, `Quantity` and `ASIN/ISBN (Product Code)`. The customer ID, date, and product code are required to be non-empty, and the price and quantity are parsable and greater than zero. The amount of the qualified line is the unit price multiplied by the quantity and rounded to the nearest cent; record all excluded numbers and reconciliation of the cleaning amount. Records without a shipping state, title or category will not be deleted.
+- Release file does not provide order ID. According to the publisher's instructions that "each line corresponds to one purchase record", the file line serial number is used as the unique purchase record ID; therefore, the order frequency here is actually the purchase record frequency and cannot be regarded as completely synonymous with the original merchant's real invoice frequency. If this semantic difference is too large, it will be downgraded to method feasibility evidence in the report and strict isomorphism verification will not be claimed.
+- Research paper description participants from 2022 month 11 to 2023 year 3 provide history from 2018-01-01 onwards. In order to avoid right censoring caused by submission dates of different participants, the evaluation only uses the monthly cut-off point where the label ends no later than 2022-10-01; 2022, 7, 8, and 9 months are locked tests, and 4, 5, 6 month is for development confirmation, and the remaining earlier complete cutoff points are for training. Labels of year 2022 and month 10 and later may not be used.
 
-## 训练与比较
+## Training and comparison
 
-- 每个自然月 1 日 `t` 对前 `[t-180d,t)` 有购买记录的客户建快照，标签为 `[t,t+30d)` 合格购买金额；不足完整 180 天输入或 30 天结果的截点不参与。每个目标截点只训练 30 天标签已完全结束的更早月截点。
-- 不调整此前固定的 20 个截点前特征、`extended_tweedie` 参数（120 棵树、0.05 学习率、15 叶、方差幂 1.5、种子 42）；与历史 180 天金额 `/6`、近期 90 天金额 `/3` 比较。另用同一 20 特征、固定 120 棵 L1 条件金额树报告“若购买”金额的购买者 MAE，与历史单笔记录均价比较；条件模型绝不读取当前未来购买状态。
-- 每个测试月要求至少 1,000 条客户快照和 100 名未来购买客户，否则只报告可行性分析。原强化目标的整体 MAE、购买者 MAE、Top20 消费额覆盖、总额偏差、Top20 群体偏差及逐月稳定性都报告，不因结果改阈值；测试三个月合并时 Top20 仍每月分别选。不同商家和币种金额绝不混算。
+- On the 1 day of each natural month, `t` creates a snapshot of customers with purchase records in the previous `[t-180d,t)`, labeled as `[t,t+30d)` qualifying purchase amount; the cut-off point that is less than the complete 180 day input or 30 day result will not participate. Each target cutoff only trains earlier month cutoffs where the 30 day labels have completely ended.
+- Do not adjust the previously fixed 20 features before the cutoff point, `extended_tweedie` parameters ( 120 tree, 0.05 learning rate, 15 leaf, variance power 1.5, seed 42 ); and historical 180 day amount `/6`, recent 90 day amount `/3` comparison. In addition, use the same 20 feature, fixed 120 tree L 1 conditional amount tree to report the "if purchased" amount of the buyer MAE, and compare it with the historical single record average price; the conditional model never reads the current future purchase status.
+- Each test month requires at least 1,000 customer snapshots and 100 future purchasing customers, otherwise only feasibility analysis is reported. The overall MAE, buyer MAE, Top 20 consumption coverage, total deviation, Top 20 group deviation and month-to-month stability of the original enhancement target are all reported, and the thresholds are not changed due to the results; when testing for three months of merging, Top 20 is still selected separately every month. Amounts from different merchants and currencies will never be mixed.
 
-这是真实但自愿参与、样本选择明显不同的另一电商平台数据；即使各项指标改善，也不能代替原英国商家未来新月份的验收。测试结果只作跨商家方法稳健性证据，不用来调整本次参数或验收标准。
+This is real but voluntary participation and another e-commerce platform data with obviously different sample selection; even if various indicators improve, it cannot replace the acceptance of the original British merchants in the next new month. The test results are only used as evidence of the robustness of the cross-merchant method and are not used to adjust this parameter or acceptance criteria.
 
-## 结果后审计补记
+## Post-result audit notes
 
-首次固定评估后发现，镜像末尾存在极少量晚于研究说明中参与者提交期的日期；锁定测试标签均在 2022-10-01 前结束，晚日期不进入任何输入或标签。补充统计镜像晚日期数量，保留原清洗与时间切分。另因发行文件无真实订单 ID，按行计算的“历史单笔记录均价”对未来 30 天总消费额是较弱基线；为防止夸大条件金额模型，追加原先已固定的 `过去 180 天金额/6` 作为第二个、更强的条件金额对照。该补记发生在查看固定测试结果之后，不改变已运行模型、不重新选择方案，也不作为预注册验证结果。
+After the first fixed evaluation, it was found that there are very few dates at the end of the image that are later than the participant submission period in the research description; the locked test tags all ended before 2022-10-01, and the later dates did not enter any input or tag. Supplement statistics on the number of mirror late dates, and retain the original cleaning and time segmentation. In addition, because the issuance document does not have a real order ID, the "historical single record average price" calculated by row is a weak baseline for the total consumption amount of 30 days in the future; in order to prevent the conditional amount model from exaggerating, the originally fixed `past 180 Amount per day/6` is added as a second, stronger conditional amount comparison. This supplement occurs after viewing the fixed test results and does not change the run model, reselect the plan, or serve as a pre-registration verification result.

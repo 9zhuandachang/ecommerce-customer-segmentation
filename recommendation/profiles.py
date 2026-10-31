@@ -18,7 +18,7 @@ FEATURES = ['historical_repeat_share', 'recent_repeat_share', 'repeat_share_chan
             'top3_concentration', 'order_count', 'comparable_order_count',
             'distinct_products', 'mean_basket_size', 'recency_days', 'history_span_days']
 FAMILIES = ('history', 'ridge', 'lightgbm')
-PROPENSITY_NAMES = {'history': '历史重复比例', 'ridge': '岭回归', 'lightgbm': '小型LightGBM'}
+PROPENSITY_NAMES = {'history': 'Historical repeat-product share', 'ridge': 'Ridge regression', 'lightgbm': 'Small LightGBM'}
 
 
 def purchase_profiles(tx: pd.DataFrame, customers, cutoff: pd.Timestamp) -> pd.DataFrame:
@@ -54,10 +54,10 @@ def purchase_profiles(tx: pd.DataFrame, customers, cutoff: pd.Timestamp) -> pd.D
                          distinct_products=len(seen), mean_basket_size=float(np.mean(sizes)) if sizes else 0.,
                          recency_days=(cutoff - dates[-1]).total_seconds() / 86400 if dates else 180.,
                          history_span_days=(dates[-1] - dates[0]).total_seconds() / 86400 if dates else 0.,
-                         history_status=('历史不足' if comparable == 0 else '记录较少' if comparable < 4 else '可比较'),
-                         habit_group=('历史不足' if comparable == 0 else
-                                      '重复购买较多' if np.mean(rates) >= 2 / 3 else
-                                      '未买商品较多' if np.mean(rates) <= 1 / 3 else '混合购买')))
+                         history_status=('Insufficient history' if comparable == 0 else 'Limited history' if comparable < 4 else 'Comparable'),
+                         habit_group=('Insufficient history' if comparable == 0 else
+                                      'More repeat purchases' if np.mean(rates) >= 2 / 3 else
+                                      'More new-product purchases' if np.mean(rates) <= 1 / 3 else 'Mixed purchasing')))
     return pd.DataFrame(rows)
 
 

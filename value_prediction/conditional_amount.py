@@ -135,21 +135,21 @@ def main() -> None:
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n',
         encoding='utf-8')
     lines = [
-        '# 购买条件下的消费额预测：开发期结果', '',
-        '问题是“如果这名客户未来 30 天购买，会花多少钱”。',
-        '评估时只对实际发生购买的客户计算误差；实际购买状态没有进入预测特征。',
-        '这个数值不能作为所有客户的未来消费额或替代无条件预测的购买者误差。',
-        '1–5 月及已看过的 6–8 月仅作开发分析；9–11 月未用于模型比较。', '',
-        '| 期间 | 方法 | 购买者 MAE | 购买者金额偏差 |',
+        '#Consumption forecast under purchase conditions: development period results', '',
+        'The question is "How much will this customer spend if they make a purchase 30 days in the future?"',
+        'During evaluation, the error is only calculated for customers who actually made purchases; the actual purchase status does not enter the prediction features.',
+        'This value cannot be used as a proxy for future spending by all customers or as a substitute for unconditional forecasts of buyer error.',
+        'The 1 – 5 months and the already viewed 6 – 8 months are only used for development analysis; the 9 – 11 months are not used for model comparison.', '',
+        '| Period | Method | Buyer MAE | Buyer Amount Deviation |',
         '| --- | --- | ---: | ---: |',
     ]
     for row in summary.itertuples(index=False):
         lines.append(f'| {row.period} | {row.method} | {row.buyer_mae:.2f} | '
                      f'{row.buyer_amount_bias:+.2%} |')
-    lines += ['', '历史每月消费速率和上次 180 天平均订单金额都是只用快照前数据的简单对照。',
-              'L1 模型预测条件中位数，适合最小化购买者绝对误差；其总金额通常偏低。',
-              'Gamma 模型预测条件均值，金额偏差更适合作为期望金额的组成部分。',
-              '逐月和逐客户输出及输入哈希见同目录。', '']
+    lines += ['', 'The historical monthly consumption rate and the average order amount of the last 180 day are simple comparisons using only the data before the snapshot.',
+              'L 1 The median of model prediction conditions, suitable for minimizing the absolute error of buyers; its total amount is usually low.',
+              'The Gamma model predicts the conditional mean, and the amount deviation is more suitable as a component of the expected amount.',
+              'Month-by-month and per-customer output and input hashes are found in the same directory.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote conditional comparison to {OUTPUT}', flush=True)
 

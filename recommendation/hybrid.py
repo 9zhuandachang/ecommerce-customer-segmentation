@@ -6,12 +6,12 @@ import numpy as np
 import pandas as pd
 
 LEARNERS = ('itemknn', 'implicit_als', 'ease')
-BASE_NAMES = {'popular': '热门商品', 'personal_repeat': '纯个人补货', 'itemknn': '纯ItemKNN',
-              'implicit_als': '纯ALS', 'ease': '纯EASE'}
+BASE_NAMES = {'popular': 'Popular products', 'personal_repeat': 'Purely personal replenishment', 'itemknn': 'Pure ItemKNN',
+              'implicit_als': 'Pure ALS', 'ease': 'Pure EASE'}
 NAMES = dict(BASE_NAMES)
 for _algorithm in LEARNERS:
-    NAMES[f'fixed_{_algorithm}'] = f'固定混合＋{BASE_NAMES[_algorithm][1:]}'
-    NAMES[f'adaptive_{_algorithm}'] = f'画像混合＋{BASE_NAMES[_algorithm][1:]}'
+    NAMES[f'fixed_{_algorithm}'] = f'Fixed Mix + {BASE_NAMES[_algorithm][1:]}'
+    NAMES[f'adaptive_{_algorithm}'] = f'Image Mix + {BASE_NAMES[_algorithm][1:]}'
 
 
 def hybrid_specs(algorithm: str, adaptive: bool) -> list[dict]:

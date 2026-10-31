@@ -9,8 +9,8 @@ from threadpoolctl import threadpool_limits
 FAMILIES = ('popular', 'personal_repeat', 'itemknn', 'implicit_als', 'ease')
 RULES = FAMILIES[:2]
 LEARNERS = FAMILIES[2:]
-NAMES = {'popular': '热门商品', 'personal_repeat': '个人重复购买', 'itemknn': 'ItemKNN',
-         'implicit_als': '隐式反馈ALS', 'ease': 'EASE'}
+NAMES = {'popular': 'Popular products', 'personal_repeat': 'Personal repeat purchase', 'itemknn': 'ItemKNN',
+         'implicit_als': 'Implicit ALS', 'ease': 'EASE'}
 
 
 def configurations() -> list[dict]:
@@ -166,13 +166,13 @@ def recommendation_table(model: dict, context: dict, ranks: np.ndarray) -> 'pd.D
         for rank, item in enumerate(ranks[row], 1):
             product = catalog.iloc[item]
             bought = int(item) in prior
-            reason = ('无可用个性化信号，按热门商品推荐' if no_signal[row]
-                      else '过去180天买过，作为再次购买候选' if bought
-                      else '按训练期热门程度推荐' if model['method'] == 'popular'
-                      else '个人旧商品不足，按热门程度补齐' if model['method'] == 'personal_repeat'
-                      else '根据已购商品的相似关系推荐' if model['method'] == 'itemknn'
-                      else '根据客户与商品的偏好向量匹配' if model['method'] == 'implicit_als'
-                      else '根据过去购买组合的线性关联推荐')
+            reason = ('No usable personalized signal; recommend popular products' if no_signal[row]
+                      else 'Purchased in the past 180 days; candidate for repeat purchase' if bought
+                      else 'Recommended by popularity during training period' if model['method'] == 'popular'
+                      else 'Fill remaining slots with popular products when previously purchased items are insufficient' if model['method'] == 'personal_repeat'
+                      else 'Recommend based on similarity of purchased products' if model['method'] == 'itemknn'
+                      else 'Matching based on customer and product preference vectors' if model['method'] == 'implicit_als'
+                      else 'Recommendations based on linear correlation of past purchase combinations')
             records.append(dict(snapshot_date=str(context['cutoff'].date()), customer_id=str(customer),
                                 rank=rank, stock_code=str(product.stock_code), description=str(product.description),
                                 purchased_in_past_180d=bought, recommendation_method=model['method'], reason=reason))

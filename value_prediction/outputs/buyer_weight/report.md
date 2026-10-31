@@ -1,9 +1,9 @@
-# 已查看开发期：购买者双倍训练权重的金额模型
+# Viewed development period: Amount model with double training weight for buyers
 
-事前方案见 `buyer_weight_protocol.md`。只给已成熟、未来 30 天确实购买的历史训练行 2 倍权重；当前预测时不知道未来购买状态。
-这不是新的独立测试，也不改变原强化目标。
+See `buyer_weight_protocol.md` for the advance plan. Only give 2 times weight to historical training lines that are mature and will be purchased 30 days in the future; the future purchase status is not known when making current predictions.
+This is not a new independent test, nor does it change the original hardening goals.
 
-| 期间 | 方法 | 全体 MAE | 购买者 MAE | Top20 消费覆盖 | 总额偏差 | Top20 群体偏差 |
+| period | method | All MAE | Buyer MAE | Top 20 consumption coverage | total deviation | Top 20 Group bias |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | rolling_jan_may | historic_180d | 195.95 | 396.56 | 71.05% | +64.51% | +62.52% |
 | rolling_jan_may | extended_tweedie | 171.92 | 420.92 | 71.55% | +19.91% | +8.93% |
@@ -12,16 +12,16 @@
 | known_jun_aug | extended_tweedie | 188.73 | 440.47 | 73.19% | -7.12% | -12.66% |
 | known_jun_aug | buyer_weight_2x_tweedie | 214.63 | 402.47 | 73.16% | +22.67% | +3.72% |
 
-## 运行前锁定的开发期推进门槛
+## Development period advancement threshold locked before running
 
-- `buyer_mae_reduction_at_least_5pct`：满足
-- `overall_mae_increase_at_most_2pct`：未满足
-- `top20_capture_not_lower`：未满足
-- `aggregate_bias_abs_not_larger`：未满足
+- `buyer_mae_reduction_at_least_5pct`: satisfied
+- `overall_mae_increase_at_most_2pct`: Not met
+- `top20_capture_not_lower`: Not met
+- `aggregate_bias_abs_not_larger`: Not met
 
-## 事后误差分解（解释取舍，不用于调权重）
+## Post hoc error decomposition (explanation of trade-offs, not used for weight adjustment)
 
-| 期间 | 方法 | 零消费客户占比 | 零消费客户 MAE | 购买者 MAE |
+| period | method | Proportion of zero-spending customers | Zero consumption customer MAE | Buyer MAE |
 | --- | --- | ---: | ---: | ---: |
 | rolling_jan_may | historic_180d | 79.23% | 143.36 | 396.56 |
 | rolling_jan_may | extended_tweedie | 79.23% | 106.64 | 420.92 |
@@ -30,6 +30,6 @@
 | known_jun_aug | extended_tweedie | 73.28% | 96.92 | 440.47 |
 | known_jun_aug | buyer_weight_2x_tweedie | 73.28% | 146.12 | 402.47 |
 
-零消费客户的实际金额为 0，因此该组 MAE 就是平均预测金额。双倍权重减少了购买者误差，却显著抬高零消费客户预测，说明两项目标目前存在冲突。
-只有运行前四项推进条件全部满足才建议进入新数据的固定测试；任何结果均不能作为原商家的独立验收。
-逐月指标、客户级预测、训练标签截止和源哈希见同目录。
+The actual amount of zero-spending customers is 0, so the group MAE is the average predicted amount. Double weighting reduces buyer error, but significantly increases zero-spending customer predictions, indicating that the two goals are currently in conflict.
+Only when all the first four advancement conditions are met is it recommended to enter the fixed test of new data; any results cannot be used as independent acceptance by the original merchant.
+Month-by-month metrics, customer-level forecasts, training label cutoffs, and source hashes are found in the same directory.

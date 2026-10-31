@@ -15,8 +15,8 @@ LOCK = OUTPUT / 'locked_selection.json'
 RECOMMENDATIONS = OUTPUT / 'recommendations.csv'
 EXPORT_COLUMNS = ['snapshot_date', 'customer_id', 'rank', 'stock_code', 'description',
                   'purchased_in_past_180d', 'recommendation_method', 'reason']
-NAMES = {'popular': '热门商品', 'personal_repeat': '个人重复购买', 'itemknn': 'ItemKNN',
-         'implicit_als': '隐式反馈ALS', 'ease': 'EASE'}
+NAMES = {'popular': 'Popular products', 'personal_repeat': 'Personal repeat purchase', 'itemknn': 'ItemKNN',
+         'implicit_als': 'Implicit ALS', 'ease': 'EASE'}
 
 
 def file_hash(path: Path) -> str:
@@ -122,8 +122,8 @@ def load_comparison_list(date: str, customer: str, method: str) -> pd.DataFrame:
     out = pd.DataFrame([dict(snapshot_date=date, customer_id=customer, rank=rank,
                              stock_code=code, description=catalog.loc[code, 'description'],
                              purchased_in_past_180d=code in bought, recommendation_method=method,
-                             reason=('无可用个性化信号，按热门商品补位' if no_history
-                                     else f'{NAMES[method]}比较方案的排序结果；同分按热门程度'))
+                             reason=('No personalized signal available, please fill the position according to popular products' if no_history
+                                     else f'{NAMES[method]} Sorting results of comparison plans; ties are ranked according to popularity'))
                         for rank, code in enumerate(codes, 1)])
     validate_recommendations(out, method)
     return export_recommendations(out)

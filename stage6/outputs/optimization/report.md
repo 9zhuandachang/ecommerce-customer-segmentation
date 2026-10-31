@@ -1,12 +1,12 @@
-# 复购模型定向优化：前向校准实验
+# Directional optimization of repurchase model: forward calibration experiment
 
-固定 A 组 8 特征及阶段五选出的 LightGBM 参数；每个月预测前，先留出最近三个已完整标注的月度快照做校准，再用更早月份拟合分类器。对比原始评分、最近 1/2/3 个月 sigmoid 和最近 3 个月 isotonic。
+Fixed the 8 features of group A and the LightGBM parameters selected in stage five; before each month's prediction, first set aside the last three fully annotated monthly snapshots for calibration, and then use earlier months to fit the classifier. Compare raw score, recent 1 / 2 / 3 months sigmoid and recent 3 months isotonic.
 
-2011 年 3–5 月选校准方法，6–8 月确认；9–11 月仅作事后诊断。现有阶段六模型曾查看 9–11 月结果，因此这些月份不再是整个项目未查看过的测试。
+2011, 3 – 5 month selection calibration method, June-August confirmation; September-November only for post-diagnosis. Existing Phase Six models viewed September-Novemberly results, so these months are no longer unviewed tests for the entire project.
 
-选中方法：**sigmoid_2m**；确认门槛：**通过**；确认期 Brier 胜出 2/3 月。与现有模型的排序门槛：**未通过**。
+Selection method: **sigmoid_ 2 m**; Confirmation threshold: **Passed**; Confirmation period Brier wins 2 / 3 months. Sorting threshold with existing models: **Failed**.
 
-| 阶段 | 方法 | AP（月均） | Top 20% 精确率（月均） | Brier（月均） | 绝对平均校准差（月均） | ECE-10（月均） |
+| stage | method | AP (monthly average) | Top 20% accuracy (monthly average) | Brier (monthly average) | Absolute mean calibration difference (monthly average) | ECE- 10 (monthly average) |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | tuning | raw | 0.5417 | 51.94% | 0.2151 | 25.09% | 25.09% |
 | tuning | sigmoid_3m | 0.5417 | 51.94% | 0.1456 | 4.88% | 5.68% |
@@ -20,8 +20,8 @@
 | incumbent_validation | stage6_incumbent | 0.5955 | 60.30% | 0.1566 | 1.03% | 2.45% |
 | incumbent_retrospective_test | stage6_incumbent | 0.6171 | 65.99% | 0.1920 | 6.15% | 6.57% |
 
-AP 与 Top 20% 精确率用于保护排序；Brier、平均校准差和十分箱 ECE 用于检查概率。所有校准均只用目标月份之前已结束的 30 天标签。
-现有阶段六验证评分的校准器是在整个 6–8 月验证集上拟合的；其验证期 Brier 因此不作为严格前向校准对照。这里仅用其 AP 和 Top 20% 精确率作为排序守门指标。
-与现有模型相比，新方案确认期 AP 月均低 0.0143，Top 20% 精确率月均低 1.73%，超过本实验采用的 0.005 容差，因此不替换现有模型。9–11 月事后诊断不改变这一决定。
-现有 stage6/outputs/final 模型与报告保持原样；本实验不会自动替换线上或仪表板评分。
-完整逐月结果、逐条评分及固定规则见同目录 CSV 和 decision.json。
+AP and Top 20% accuracy are used for guard ranking; Brier, mean calibration difference and ten-bin ECE are used for checking probabilities. All calibrations use only 30 day labels that have ended before the target month.
+The calibrator for the existing stage six validation score was fitted on the entire June-Augustly validation set; its validation period Brier therefore does not serve as a strict forward calibration control. Here only its AP and Top 20% precision rates are used as ranking gatekeeping indicators.
+Compared with the existing model, the monthly average AP of the new scheme during the confirmation period is lower than 0.0143, and the monthly average accuracy of Top 20% is 1.73% lower, exceeding the 0.005 tolerance used in this experiment, so the existing model will not be replaced. 9 – 11 Monthly post-mortem diagnosis does not change this decision.
+Existing stage 6 /outputs/final models and reports remain intact; this experiment does not automatically replace online or dashboard scoring.
+Complete monthly results, item-by-item ratings and fixed rules can be found in the same directories CSV and decision.json.

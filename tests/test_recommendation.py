@@ -106,7 +106,7 @@ class RecommendationTests(unittest.TestCase):
         pd.testing.assert_frame_equal(first, second)
         self.assertTrue(first.historical_repeat_share.isna().all())
         self.assertTrue(first.repeat_share_change.isna().all())
-        self.assertTrue(first.history_status.eq('历史不足').all())
+        self.assertTrue(first.history_status.eq('Insufficient history').all())
 
     def test_repeat_share_target_is_undefined_for_nonbuyer_and_training_purges_unfinished_months(self):
         tx = example_transactions()
@@ -347,7 +347,7 @@ class RecommendationTests(unittest.TestCase):
         exported = recommendation_table(model, context, ranks)
         self.assertNotIn('target_items', exported)
         self.assertNotIn('hit_10', exported)
-        self.assertTrue(exported.loc[exported.customer_id.eq('unseen'), 'reason'].str.contains('热门').all())
+        self.assertTrue(exported.loc[exported.customer_id.eq('unseen'), 'reason'].str.contains('popular', case=False).all())
 
     def test_full_target_denominator_includes_unknown_products(self):
         result = per_customer_metrics(['a', 'b'], ['a', 'never_seen'], ['a'], ['never_seen'], {'a', 'b'})

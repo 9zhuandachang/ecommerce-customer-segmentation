@@ -170,22 +170,22 @@ def main() -> None:
     }
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    lines = ['# 概率门控金额中位数：开发期结果', '',
-             '阈值 0.5 和所有输入模型均在本次结果前固定。1–5 月和 6–8 月都已查看，'
-             '仅供研发判断；9–11 月未参与。该点预测不是期望消费额。', '',
-             '| 期间 | 方法 | 全体 MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 | 非零预测人数 | Top20 可完整区分 |',
+    lines = ['# Probability gated median amount: development period results', '',
+             'The threshold 0.5 and all input models are fixed before this result. 1 – 5 months and 6 – 8 months have been viewed,'
+             'For R&D judgment only; 9 – 11 did not participate in the month. This point forecast is not the expected consumption amount.', '',
+             '| Period | Method | All MAE | Buyers MAE | Top 20 Coverage | Total Deviation | Non-zero Forecast Headcount | Top 20 Fully Differentiable |',
              '| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |']
     for row in summary.itertuples(index=False):
         lines.append(f'| {row.period} | {row.method} | {row.mae:.2f} | '
                      f'{row.positive_mae:.2f} | {row.top20_spend_capture:.2%} | '
                      f'{row.aggregate_bias:+.2%} | {row.nonzero_forecast_count:,} | '
-                     f'{"是" if row.ranking_has_full_top20_distinction else "否"} |')
-    lines += ['', '## 事前固定的研发推进条件', '']
+                     f'{"Yes" if row.ranking_has_full_top20_distinction else "No"} |')
+    lines += ['', '## Fixed R&D promotion conditions in advance', '']
     for name, passed in checks.items():
-        lines.append(f'- `{name}`：{"满足" if passed else "未满足"}')
-    lines += ['', f'可推进新数据检验：**{"是" if all(checks.values()) else "否"}**。'
-              '原强化目标仍需单独检验，当前结果不构成独立验收。',
-              '逐客户预测、逐月指标与源文件哈希见同目录。', '']
+        lines.append(f'- `{name}`: {"satisfy" if passed else "not satisfied"}')
+    lines += ['', f'New data inspection can be promoted: **{"Yes" if all(checks.values()) else "No"}**.'
+              'The original enhancement targets still need to be independently inspected, and the current results do not constitute independent acceptance.',
+              'Customer-by-customer forecasts, month-by-month metrics and source file hashes are in the same directory.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote gated median results to {OUTPUT}', flush=True)
 

@@ -1,47 +1,47 @@
-# 购买习惯画像与个性化商品推荐：v2 事先方案
+# Purchasing habits profile and personalized product recommendation: v 2 advance plan
 
-本文件在本轮画像标签、倾向预测和混合推荐指标计算前写入。v1 的 9–11 月推荐答案已查看；本轮仅用开发与验证数据选型，9–11 月作固定方案复核，不能恢复为新的独立测试。v1 完整保留，其他三个目标不改动。
+This file is written before the calculation of this round of profile labels, tendency predictions and hybrid recommendation indicators. v 1 's September-Novemberly recommended answers have been viewed; this round only uses development and verification data for model selection, 9 – 11 is a monthly fixed plan review and cannot be restored to a new independent test. v 1 is kept intact, and the other three targets are unchanged.
 
-## 共同任务与画像
+## Common tasks and profiles
 
-沿用 v1：每月1日、原有合格客户、截点前180天记录、同一冻结商品目录、每人10件；答案为随后30天内第一购买时刻的去重商品。未知商品保留在答案分母，没有下一单的客户仍生成名单，但不将其重复比例标成0。
+Use v 1: 1 days of each month, original qualified customers, records 180 days before the cutoff, the same frozen product catalog, 10 pieces per person; the answer is the deduplicated product at the first purchase time within the following 30 days. Unknown products are retained in the denominator of the answer. Customers who do not place an order are still generated a list, but their repetition ratio is not marked as 0.
 
-画像按客户在 `[t-180天,t)` 的购买时刻顺序计算。同一时刻多张发票合并，商品去重，数量和金额不加权。首次可见购买只建立参照；后续每次的重复比例=本单中此前在该180天记录内出现过的商品数/本单商品数。画像包括：后续订单重复比例平均值、最近两笔可比较订单平均值、最近两笔与更早可比较订单的差（至少4笔可比较订单才计算，否则缺失）、前3商品购买事件集中度、订单数、可比较订单数、不同商品数、平均每单商品数、距最近购买天数、可见购买跨度。缺失值与记录数量保留，不将历史不足解释为尝新。它们是购买行为统计，不是人格或真实消费动机。
+The profiles are calculated in order of the customer's purchase time at `[t-180day,t)`. Multiple invoices at the same time are merged, the goods are deduplicated, and the quantity and amount are not weighted. Only the reference is established for the first visible purchase; the repeat ratio for each subsequent time = the number of products in this order that have previously appeared in the 180 day record/the number of products in this order. The profile includes: the average repeat ratio of subsequent orders, the average of the two most recent comparable orders, the difference between the last two and earlier comparable orders (only calculated if there are at least 4 comparable orders, otherwise it will be missing), the concentration of the previous 3 product purchase events, the number of orders, the number of comparable orders, the number of different products, the average number of products per order, the number of days since the most recent purchase, and the visible purchase span. Missing values ​​and record numbers are retained, and historical deficiencies are not interpreted as trying new things. They are purchasing behavior statistics, not personality or real consumer motivations.
 
-倾向答案=下一单中截点前180天已买商品数/下一单商品总数，只在确有下一单时定义，包含目录外商品。预测期同一单内多件新品不能互相变成“老商品”。这是条件比例预测，不是是否复购的概率，也不是直接的推荐权重。
+Tendency answer = Number of items purchased 180 days before the cut-off point for the next order/Total number of items for the next order. It is only defined when there is an order, including products outside the catalog. Multiple new products within the same order during the forecast period cannot become "old products" for each other. This is a conditional proportion prediction, not the probability of repurchase, nor a direct recommendation weight.
 
-## 倾向预测与时间边界
+## Trend prediction and time boundary
 
-使用原快照2010年6月开始的历史样本。拟合任一模型时，只允许 `snapshot_date + 30天 <= fit_cutoff` 的有下一单记录；预处理也只在这些记录拟合。
+Use the historical sample starting from month 6 in year 2010. When fitting any model, only `snapshot_date + 30day <= fit_cutoff` is allowed to have the next record; preprocessing is only done on these records.
 
-比较历史重复比例（缺失用拟合资料的平均答案补齐）、标准化岭回归（alpha=0.1/1/10/100）、小型LightGBM（叶数7/15 × 树数60/120 × 最小叶样本50/150，共8组；学习率0.03、L2=5、平方误差、种子42、2线程）。预测裁剪至[0,1]；无可比较订单时统一使用训练答案均值。
+Compare historical repetition proportions (missing values are filled with the average answer of the fitting data), standardized ridge regression (alpha= 0.1 / 1 / 10 / 100 ), small LightGBM (number of leaves 7 / 15 × number of trees 60 / 120 × minimum leaf sample 50 / 150, total 8 group; learning rate 0.03, L 2 = 5, squared error, seed 42, 2 thread). The prediction is clipped to [ 0,1 ]; when there is no comparable order, the mean training answer is used uniformly.
 
-2011年1–5月五个向前开发折，以月均条件MAE选每类参数及用于画像混合的倾向方法；同分先历史比例、再岭回归、再树。6–8月只报告三个入围方法的MAE/RMSE/平均偏差，不根据验证推荐结果反选倾向方法。6–8月的全局模型在6月1日前拟合；9–11月全局模型在9月1日前拟合并冻结。各月客户输入可使用当月截点前交易，不能更新全局参数。
+2011, January-May five forward development folds, using monthly average conditions MAE to select each type of parameters and the tendency method used for profile mixing; the same is divided into historical proportion, then ridge regression, and then tree. 6 – 8 only reports the MAE /RMSE/average deviation of the three shortlisted methods every month, and does not reverse the preference method based on the verification recommendation results. The global model for June-August is fitted on before June 1; the September-Novemberly global model is fitted and frozen on before September 1. Customer input in each month can use transactions before the cutoff of that month, but global parameters cannot be updated.
 
-## 四组推荐与固定搜索
+## Four groups of recommendations and fixed searches
 
-纯补货、ItemKNN、ALS、EASE使用v1仅凭1–5月确定的shortlist参数，不用9–11月重新选择。保留热门规则作为附加对照；每个开发折及最终阶段在当时已知交易上重新拟合。
+Pure replenishment, ItemKNN, ALS, EASE use v 1 only based on the shortlist parameters determined by January-May, without re-selecting September-November. Hot rules are retained as additional controls; each development cycle and final stage are refitted on known transactions at the time.
 
-混合分成互斥两路：已买商品按个人不同发票次数排序；未买商品按推荐算法得分排序。每路使用名次的倒数 `1/rank` 统一尺度，融合分=老商品路 `w/rank` 或未买商品路 `(1-w)/rank`；再全局选10件。没有固定新旧名额。零分和同分统一按冻结目录热门顺序补位。使用各路前10件加全局热门前10件足以精确求总前10件，去重后排序；不采样答案商品。
+The mixture is divided into two mutually exclusive paths: purchased products are sorted by the number of individual invoices; unpurchased products are sorted by the recommendation algorithm score. Each road uses the reciprocal of the ranking `1/rank` to unify the scale, and the integration points = old product road `w/rank` or unbought product road `(1-w)/rank`; then select 10 globally. There is no fixed number of old and new places. Zero points and tied points will be filled in the order of the most popular ones in the frozen directory. Using the top 10 items of each channel plus the global popular top 10 items is enough to accurately find the total top 10 items, sorting after deduplication; no answer products are sampled.
 
-- 固定混合：三个算法各试w=0/0.1/.../1，共11组。
-- 画像混合：同三个算法，`w=clip(a+b*(p-mu),0,1)`，a=0/0.1/.../1，b=0.5/1/2，每个算法33组。p为该折向前预测的下一单重复比例，mu为该折已成熟训练答案均值；无历史客户p=mu。a、b在开发折比较，不能凭测试结果指定。
-- 每个算法各自只以五个开发月平均NDCG@10选一个固定配置和一个画像配置。保留所有配置和参数。固定与画像预算不同，完整报告，不宣称计算预算相同。
+- Fixed mixing: Each of the three algorithms tries w= 0 / 0.1 /.../ 1, with a total of 11 groups.
+- Profile mixing: the same three algorithms, `w=clip(a+b*(p-mu),0,1)`, a= 0 / 0.1 /.../ 1, b= 0.5 / 1 / 2, each algorithm 33 group. p is the fold's forward predicted next order repetition ratio, mu is the fold's mature training answer mean; there is no historical customer p=mu. a and b are being compared during development and cannot be specified based on test results.
+- Each algorithm only selects a fixed configuration and a profile configuration based on the average NDCG@10 of the five development months. All configurations and parameters are preserved. Fixed and profile budgets are different from the full report and do not claim to be the same as calculated budgets.
 
-## 验证选型与验收
+## Verify selection and acceptance
 
-在相同三个验证月比较纯补货、三个纯算法、三个固定混合、三个画像混合、热门附加对照。主指标买家月均NDCG@10；另报Recall/Hit/Precision@10、已买/未买Recall、覆盖率、无历史比例、@5和不同画像组表现。
+Compare pure replenishment, three pure algorithms, three fixed mixes, three profile mixes, and popular additional controls in the same three validation months. The monthly average of the main indicator buyers is NDCG@10; Recall /Hit/Precision@ 10, bought/unbought Recall, coverage rate, no historical ratio, @ 5 and the performance of different profile groups are also reported.
 
-按验证NDCG确定最强固定混合及最强画像混合。画像增益认定要求：相对最强固定及原纯补货，月均NDCG均至少+0.002；两个比较各至少2/3个月不退步；月均Recall相对各对照下降不超过0.005；未买商品Recall比纯补货至少+0.005。对画像减固定做500次客户成组配对抽样，作为内部稳健性诊断。
+Press Validate NDCG to determine the strongest fixed mix and the strongest image mix. Requirements for identification of image gain: relative to the strongest fixed and original pure replenishment, the monthly average NDCG is at least + 0.002; the two comparisons each have at least 2 / 3 and do not decline for a month; the monthly average Recall does not decline by more than 0.005 relative to each comparison; the unpurchased product Recall is at least + 0.005 compared to the pure replenishment. Perform 500 customer group paired sampling on the profile minus fixed as an internal robustness diagnosis.
 
-默认方法按证据选择：以纯补货为起点，固定混合须满足NDCG+0.002、2/3月不退步、Recall损失不超过0.005才替换；纯算法若满足同门槛且更好也可选；画像混合须满足上述画像门槛且NDCG高于当前默认才替换。未证明画像增益时仍完成画像、比较与页面，不声称其提高推荐质量。可查看各方案的10件名单。
+The default method is selected based on evidence: starting from pure replenishment, the fixed mix must meet NDCG + 0.002, 2 / 3 does not regress every month, and the loss of Recall does not exceed 0.005 before it is replaced; the pure algorithm is optional if it meets the same threshold and is better; the profile mix must meet the above profile threshold and NDCG is higher than the current default before it is replaced. The profiles, comparisons and pages are completed without proving the profile gain, and there is no claim that it improves the quality of recommendations. You can view the list of 10 files for each plan.
 
-完成验证后保存选型、验证与最终模型、配置及哈希，再生成9–11月混合推荐复核结果。冻结后不根据复核改变默认、参数或门槛。重运行只核对完整产物；改变方法需新版本。
+After completing the verification, save the selection, verification and final model, configuration and hash, and then generate the September-Novemberly mixed recommendation review results. Do not change defaults, parameters or thresholds based on review after freezing. Reruns only check the complete product; changes to the method require a new version.
 
-## 交付与检查
+## Delivery and Inspection
 
-`recommendation/outputs/profile_v2/`保存画像、仅离线使用的倾向答案/预测、开发和验证比较、锁定配置、完整模型、各方案安全名单、报告与可复现案例。页面呈现画像、记录数量、预测的条件重复比例和所选方案权重、10件推荐及来源；导出只能含截点前画像和预测，不含未来答案或命中。
+`recommendation/outputs/profile_v2/` Save profiles, offline-only trend answers/predictions, development and validation comparisons, locked configurations, complete models, safety lists for each solution, reports and reproducible cases. The page presents the profile, number of records, predicted condition repetition ratio and selected plan weight, 10 file recommendations and sources; the export can only contain pre-cutoff profiles and predictions, and does not include future answers or hits.
 
-扩展现有tests中的画像公式、首次订单与小样本、同一时刻与数量去重、未来订单不影响画像、成熟标签筛选、向前模型预测、互斥渠道/同分/补齐、快算与完整指标一致、权重不是固定名额、选型忽略测试、保存模型重算、页面切换与导出检查。临时测试资料只放系统临时目录。
+Expand the profiling formula in existing tests, first order and small sample, same time and quantity deduplication, future orders do not affect profiling, mature label screening, forward model prediction, mutually exclusive channels/same score/complement, quick calculation and complete indicators are consistent, weight is not a fixed quota, selection ignores testing, saved model recalculation, page switching and export check. Temporary test data is only placed in the system temporary directory.
 
-参考：[RepeatNet重复/探索思路](https://ojs.aaai.org/index.php/AAAI/article/view/4408)、[Ridge](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html)、[LightGBM](https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.LGBMRegressor.html)。本实验使用上述双路机制，不宣称实现RepeatNet神经网络。
+Reference: [RepeatNet repeat/explore ideas](https://ojs.aaai.org/index.php/AAAI/article/view/4408), [Ridge](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html), [LightGBM](https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.LGBMRegressor.html). This experiment uses the above two-way mechanism and does not claim to implement RepeatNet neural network.

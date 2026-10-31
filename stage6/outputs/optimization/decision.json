@@ -7,7 +7,7 @@
   "promoted_to_stage6_final": false,
   "reason_not_promoted": "Ranking below existing stage-six validation model beyond the 0.005 tolerance.",
   "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
-  "stage5_config_sha256": "518568cc854affdff3f5406aa2afbaed7489d859aff6cb2ace9c32fd5a7d4631",
+  "stage5_config_sha256": "d455912a1882c5e32ec2f2d869059da076cc2ec2132307c333a9fccb24cb7fc5",
   "features": [
     "recency_days",
     "invoice_frequency_180d",

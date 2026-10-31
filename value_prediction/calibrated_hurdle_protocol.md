@@ -1,15 +1,15 @@
-# 复购概率 × 购买后金额：金额任务开发实验的运行前规则
+# Repurchase probability × post-purchase amount: pre-run rules for the amount task development experiment
 
-记录于运行本组合候选之前。它将项目已有的复购模型用作金额模型的购买发生部分；只在原商家 2011 年 1–8 月按时间向前研究。1–5 月曾用于复购模型的参数选择，6–8 月曾用于复购任务验证，因而**两个期间都不是独立测试**；2011 年 9–11 月不得参与本组合方案的选择或报告。原金额任务的强化验收目标不变。
+Recorded before running this combination candidate. It uses the project's existing repurchase model as the purchase occurrence part of the amount model; it only studies the original merchant 2011, January-August forward in time. Months 1 – 5 were used for parameter selection of the repurchase model, months 6 – 8 were used for verification of repurchase tasks, so **the two periods are not independent tests**; months 2011 – months 9 – 11 shall not participate in the selection or reporting of this combination plan. The enhanced acceptance target of the original amount task remains unchanged.
 
-## 固定组合
+## Fixed combination
 
-- 购买发生部分沿用阶段五已经选出的 `A_base_8` LightGBM 分类器：8 项截点前特征、15 叶、64 棵树、学习率 0.05、`class_weight=balanced`、种子 42。每个预测截点重新拟合；分类器的拟合期与最近三个成熟月校准期分开，拟合期标签也必须在校准开始前完整成熟。仅用最近**两个月**成熟的购买标签给冻结的分类器作 sigmoid 概率校准；两个月长度沿用阶段六既有的校准研究，不在本实验搜索。
-- 购买后金额部分沿用既有 20 特征 Gamma 均值模型：仅在预测截点前完整成熟、未来购买金额大于零的快照上拟合，120 棵树、学习率 0.05、15 叶、种子 42。输出“如果购买的平均 30 天金额”。
-- 每人的**无条件预计消费额**为校准后购买概率乘以购买后金额均值；不把未来购买状态作为输入，不使用任何事后金额倍率。对照是同批客户的历史 180 天金额 `/6`、原 20 特征直接 Tweedie，另报告原有未校准 20 特征两阶段方案以区分组合效果。
+- The purchase occurrence part inherits the `A_base_8` LightGBM classifier that has been selected in stage five: 8 features before the cutoff point, 15 leaves, 64 trees, learning rates 0.05, `class_weight=balanced`, seeds 42. Each prediction cutoff is refitted; the classifier's fit period is separate from the last three maturation months of the calibration period, and the fit period labels must also be fully matured before calibration begins. Only the mature purchase tags in the last **two months** are used for sigmoid probability calibration of the frozen classifier; the two-month length follows the existing calibration research in stage 6 and is not searched in this experiment.
+- The post-purchase amount part follows the existing 20 feature Gamma mean model: it is only fitted on snapshots that are fully mature before the prediction cut-off point and the future purchase amount is greater than zero, 120 tree, learning rate 0.05, 15 leaf, seed 42. Output "If the average purchase amount is 30 days".
+- The **unconditional expected consumption amount** of each person is the calibrated purchase probability multiplied by the average post-purchase amount; future purchase status is not used as input, and no ex post amount multiple is used. The comparison is the historical 180 day amount of the same batch of customers `/6`, the original 20 feature directly Tweedie, and the original uncalibrated 20 feature two-stage scheme is also reported to distinguish the combination effect.
 
-## 审计和推进条件
+## Audit and advancement conditions
 
-每月以及 1–5、6–8 月报告全体 MAE、购买者 MAE、Top20 实际消费额覆盖、总额偏差、Top20 群体偏差、购买概率 AP、Brier、预测购买人数偏差。输出每条开发期客户预测、训练与校准标签截止、源文件哈希。不读取 9–11 月金额标签来调整参数。
+Monthly and 1 – 5, June-Augustly reports on all MAE, buyers MAE, Top 20 actual consumption coverage, total deviation, Top 20 group deviation, purchase probability AP, Brier, and predicted purchaser number deviation. Output each development period customer prediction, training and calibration label cutoff, and source file hash. Do not read September-Novemberly amount tags to adjust parameters.
 
-相对 20 特征直接 Tweedie，1–5 月的研发推进条件为：购买者 MAE 至少下降 5%，全体 MAE 至多增加 2%，Top20 覆盖不下降，总额偏差绝对值不扩大，四项全部满足。6–8 月只观察稳健性；不得据结果更改特征、月份窗口、参数或阈值。通过开发条件也仅表示值得寻找新数据检验，不构成独立验收或仪表板接入依据。
+Relative to the 20 feature direct Tweedie, the conditions for January-Mayly R&D promotion are: the purchaser MAE decreases by at least 5%, the total MAE increases by at most 2%, the coverage of Top 20 does not decrease, the absolute value of the total deviation does not expand, and all four items are met. June-August only observe robustness; features, month windows, parameters, or thresholds should not be changed based on the results. Passing the development conditions only means that it is worthy of seeking new data for inspection, and does not constitute a basis for independent acceptance or dashboard access.

@@ -1,68 +1,68 @@
-# 客户分群三算法重做：结果与选择
+# Rework of the three customer segmentation algorithms: results and choices
 
-**最终选择：K-means，4 群。** 参数为 `n_clusters=4`、`init=k-means++`、`n_init=20`、`max_iter=500`、`random_state=42`。五项特征、变换和其余完整参数见 [selected.json](selected.json)，可加载模型见 [selected_model.joblib](selected_model.joblib)。这是独立保存的新版分群实验，**尚未替换现有仪表板或阶段五、六模型**。
+**Final selection: K-means, 4 group.** The parameters are `n_clusters=4`, `init=k-means++`, `n_init=20`, `max_iter=500`, `random_state=42`. The five features, transformations and remaining complete parameters can be found in [selected.json](selected.json), and the loadable model can be found in [selected_model.joblib](selected_model.joblib). This is a new version of the clustering experiment that has been saved independently and has not replaced the existing dashboard or stage five and six models.
 
-## 比较口径
+## Compare definition
 
-沿用 2010 年 6 月至 2011 年 5 月的 37,019 条训练期客户月记录。先按客户 ID 留出 20% 客户，每名留出客户固定取一个月的状态做结构评估；从其余客户整体重抽样 5 次，检查新拟合模型对同一评估集的分群是否一致。2011 年 6–8 月只检查无标签的逐月群体人数和购买行为画像。全部候选均使用相同五项历史特征和预处理，群数为 2–6；GMM 同时比较对角和完整协方差。初步试跑后修正了留出集重复客户月计权问题，报告只使用修正后重新跑完的结果；详见 [实验口径](../../segmentation_comparison_protocol.md)。
+Use the 37,019 training period customer month records from 2010, 6 month to 2011, 5 month. First, 20% customers are reserved according to customer ID, and each reserved customer takes a fixed one-month status for structural evaluation; the remaining customers are resampled 5 times to check whether the new fitting model is consistent in the grouping of the same evaluation set. 2011, June-August only checks unlabeled monthly group numbers and purchasing behavior profiles. All candidates use the same five historical features and preprocessing, with cluster numbers 2 – 6; GMM comparing both diagonal and complete covariances. After the initial test run, the monthly weighting issue for duplicate customers in the reserved set was corrected, and the report only uses the results of the rerun after the correction; for details, see [Experimental Caliber](../../segmentation_comparison_protocol.md).
 
-五项输入是最近购买间隔、半年订单数、平均每单金额、半年去重商品编码数除以订单数、最近 90 天订单占半年订单比例。第四项是商品广度的近似量，**不是每张发票实际商品数的均值**。未来复购、金额、商品以及已有模型分数均未进入拟合或选模。
+The five inputs are the recent purchase interval, the number of orders in half a year, the average amount per order, the number of deduplicated product codes in half a year divided by the number of orders, and the proportion of orders in the last 90 days to orders in half a year. The fourth term is an approximation of merchandise breadth, not the mean of the actual number of merchandise per invoice. Future repurchases, amounts, products, and existing model scores are not included in fitting or model selection.
 
-## 全部候选
+## All candidates
 
-轮廓系数衡量固定留出客户的分离程度，越高越清楚；ARI 是五次按客户重抽样的中位一致性，越接近 1 越稳定。“最小群”是 2011 年 6–8 月所有月和群中的最小客户数。完整精度和 GMM 的 BIC、归属程度见 [candidates.csv](candidates.csv)；逐月人数和画像见 [monthly_sizes.csv](monthly_sizes.csv)、[validation_profiles.csv](validation_profiles.csv)。
+The silhouette coefficient measures the degree of separation of fixed set-aside customers, the higher it is, the clearer it is; ARI is the median consistency of five resamplings by customer, the closer it is to 1, the more stable it is. The "minimum group" is the minimum number of customers in all months and groups in years 2011 – 6 – 8. For the complete accuracy and the BIC and attribution degree of GMM, see [candidates.csv](candidates.csv); for the monthly number and profiles, see [monthly_sizes.csv](monthly_sizes.csv), [validation_profiles.csv](validation_profiles.csv).
 
-| 算法 | 群数 | 留出轮廓系数 | 稳定性 ARI | 最小群人数 |
+| algorithm | Number of groups | Leave the silhouette coefficient | Stability ARI | Minimum group size |
 | --- | ---: | ---: | ---: | ---: |
 | K-means | 2 | 0.3580 | 1.0000 | 702 |
 | K-means | 3 | 0.3227 | 0.9883 | 690 |
 | **K-means** | **4** | **0.3056** | **0.9525** | **545** |
 | K-means | 5 | 0.2665 | 0.9641 | 307 |
 | K-means | 6 | 0.2657 | 0.9824 | 282 |
-| 二分 K-means | 2 | 0.3580 | 1.0000 | 702 |
-| 二分 K-means | 3 | 0.3211 | 0.9882 | 689 |
-| 二分 K-means | 4 | 0.2885 | 0.9487 | 509 |
-| 二分 K-means | 5 | 0.2561 | 0.9354 | 308 |
-| 二分 K-means | 6 | 0.2414 | 0.9319 | 144 |
-| GMM（对角协方差） | 2 | 0.3580 | 1.0000 | 701 |
-| GMM（对角协方差） | 3 | 0.3127 | 1.0000 | 701 |
-| GMM（对角协方差） | 4 | 0.2195 | 0.8047 | 236 |
-| GMM（对角协方差） | 5 | 0.1412 | 0.9762 | 121 |
-| GMM（对角协方差） | 6 | 0.1504 | 0.9908 | 69 |
-| GMM（完整协方差） | 2 | 0.3580 | 1.0000 | 701 |
-| GMM（完整协方差） | 3 | 0.2713 | 1.0000 | 701 |
-| GMM（完整协方差） | 4 | 0.2183 | 0.6768 | 341 |
-| GMM（完整协方差） | 5 | 0.1521 | 1.0000 | 121 |
-| GMM（完整协方差） | 6 | 0.1410 | 0.9971 | 121 |
+| Two points K-means | 2 | 0.3580 | 1.0000 | 702 |
+| Two points K-means | 3 | 0.3211 | 0.9882 | 689 |
+| Two points K-means | 4 | 0.2885 | 0.9487 | 509 |
+| Two points K-means | 5 | 0.2561 | 0.9354 | 308 |
+| Two points K-means | 6 | 0.2414 | 0.9319 | 144 |
+| GMM (diagonal covariance) | 2 | 0.3580 | 1.0000 | 701 |
+| GMM (diagonal covariance) | 3 | 0.3127 | 1.0000 | 701 |
+| GMM (diagonal covariance) | 4 | 0.2195 | 0.8047 | 236 |
+| GMM (diagonal covariance) | 5 | 0.1412 | 0.9762 | 121 |
+| GMM (diagonal covariance) | 6 | 0.1504 | 0.9908 | 69 |
+| GMM (complete covariance) | 2 | 0.3580 | 1.0000 | 701 |
+| GMM (complete covariance) | 3 | 0.2713 | 1.0000 | 701 |
+| GMM (complete covariance) | 4 | 0.2183 | 0.6768 | 341 |
+| GMM (complete covariance) | 5 | 0.1521 | 1.0000 | 121 |
+| GMM (complete covariance) | 6 | 0.1410 | 0.9971 | 121 |
 
-20 个候选全部形成指定群数、通过每月最少 50 人的门槛；GMM 候选均收敛。BIC 在已试 GMM 中偏向更多成分，但与群体分离、可解释性并不一致；它只用于 GMM 内部诊断，未拿来与其他算法的指标相加。GMM 的验证期平均最高归属程度在 2–4 群设置中很高；在这些设置上，软归属没有呈现大范围的模糊边界。
+20 candidates all form the specified number of groups and pass the threshold of at least 50 people per month; GMM candidates all converge. BIC favors more components in the tried GMM, but is not consistent with group separation and interpretability; it is only used for GMM internal diagnosis and is not added to the indicators of other algorithms. The validation-period average highest degree of belonging for GMM is high in the 2 – 4 group setting; on these settings, soft belonging does not exhibit large-scale fuzzy boundaries.
 
-## 为什么选 4 群
+## Why choose 4 group
 
-2 群有最高轮廓系数，但主要只区分“最近 90 天没买”与“最近买过”，不足以展现活跃客户内部的购买差异。3 群增加了高频客户群。4 群进一步稳定地区分出两类近期低频客户：一类平均每单金额和商品广度较高，另一类较低。该差异在三个验证月份重复出现；4 群留出轮廓系数仍为 0.3056，客户重抽样 ARI 中位数 0.9525，最差一次 0.9208；验证期每群每月不少于 545 人。这是选择 4 群所付出的可见代价：它的轮廓系数和稳定性均低于 3 群，并非所有统计指标的冠军。
+The 2 group has the highest silhouette score, but it mainly only distinguishes between "have not bought in the last 90 days" and "have bought recently", which is not enough to show the purchasing differences within active customers. The 3 group increases the high-frequency customer base. The 4 group further stably distinguishes two types of recent low-frequency customers: one type has higher average order amount and product breadth, and the other type has lower average order amount and product breadth. This difference appears repeatedly in the three verification months; the 4 group's remaining silhouette coefficient is still 0.3056, the customer resampling ARI is the median 0.9525, and the worst is 0.9208; each group has no less than 545 people per month during the validation period. This is the visible price paid for choosing the 4 group: it has a lower silhouette coefficient and lower stability than the 3 group, and is not a champion in all statistical indicators.
 
-在同为 4 群时，二分 K-means 的轮廓系数 0.2885、ARI 0.9487；GMM 对角/完整协方差分别为 0.2195/0.2183、ARI 0.8047/0.6768。它们未给出足以抵消这些差距的稳定额外画像。5、6 群继续细分长时间未购或高频客户，也有可观察差异，但轮廓系数降到 0.2665/0.2657，并增加解释和维护成本。故本轮以 **K-means 4 群**作为“可解释细分与结构稳定”的折中，而不是宣称数据天然只有四类客户。
+When they are both in the 4 group, the silhouette scores of the bisection K-means are 0.2885 and ARI 0.9487; the diagonal/complete covariances of GMM are 0.2195 / 0.2183 and ARI 0.8047 / 0.6768 respectively. They do not give a stable additional picture that is sufficient to offset these gaps. The 5 and 6 groups continue to subdivide customers who have not purchased for a long time or high-frequency customers, and there are also observable differences, but the silhouette score drops to 0.2665 / 0.2657, and increases interpretation and maintenance costs. Therefore, this round uses the **K-means 4 group** as a compromise between "interpretable segmentation and stable structure", rather than claiming that the data naturally only has four types of customers.
 
-## 选中模型的客户画像
+## Customer profile of the selected model
 
-下表用全部训练期重新拟合后的模型，给出 2011 年 6–8 月逐月结果的范围。群编号只是模型编号；客户在后续月份可能改变群体。金额为原数据单位。
+The table below gives the range of month-by-month results for 2011, 6 – 8 using the refitted model over the entire training period. Group numbers are model numbers only; customers may change groups in subsequent months. The amount is the original data unit.
 
-| 群体描述 | 每月客户数 | 距上次购买中位天数 | 半年订单数中位数 | 平均每单金额中位数 | 商品广度比中位数 |
+| group description | Number of customers per month | Median days since last purchase | Half-year median number of orders | Median average amount per order | Product breadth ratio median |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| C0：近期低单笔、商品广度较小 | 579–604 | 40–46 | 1–2 | 145–153 | 7.0–7.5 |
-| C1：较久未购 | 688–746 | 123–131 | 1 | 247–253 | 14.5–15.0 |
-| C2：近期高频 | 547–606 | 16–18 | 5 | 318–321 | 11.7–11.9 |
-| C3：近期低频、较高单笔和商品广度 | 815–832 | 36–41 | 1–2 | 375–384 | 24.0 |
+| C 0: Recently low single transactions, small product breadth | 579–604 | 40–46 | 1–2 | 145–153 | 7.0–7.5 |
+| C 1: Haven't purchased for a long time | 688–746 | 123–131 | 1 | 247–253 | 14.5–15.0 |
+| C 2: Recent high frequency | 547–606 | 16–18 | 5 | 318–321 | 11.7–11.9 |
+| C 3: recent low frequency, high single transaction and product breadth | 815–832 | 36–41 | 1–2 | 375–384 | 24.0 |
 
-选定后才对 2011 年 9–11 月做历史回顾画像：四群均存在，每群每月不少于 526 人，主要购买特点仍可辨认。详见 [selected_profiles.csv](selected_profiles.csv) 和不含未来标签的 [selected_assignments.csv](selected_assignments.csv)。由于这些月份此前已在项目其他任务中被查看，**不能称为新的独立测试**。分群本身也不能证明会提高复购预测、消费排序或商品推荐效果；这些属于后续阶段的单独检验。
+After selection, a historical review profile was made of 2011, September-November: all four groups exist, each group has no less than 526 people per month, and the main purchasing characteristics are still identifiable. See [selected_profiles.csv](selected_profiles.csv) and [selected_assignments.csv](selected_assignments.csv) without future tags] for details. Since these months have been previously viewed in other tasks on the project, they cannot be called new independent tests. Clustering itself cannot be proven to improve repurchase prediction, consumption ranking, or product recommendation; these are separate tests in subsequent stages.
 
-## 复现与边界
+## Recurrence and Boundaries
 
-在项目根目录运行：
+Run in the project root directory:
 
 ```powershell
 python -m stage4.compare_segmentation compare
 python -m stage4.compare_segmentation select --algorithm kmeans --k 4
 ```
 
-输入、协议、代码及输出哈希见 [comparison_manifest.json](comparison_manifest.json) 与 [selected.json](selected.json)。实验没有改动原始数据、现有正式分群文件、阶段五和六的冻结产物或仪表板。当前分群范围仍限于过去 180 天内有合格购买的客户；对更久未购客户的覆盖属于另一个数据口径问题。
+See [comparison_manifest.json](comparison_manifest.json) and [selected.json](selected.json) for input, protocol, code, and output hashes. The experiment did not alter the original data, existing formal clustering files, phase five and six frozen products, or dashboards. The current grouping scope is still limited to customers who have qualified purchases in the past 180 days; coverage of customers who have not purchased for a longer period of time is another data definitions issue.

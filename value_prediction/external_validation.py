@@ -171,18 +171,18 @@ def main() -> None:
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     lines = [
-        '# 独立杂货零售数据检验', '',
-        '本次严格执行此前锁定的 `external_validation_protocol.md`。',
-        '这是另一家零售商的数据，金额单位与原项目不同；结果只用于检验方法稳健性。',
-        '没有保存原始行和客户级预测；本机临时缓存与来源哈希见 `manifest.json`。', '',
-        '| 截点 | 分区 | 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |',
+        '# Independent Grocery Retail Data Inspection', '',
+        'This time, the previously locked `external_validation_protocol.md` will be strictly implemented.',
+        'This is data from another retailer, and the unit of amount is different from the original item; the results are only used to test the robustness of the method.',
+        'Raw rows and customer-level predictions are not saved; native temporary cache with source hash see `manifest.json`.', '',
+        '| Cutoff | Partition | Method | MAE | Buyer MAE | Top 20 Coverage | Total Deviation |',
         '| --- | --- | --- | ---: | ---: | ---: | ---: |',
     ]
     for row in metrics.itertuples(index=False):
         lines.append(f'| {row.snapshot_date} | {row.split} | {row.method} | '
                      f'{row.mae:.2f} | {row.positive_mae:.2f} | '
                      f'{row.top20_spend_capture:.2%} | {row.aggregate_bias:+.2%} |')
-    lines += ['', '外部检验不能替代原在线零售项目的后续新月份独立验收。', '']
+    lines += ['', 'External inspection is not a substitute for subsequent independent acceptance of the original online retail item in new months.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote external aggregate metrics to {OUTPUT}', flush=True)
 

@@ -18,13 +18,13 @@
   "source_temporal_features_sha256": "a24833a0e8d05a8795654fc9b4a2a4bed2cac2407cefc37046f1e6c1a4727e9c",
   "source_seasonal_features_sha256": "4ce9d12f22855885ec622ac3efbacbe2d8a6f3593857345d6b6e361e18287219",
   "reference_predictions_sha256": "a8ebe44cc265bc85eb30b7c7d6687430d0f473f8a4419c3f940c5077cdf468e4",
-  "protocol_sha256": "e125cd334b47c3bc5b548a4787c8ecf6e19412dd7d2cea50f6e928c91a2289ae",
-  "script_sha256": "bf64988613dc0158f050d1e0ede32ec9cefd0a594c4e7859677872819515c1a6",
+  "protocol_sha256": "1c867a5397c1919dc532babf12854062cfbdc889a74f9f9e6ac525956867e764",
+  "script_sha256": "69a6253bd76d864faa8a522b6ce07ec9b5b925269652db8a3eebe05032f60207",
   "outputs_sha256": {
     "customer_predictions": "498937e68d40bdfc0408bbdcba5333f2dd9976936b2b4da1d9872c46b58944a5",
     "monthly_metrics": "b3fc90c42ed8552ae06769959156d00e1ee6ea20e20fae5057678c1809acb747",
     "period_metrics": "087310a9adcacdca45672dde9052fceea7b34791c5b08bd3f7e668ea50c990c6",
     "folds": "20b9dfd3808e6cd5de6bfd6d4e511bb203709ae090521ae95dfa726bfff84a13"
   },
-  "report_sha256": "6a9de5a7ea969726a25757729fa343fa14dcf9f6131e755c3f8b297624204ebe"
+  "report_sha256": "1bf4e6440d8bcca102cdc59aa8cc023e2a477b834b355ad7955b2ca55ce7d7ef"
 }

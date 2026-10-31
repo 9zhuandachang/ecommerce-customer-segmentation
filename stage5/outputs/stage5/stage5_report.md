@@ -1,8 +1,8 @@
-# 阶段五：六组复购预测实验
+# Stage 5: Six groups of repurchase prediction experiments
 
-两组特征使用相同的训练期 37,019 条和验证期 8,146 条客户月记录。A 为阶段四的 8 项基础交易特征；B 另加已在训练期拟合的三群中心距离。LR、GBDT 各训练一次，每组的软投票权重只用验证集 AP 从 0.25、0.50、0.75 选出。未计算测试期指标。
+The two sets of features use the same 37,019 customer-month records in the training period and 8,146 customer-month records in the validation period. A is the 8 basic transaction characteristics of stage four; B plus the three cluster center distances that have been fitted in the training period. LR and GBDT are each trained once, and the soft voting weight of each group is selected from 0.25, 0.50 and 0.75 using only the verification set AP. Test period metrics are not calculated.
 
-| 特征组 | 模型 | 验证 AP | ROC-AUC | Precision@20% | Recall@20% |
+| feature group | model | Verify AP | ROC-AUC | Precision@20% | Recall@20% |
 | --- | --- | ---: | ---: | ---: | ---: |
 | A_base_8 | LR | 0.5799 | 0.7423 | 0.5874 | 0.4401 |
 | A_base_8 | GBDT | 0.5800 | 0.7442 | 0.5923 | 0.4437 |
@@ -12,10 +12,10 @@
 | B_base_8_plus_3_distances | SoftVote | 0.5899 | 0.7510 | 0.5953 | 0.4460 |
 | baseline | rfm | 0.5105 | 0.7378 | 0.5579 | 0.4180 |
 
-软投票中 LR 的验证期选定权重：A 为 0.50，B 为 0.75。
+The weight selected for the validation period of LR in soft voting: A is 0.50 and B is 0.75.
 
-加入聚类距离后的 AP 变化（B 减 A）：LR +0.0041；GBDT -0.0031；SoftVote -0.0017。
+Changes in AP after adding clustering distance (B minus A): LR + 0.0041; GBDT - 0.0031; SoftVote - 0.0017.
 
-Top 20% 名额按每个验证月份分别取 ceil(0.2 × 当月客户数)，再汇总命中数。结果只表示历史验证期的排序表现；概率校准、阈值和最终测试留到阶段六。
+The Top 20% quota is calculated as ceil ( 0.2 × number of customers in the month) for each verification month, and then the number of hits is summarized. Results only represent ranking performance for the historical validation period; probability calibration, thresholds, and final testing are left to phase six.
 
-逐条验证评分见 `validation_predictions.csv`；三个候选权重及选值见 `weight_selection.csv`；完整特征、版本、来源哈希见 `run_config.json`。
+See `validation_predictions.csv` for item-by-item verification scores; see `weight_selection.csv` for three candidate weights and selection values; see `run_config.json` for complete features, versions, and source hashes.

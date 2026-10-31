@@ -137,31 +137,31 @@ def advancement_checks(summary: pd.DataFrame) -> dict:
 def make_report(summary: pd.DataFrame, top1: pd.DataFrame,
                 checks: dict) -> str:
     lines = [
-        '# 日历月份候选：按时间向前研究', '',
-        '事先固定的唯一差别是快照月份的正弦和余弦；其余模型设置与原 20 特征 Tweedie 相同。'
-        '2011 年 6–11 月均已查看，只用于开发确认或回顾诊断。', '',
-        '| 期间 | 方法 | 全体 MAE | 购买者 MAE | Top20 消费覆盖 | 总额偏差 | Top20 群体偏差 |',
+        '# Calendar month candidates: study forward in time', '',
+        'The only difference that is fixed a priori is the sine and cosine of the snapshot month; the rest of the model settings are the same as the original 20 feature Tweedie.'
+        '2011 years 6 – 11 months have been viewed and are only used for development confirmation or review diagnosis.', '',
+        '| Period | Method | All MAE | Buyers MAE | Top 20 Consumption Coverage | Total Deviation | Top 20 Group Deviation |',
         '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
     ]
     for row in summary.itertuples(index=False):
         lines.append(f'| {row.period} | {row.method} | {row.mae:.2f} | '
                      f'{row.positive_mae:.2f} | {row.top20_spend_capture:.2%} | '
                      f'{row.aggregate_bias:+.2%} | {row.top20_group_bias:+.2%} |')
-    lines += ['', '## 预测分数事先选出的前 1% 客户：金额尺度诊断', '',
-              '| 期间 | 方法 | 名单客户月 | 预测金额/实际金额 | 实际消费覆盖 |',
+    lines += ['', '## Prediction score for the top 1% customers selected in advance: amount scale diagnosis', '',
+              '| Period | Method | List Customer Month | Forecast Amount/Actual Amount | Actual Spending Coverage |',
               '| --- | --- | ---: | ---: | ---: |']
     for row in top1.itertuples(index=False):
         lines.append(f'| {row.period} | {row.method} | {row.predicted_top1_count} | '
                      f'{row.predicted_top1_predicted_to_actual:.2%} | '
                      f'{row.predicted_top1_spend_capture:.2%} |')
-    lines += ['', '该名单仅按预测分数选择；前 1% 指标是诊断项，'
-              '不用于事后选择日历模型或调整推进门槛。', '',
-              '## 仅 1–5 月的预设研发推进门槛', '']
+    lines += ['', 'This list is selected by predicted score only; the first 1% indicators are diagnostic,'
+              'Not used to select calendar models or adjust advancement thresholds after the fact.', '',
+              '## Only 1 – 5 month\'s default R&D advancement threshold', '']
     for key, passed in checks.items():
-        lines.append(f'- `{key}`：{"满足" if passed else "未满足"}')
-    lines += ['', '全部满足也只说明值得带到新的固定测试；'
-              '这些已查看月份不能提供同商家独立验收。'
-              '逐月、客户级预测、训练标签截止与文件哈希见同目录。', '']
+        lines.append(f'- `{key}`: {"satisfy" if passed else "not satisfied"}')
+    lines += ['', 'All satisfaction only means that it is worth taking to a new fixed test;'
+              'These reviewed months cannot provide independent acceptance by the same merchant.'
+              'Month-by-month, client-level forecasts, training label cutoffs and file hashes are in the same directory.', '']
     return '\n'.join(lines)
 
 

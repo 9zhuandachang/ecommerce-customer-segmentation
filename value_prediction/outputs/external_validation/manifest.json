@@ -2,8 +2,8 @@
   "status": "cross_retailer_validation_not_original_ecommerce_acceptance",
   "source_url": "https://raw.githubusercontent.com/bradleyboehmke/completejourney/master/data/transactions.rds",
   "source_sha256": "1fa0700033f1e5d9bb6b09e2be063d8d68474d346e95c50f2833e09d083e0007",
-  "protocol_sha256": "d77993418273bbc78fe9779c6303361ccf54b47eaeff2b880404c5482748000f",
-  "script_sha256": "2e2eaad58a65a0f32b68a113e38c57b776a6781ce41bc9d333946615e51f26c9",
+  "protocol_sha256": "4e41d2ca2d5e9147b0dcfa97b244b0bf4eab45922a29fffd1a589fd8eecada5e",
+  "script_sha256": "1341e5720a02cb6e67f15f3442da51eb65c5188230d7da561f70a9c9c3fe1ab1",
   "source_audit": {
     "source_rows": 1469307,
     "eligible_rows": 1458032,

@@ -1,8 +1,8 @@
-# 阶段六：冻结模型与独立测试结果
+# Phase 6: Freezing model and independent test results
 
-验证期（2011 年 6–8 月）按 AP 选定 A_base_8 / GBDT。基础分类器仅在训练期拟合；验证期用于 sigmoid 校准及固定 F1 分类阈值 0.280468。测试期为 2011 年 9–11 月，未参与上述选择。测试前已写入带哈希的 locked_config.json 和可加载模型。
+The validation period ( 2011, June-August) is selected by AP A_base_ 8 / GBDT. The base classifier is only fit during the training period; the validation period is used for sigmoid calibration and fixed F 1 classification threshold 0.280468. The test period is 2011, and September-November, and the above selection has not been participated. A hashed locked_config.json and loadable model were written before testing.
 
-| 指标 | 验证期 | 独立测试期 | 测试期 RFM |
+| indicator | Validation period | independent testing period | Test period RFM |
 | --- | ---: | ---: | ---: |
 | AP | 0.5946 | 0.6180 | 0.5453 |
 | ROC-AUC | 0.7577 | 0.7199 | 0.6963 |
@@ -10,10 +10,10 @@
 | Top 20% Recall | 45.15% | 38.84% | 36.07% |
 | Top 20% Lift | 2.255 | 1.941 | 1.802 |
 
-测试期 8,875 条客户月快照，正例 3,025 条（34.08%）。每月分别选 ceil(当月客户数 × 20%)，共 1,776 个名额，命中 1,175 条；RFM 命中 1,091 条。同一客户跨月可能出现多次，统计单位是客户月快照。
+There are 8,875 customer monthly snapshots during the test period, and 3,025 ( 34.08% ) as a regular example. Select ceil each month (number of customers in the current month × 20% ), a total of 1,776 quotas, 1,175 hits; RFM hits 1,091. The same customer may appear multiple times across months, and the statistical unit is the monthly snapshot of the customer.
 
-固定阈值下：Precision 0.5597，Recall 0.5501，F1 0.5549；混淆矩阵 TN=4541, FP=1309, FN=1361, TP=1664。Top 20% 名单独立于该阈值。
+Under fixed threshold: Precision 0.5597, Recall 0.5501, F 1 0.5549; confusion matrix TN= 4541, FP= 1309, FN= 1361, TP= 1664. The Top 20% list is independent of this threshold.
 
-测试 Brier：原始评分 0.2055，sigmoid 后 0.1926，差值（原始减校准）+0.0129。分箱可靠性见 test_calibration.csv。目前将输出称为模型评分；它表示历史数据上的复购风险排序，不代表营销活动的因果增量或收入提升。
+Test Brier: raw score 0.2055, post-sigmoid 0.1926, difference (raw minus calibration) + 0.0129. For binning reliability, see test_calibration.csv. The output is currently called a model score; it represents a ranking of repurchase risk on historical data and does not represent a causal incremental or revenue lift from the campaign.
 
-逐月、分群和逐条结果分别见 monthly_test.csv、cluster_test.csv、test_predictions.csv。独立测试结果只用于报告，不回头修改本次模型或阈值。
+See monthly_test.csv, cluster_test.csv, and test_predictions.csv for monthly, clustered, and item-by-item results respectively. The independent test results are only used for reporting, and the model or thresholds will not be modified later.

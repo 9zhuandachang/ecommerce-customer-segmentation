@@ -1,79 +1,79 @@
-# 商品级推荐：打开、比较和复现
+# Item-level recommendations: open, compare and repeat
 
-目标：根据“客户购买习惯＋该商品的历史购买记录＋商品热度＋可选EASE信号”，直接给每件候选商品打分，再取10件。画像参与具体商品排序，而不是只调整两条推荐路的权重。
+Goal: Based on "customer purchasing habits + historical purchase record of this product + product popularity + optional EASE signal", directly score each candidate product, and then take 10 pieces. Profiles participate in the ranking of specific products, rather than just adjusting the weight of the two recommended paths.
 
-当前默认推荐为 **D完整组＋LightGBM分类**，使用34项特征，包含购买记录、客户习惯画像、EASE关联及组合特征。模型参数为120棵树、最多15个叶子、学习率0.05；EASE正则参数为10。页面按上传明细重新计算特征，使用9月1日前准备好的模型对全部3,174件候选商品打分，选择Top10。
+The current default recommendation is **full feature group D + LightGBM classification**, using 34 features, including purchase records, customer habit profiles, EASE association and combination features. The model parameters are 120 trees, up to 15 leaves, and learning rate 0.05; the EASE regular parameters are 10. The page recalculates the features based on the uploaded details, uses the model prepared 9 months and 1 days ago to score all 3,174 candidate products, and selects Top 10.
 
-验证期NDCG@10从原规则的 **0.3226** 升至 **0.3448**，Recall从 **20.01%** 升至 **21.21%**，未买商品Recall从0.17%到 **0.63%**。9—11月复核NDCG为 **0.3001**、Recall为 **17.79%**、Hit为 **76.93%**。D-C同参数比较的画像NDCG增益约 **0.0026**。详细数据以结果报告为准。
+During the validation period, NDCG@10 rose from **0.3226** of the original rule to **0.3448**, Recall rose from **20.01%** to **21.21%**, and unbought product Recall rose from 0.17% to **0.63%**. 9 — 11 Monthly review NDCG is **0.3001**, Recall is **17.79%**, Hit is **76.93%**. D-C image comparing the same parameters. The gain of NDCG is about **0.0026**. Detailed data are subject to the results report.
 
-本次按项目要求将D组分类模型设为业务默认，配置位于`app/upload_inference.py`的`RECOMMENDATION_METHOD`。原实验采用的“未买商品Recall至少增加1个百分点”门槛及其保留补货规则的决定，继续原样保存在`outputs/item_v3_1/locked_selection.json`和实验报告中；本次切换没有改写实验数据或重新训练模型。
+This time, according to the project requirements, the Group D classification model is set as the business default, and `RECOMMENDATION_METHOD` located at `app/upload_inference.py` is configured. The threshold of "unbought goods Recall increased by at least 1 percentage points" adopted in the original experiment and its decision to retain the replenishment rules will continue to be preserved in `outputs/item_v3_1/locked_selection.json` and the experiment report as they are; this switch did not rewrite the experimental data or retrain the model.
 
-稳定性补充：画像NDCG增益的500次客户成组抽样区间约**[-0.00046,+0.00600]**，包含0。因此“达到均值门槛”不能等同于已证明稳定增益。新增打分模型相对原补货的整体NDCG差值约+0.0222，内部抽样区间约[+0.0174,+0.0270]；这部分改善不能全归功于画像。完整诊断见`outputs/item_v3_1_audit/report.json`。
+Stability supplement: The 500 sub-customer group sampling interval of the profile NDCG gain is approximately **[- 0.00046, + 0.00600 ]**, including 0. Therefore "reaching the mean threshold" cannot be equated with proven stable gain. The difference between the new scoring model and the original replenishment's overall NDCG is about + 0.0222, and the internal sampling interval is about [+ 0.0174, + 0.0270 ]; this part of the improvement cannot be entirely attributed to the profile. See `outputs/item_v3_1_audit/report.json` for complete diagnosis.
 
-## 打开
+## Open
 
 ```powershell
-Set-Location 'D:\桌面\AIS课件与workshop\pre2\main'
+# Run the following commands from the repository root.
 python -B -m recommendation.item_experiment
 python -B -m recommendation.item_audit
 python -m streamlit run app/dashboard.py
 ```
 
-实验命令对已完成版本核对代码、来源及产物，不重新选型。audit命令首次重算所有名单，已完成时只核对审计产物。打开终端给出的地址，先在 **数据导入** 上传购买明细并生成分析，再进入左侧 **画像与商品推荐**。前端不提供实验版本和算法切换；完整比较在离线报告中查看。
+The test command checks the code, source and product of the completed version without re-selection. The audit command recalculates all lists for the first time, and only checks audit products when completed. Open the address given by the terminal, first upload purchase details and generate analysis in **Data Import**, and then enter **Profiles and Product Recommendations** on the left. The front end does not provide experimental versions and algorithm switching; the complete comparison can be viewed in the offline report.
 
-## 演示步骤
+## Demonstration steps
 
-1. 上传`data/demo/2011-12-01/purchase_history.csv`，选分析日期 **2011-12-01**，点击“生成分析”。
-2. 打开“画像与商品推荐”，选择客户 **12347**。客户列表可按近180天购买次数降序排列；摘要卡展示购买次数、商品种数及可计算的历史老商品占比，“画像详情”补充其他有效指标及含义。
-3. 查看D完整组＋LightGBM分类生成的10件商品：推荐名次、商品编码、商品名称、购买次数和距上次购买时间。
-4. 点击名单上方的导出按钮，下载商品名单及该客户画像。文件不含未来答案、模型编码和实验版本。
-5. 如需研究四组特征与三类模型，打开`outputs/item_v3_1/report.md`及`validation_ablations.csv`，不在业务页面切换。
+1. Upload `data/demo/2011-12-01/purchase_history.csv`, select the analysis date **2011-12-01**, and click "Generate Analysis".
+2. Open "Profiles and Product Recommendations" and select customer **12347**. The customer list can be sorted in descending order by the number of purchases in the past 180 days; the summary card displays the number of purchases, the number of products, and the proportion of old products that can be calculated in history. "Profile details" supplement other effective indicators and meanings.
+3. View full feature group D + 10 products generated by LightGBM classification: recommended ranking, product code, product name, number of purchases and time since last purchase.
+4. Click the export button above the list to download the product list and the customer profile. The file does not contain future answers, model coding, and experimental versions.
+5. If you want to study four groups of features and three types of models, open `outputs/item_v3_1/report.md` and `validation_ablations.csv` without switching to the business page.
 
-分析日期支持2011-09-01至2011-12-01之间任意一天。若已有旧规则分析会话，页面会提示重新上传并生成分析。批量验证指标在离线报告和学习指南中查看。
+The analysis date supports any day between 2011-09-01 to 2011-12-01. If there is an old rule analysis session, the page will prompt you to re-upload and generate analysis. Batch validation metrics are available in offline reports and study guides.
 
-## 如何理解四组
+## How to understand the four groups
 
-| 特征组 | 输入 | 项数 |
+| feature group | input | Number of items |
 |---|---|---:|
-| A | 个人对该商品的购买记录＋商品热度与可见时间 | 15 |
-| B | A＋10项客户画像＋6项画像与商品信息交互 | 31 |
-| C | A＋归一化EASE得分及无信号标志 | 17 |
-| D | 完整画像、商品信息、EASE及相应交互 | 34 |
+| A | Personal purchase record of the product + product popularity and visibility time | 15 |
+| B | A+ 10 item customer profile+ 6 item profile interacts with product information | 31 |
+| C | A+ normalized EASE score and no signal flag | 17 |
+| D | Complete profile, product information, EASE and corresponding interactions | 34 |
 
-同类模型的四组使用相同参数、相同训练样本。B-A、D-C检查画像；C-A、D-B检查EASE。不能把“新打分模型有效”自动解释成“画像有效”。
+The four groups of similar models use the same parameters and the same training samples. B-A, D-C inspection images; C-A, D-B inspection EASE. "The new scoring model is valid" cannot be automatically interpreted as "the profile is valid".
 
-计数口径补充：为保持与旧推荐比较一致，商品购买次数按“客户、发票、时刻、商品”去重的互动计数。清洗表中有64个同客户发票号对应两个时刻，因此该次数不严格等同于跨时刻去重的发票数。特征`personal_order_share`的实际公式是“商品互动次数÷不同发票数”，应理解为归一化购买强度，不解释为概率；其余三个目标及清洗记录没有为本实验改动。
+Supplement to the counting definition: In order to remain consistent with the old recommendations, the number of product purchases is counted based on the interaction of "customer, invoice, time, product" with deduplication. There are 64 invoice numbers of the same customer corresponding to two times in the cleaning table, so this number is not strictly equivalent to the number of invoices deduplicated across times. The actual formula of feature `personal_order_share` is "number of product interactions ÷ number of different invoices", which should be understood as normalized purchase intensity and not interpreted as probability; the remaining three goals and cleaning records have not been changed for this experiment.
 
-## 离线实验中的分数是什么
+## What is the score in the offline experiment?
 
-逻辑回归输出决策分数，分类模型输出原始分类分数，排序模型输出排序分数。它们不是经过校准的概率或消费额，不同模型不能直接比较数值。当前业务页面隐藏这些原始分数，只展示推荐名次和购买依据。
+Logistic regression outputs decision scores, classification models output raw classification scores, and ranking models output ranking scores. They are not calibrated probabilities or consumption amounts, and values ​​cannot be directly compared between different models. The current business page hides these raw scores and only displays the recommended ranking and purchase basis.
 
-## 时间与采样
+## Time and sampling
 
-训练答案是随后30天内第一笔购买中的商品，1表示出现、0表示这次下一单未出现；没有下一单的记录不用于该条件推荐训练。模型拟合只用30天答案已完整观察的历史客户月。
+The training answer is the first purchased product within the following 30 days, 1 means it appears, 0 means the next order does not appear this time; records without next orders are not used for recommendation training for this condition. The model is fit using only 30 days where the answers have been fully observed for the historical customer months.
 
-训练保留全部候选内正例，并抽取难负例与普通负例；分类用已知入样概率校正权重，避免难负例抽样改变整个商品目录的分布。排序在同样的抽样查询组学习，评价则始终打分完整目录，不将抽样题目作为验证集。目录外真实商品继续计为未命中。
+Training retains all candidate positive examples, and extracts difficult negative examples and common negative examples; classification uses known sampling probabilities to correct weights to avoid sampling of difficult negative examples from changing the distribution of the entire product catalog. The rankings are studied in the same sample query group, and the evaluation always scores the complete catalog, and does not use the sample questions as a verification set. Real items outside the catalog continue to count as misses.
 
-历史EASE得分按当月之前的交易生成，参数也只由此前已成熟的月份决定。1–5月向前开发、6–8月选型；9–11月答案此前已查看，本轮仅作冻结后复核。
+The historical EASE score is generated based on transactions before the current month, and the parameters are only determined by the months that have matured before. January-Mayly forward development, June-Augustly selection; September-Novemberly answers have been viewed before, this round is only for review after freezing.
 
-## 文件与检查
+## Documentation and inspection
 
-全部正式结果在 `outputs/item_v3_1/`。
+All official results are at `outputs/item_v3_1/`.
 
-| 文件 | 用途 |
+| File | Purpose |
 |---|---|
-| `report.md` | 12组模型与3个旧对照的结果、参数及限制 |
-| `development_monthly.csv` | 五个开发月共240次模型比较 |
-| `validation_ablations.csv` | 同模型同参数的画像/EASE增益 |
-| `training_audit.json` | 成熟标签边界、EASE边界、采样数量 |
-| `training_samples.joblib` | 可复现的历史特征、标签、分组、抽样行及权重；仅离线使用 |
-| `profiles.csv`、`validation_lists.csv`、`test_lists.csv` | 离线画像及15种推荐名单；用于核对，不作为上传页面的推荐结果输入 |
-| `locked_selection.json`、`model_bundle.joblib` | 原实验选择记录、全部入围模型及商品目录；页面加载其中的D分类模型和EASE |
+| `report.md` | Results, parameters and limitations of comparing the 12 group model with the 3 individual model |
+| `development_monthly.csv` | A total of 240 model comparisons in five development months |
+| `validation_ablations.csv` | Profile of the same model with the same parameters/ EASE gain |
+| `training_audit.json` | Mature label boundary, EASE boundary, sample number |
+| `training_samples.joblib` | Reproducible historical features, labels, groupings, sampled rows, and weights; available offline only |
+| `profiles.csv`, `validation_lists.csv`, `test_lists.csv` | Offline profiles and 15 recommended lists; used for verification and not input as recommended results on the upload page |
+| `locked_selection.json`, `model_bundle.joblib` | The original experiment selection record, all shortlisted models and product catalog; the page loads the D classification model and EASE |
 
-首次v3在开发期发现分类采样权重问题后停止，64次开发记录、原样本和源代码保留在`outputs/item_v3/`；没有进入该轮验证或复核。v3.1修正权重后重新执行全部开发比较，评价标准未改变。
+The first v 3 was stopped after the classification sampling weight problem was discovered during the development period. The development records, original samples and source code of 64 were retained in `outputs/item_v3/`; it did not enter this round of verification or review. v 3.1 All development comparisons are re-executed after correcting the weights, and the evaluation criteria remain unchanged.
 
 ```powershell
 python -B -m unittest discover -s tests
 ```
 
-测试检查公式与缺失、时间隔离、采样权重、共同参数、完整目录分批打分、模型重算、页面切换及安全导出。
+The test checks formulas and deletions, time isolation, sampling weights, common parameters, complete directory batch scoring, model recalculation, page switching and safe export.

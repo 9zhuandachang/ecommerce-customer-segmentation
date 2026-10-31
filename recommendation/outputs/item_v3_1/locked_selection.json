@@ -1,6 +1,6 @@
 {
   "selected_method": "personal_repeat",
-  "selected_name": "原纯补货",
+  "selected_name": "Original replenishment",
   "best_new": "D_classifier",
   "deployment_gate_passed": false,
   "eligible": [],
@@ -200,5 +200,5 @@
     "regularization": 10
   },
   "model_sha256": "6b7a4da3a0b29054c4f8db65dafd325d1e170ea4ca022d400a2252af279a8386",
-  "plan_sha256": "b616dd0f16b56b3196b00783f9ef57eef4db7f84f44ede10b14a606b7de11746"
+  "plan_sha256": "4ebebc9c55be5907b9df77567a92e46401a8f5be808fbc8f0b72bbec88926a96"
 }

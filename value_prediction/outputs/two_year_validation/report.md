@@ -1,10 +1,10 @@
-# 两年零售交易的固定时间检验
+# Two-year fixed time test for retail transactions
 
-真实时间信息只有 DAY 日序号；截点依 `two_year_protocol.md` 固定。
-同一零售商的公开一年版此前曾用于研究；本次最后三个截点处于更晚的第二年。
-原始行及家庭级预测没有写入仓库。
+The real time information only has the DAY serial number; the cutoff point is fixed according to `two_year_protocol.md`.
+The same retailer's public one-year version was previously used in the study; this time the last three cutoff points are in the later second year.
+Raw row and household level forecasts are not written to the warehouse.
 
-| 截点 DAY | 分区 | 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |
+| Cutoff point DAY | Partition | method | MAE | Buyer MAE | Top 20 coverage | total deviation |
 | ---: | --- | --- | ---: | ---: | ---: | ---: |
 | 511 | validation | historic_180d | 69.89 | 75.45 | 53.38% | +3.03% |
 | 511 | validation | recent_90d | 69.64 | 76.05 | 53.13% | +4.27% |
@@ -25,12 +25,12 @@
 | 661 | test | recent_90d | 75.60 | 82.09 | 51.31% | -0.95% |
 | 661 | test | extended_tweedie | 74.86 | 79.08 | 51.60% | +0.86% |
 
-最后三个截点合并（仍按每截点分别选 Top 20%）：
+Combine the last three intercept points (still select Top 20% for each intercept point):
 
-| 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |
+| method | MAE | Buyer MAE | Top 20 coverage | total deviation |
 | --- | ---: | ---: | ---: | ---: |
 | historic_180d | 74.26 | 79.88 | 51.90% | -4.15% |
 | recent_90d | 73.12 | 79.79 | 51.94% | -3.61% |
 | extended_tweedie | 72.79 | 77.50 | 52.41% | -2.11% |
 
-这是跨零售商的方法检验，不能代替原在线零售项目未来新月份的验收。
+This is a cross-retailer method inspection and cannot replace the acceptance of the original online retail project in future months.

@@ -1,167 +1,167 @@
-# 客户分群：谁在常买，谁只是偶尔来，谁已经很久没买？
+#Customer segmentation: Who buys frequently, who only comes occasionally, and who hasn't bought for a long time?
 
-> 本报告要回答的是客户之间有哪些值得关注的差别，以及这些差别能给后续分析带来什么。
+> What this report wants to answer is what are the differences between customers that deserve attention, and what these differences can bring to subsequent analysis.
 
-## 先看最值得讲的三个发现
+## Let's look at the three most noteworthy discoveries first.
 
-1. **常买的人不一定每笔都特别贵。** 常来常买群的半年购买次数约是低频群的 5.0倍，但典型单笔金额仅约 1.5倍。购买频次是两群之间很突出的差别。
-2. **单笔花得多，近期也未必活跃。** 分成四群时，有一群典型单笔金额为 417，高于最频繁购买群的 345；但距上次购买分别为 53天和13天。
-3. **最近买得多，不等于下个月一定继续买。** 新增的“购买节奏变化”特征发现了一个反直觉现象，后文给出具体对照。
+1. **People who buy often may not necessarily be particularly expensive every time.** The number of purchases made by the Frequent Buying Group in half a year is about 5.0 times that of the low-frequency group, but the typical single transaction amount is only about 1.5 times. Frequency of purchase is a very prominent difference between the two groups.
+2. **A single transaction costs a lot, and it may not be active in the near future.** When divided into four groups, the typical single transaction amount of one group is 417, which is higher than the 345 of the most frequent purchasing group; however, the days since the last purchase are 53 days and 13 days respectively.
+3. **Just because I have bought a lot recently does not mean I will definitely continue to buy next month.** The newly added "Purchase Rhythm Change" feature discovered a counter-intuitive phenomenon, and specific comparisons are given later.
 
-阅读口径：一个客户每个月记一条记录，称为“客户月记录”。同一个人可能在不同月份属于不同群体。除特别说明外，画像使用训练期（2010年6月—2011年5月）记录；“典型值”指中位数，也就是排序后居中的数。金额沿用原始 CSV 的单位。
+Reading definition: A customer records one record every month, which is called "Customer Monthly Record". The same person may belong to different groups in different months. Unless otherwise specified, the profiles are recorded using the training period ( 2010, 6 month - 2011, 5 month); the "typical value" refers to the median, which is the number in the middle after sorting. The amount follows the original unit of CSV.
 
-## 1. 分成三群，分别是什么样的人？
+## 1. Divided into three groups, what kind of people are they?
 
-**k 就是想分成几群。k=3 表示分成三群；C0、C1、C2 只是编号，没有高低顺序。**
+**k Just want to divide into several groups. k= 3 means divided into three groups; C 0, C 1, C 2 are just numbers, there is no order of priority.**
 
-| 群体 | 记录占比 | 距上次购买 | 半年购买次数 | 半年消费金额 |
+| group | Record proportion | since last purchase | Number of purchases in half a year | Half-year consumption amount |
 | --- | --- | --- | --- | --- |
-| 常来常买型（C1） | 27.3% | 19天 | 5次 | 1,746 |
-| 低频购买型（C2） | 40.1% | 43天 | 1次 | 390 |
-| 长时间未购型（C0） | 32.6% | 128天 | 1次 | 318 |
+| Frequently come and buy frequently (C 1 ) | 27.3% | 19 days | 5 times | 1,746 |
+| Low frequency purchase type (C 2 ) | 40.1% | 43 days | 1 times | 390 |
+| Long time unpurchased type (C 0 ) | 32.6% | 128 days | 1 times | 318 |
 
-![三类客户的购买行为对比](figures/customer_group_story.png)
+![Comparison of purchasing behavior of three types of customers](figures/customer_group_story.png)
 
-### 常来常买型：核心特点是常买，买的商品也更多
+### Frequently come and buy frequently: The core characteristic is that they often buy and buy more products.
 
-这群人典型的半年购买次数为 **5次**，购买过 **74种商品**；低频群分别为 1次、23种。典型单笔金额为 **378**，低频群为 **253**。这更像一群持续购买、接触商品较广的客户。单笔金额是每位客户平均订单金额的中位数，不能把几个中位数直接相乘。
+The typical number of purchases for this group of people in half a year is **5 times**, and they have purchased **74 kinds of goods**; the low-frequency group has 1 times and 23 kinds respectively. The typical single amount is **378**, and the low-frequency group is **253**. This is more like a group of customers who continue to buy and have a wide range of products. The single amount is the median of the average order amount per customer, and several medians cannot be directly multiplied.
 
-再看一个不重复计算客户的例子：**2011年05月01日**，这群只有 **837人**，占当日客户 **27.5%**，却占这些客户过去180天消费金额的 **73.2%**。这个比例说明维护其购买连续性值得关注；它是该日客户范围内的消费份额。
+Let's look at another example of not counting customers repeatedly: **2011, 05 month 01 day**, this group only has **837 people**, accounting for **27.5%** of customers on that day, but accounting for **73.2%** of the consumption amount of these customers in the past 180 days. This ratio indicates that maintaining the continuity of their purchases is a concern; it is the share of consumption within the customer range for that day.
 
-### 低频购买型：人数多，尚未形成频繁购买习惯
+### Low-frequency purchasing type: There are many people, but frequent purchasing habits have not yet been formed.
 
-这群占全部记录 **40.1%**，其中 **52.3%** 在过去半年只买过一次；**15.0%** 的首次可见购买在最近30天内。因此，这一群同时包含最近才出现在数据中的客户，以及买得不频繁的老客户。
+This group accounts for all records **40.1%**, of which **52.3%** has only purchased once in the past six months; **15.0%**'s first visible purchase was in the last 30 days. Therefore, this group includes both customers who have recently appeared in the data, as well as older customers who do not buy frequently.
 
-**可以继续追问：** 对只有一次购买记录的人，哪些历史行为与第二次购买相关？“首次可见购买”是数据里的第一次购买记录，不能直接当作真实注册时间。
+**You can continue to ask:** For people who only have one purchase record, what historical behaviors are related to the second purchase? "First visible purchase" is the first purchase record in the data and cannot be directly regarded as the actual registration time.
 
-### 长时间未购型：主要区别是沉默时间长
+### Long time no purchase type: The main difference is the long silence time
 
-这群距上次购买典型已有 **128天**，**94.9%** 的记录在过去90天没有购买。但其典型单笔金额 **266**，与低频群的 **253** 接近。用“长时间未购买”描述它，比只贴“低价值”标签更准确。
+This group has typically had **128 days** since their last purchase, and records for **94.9%** have not purchased in the past 90 days. But its typical single transaction amount **266** is close to that of the low-frequency group **253**. Describing it as "not purchased for a long time" is more accurate than just labeling it "low value".
 
-**可以继续追问：** 长时间未购的人是否存在不同的补货周期？现有快照没有完整订单间隔和商品类别，暂时只能提出这个待验证问题。
+**You can continue to ask:** Are there different replenishment cycles for people who have not purchased for a long time? The existing snapshot does not have the complete order interval and product category, so we can only raise this pending verification issue for the time being.
 
-## 2. 为什么还要看四群、五群、六群？
+## 2. Why should we watch the fourth, fifth and sixth groups?
 
-多分几群，是把画像看得更细。它会重新划分全部客户，所以四群方案不等于简单地把三群中的某一群劈开。
+Divide into more groups to see the profile more closely. It will reclassify all customers, so the four-group solution does not mean simply splitting one of the three groups.
 
-表里的“分离程度”对应轮廓系数：越高，表示同群客户更相似、不同群体更容易分开。它不是准确率。
+The "degree of separation" in the table corresponds to the silhouette coefficient: the higher it is, the more similar the same group of customers are and the easier it is for different groups to separate. It's not accuracy.
 
-| 方案 | 分离程度 | 最小群占比 | 比总览多看到了什么 |
+| Plan | degree of separation | Minimum group proportion | What did you see more than the overview? |
 | --- | --- | --- | --- |
-| 3群 | 0.2242 | 27.3% | 建立总体轮廓：常来常买、低频购买、长时间未购。 |
-| 4群 | 0.2234 | 17.1% | 出现“高单笔、低频”群：典型单笔417，半年买2次，距上次购买53天。 |
-| 5群 | 0.2034 | 12.9% | 识别一批低消费、购买商品种类少的客户：半年金额129，商品种类7种。 |
-| 6群 | 0.2074 | 7.1% | 高频客户继续细分：最频繁一群半年买9次，占7.1%；也分开了消费接近、近期活跃不同的群体。 |
+| 3 group | 0.2242 | 27.3% | Establish a general outline: frequent purchases, low-frequency purchases, and no purchases for a long time. |
+| 4 group | 0.2234 | 17.1% | A "high single transaction, low frequency" group appears: a typical single transaction is 417, purchased 2 times in half a year, and 53 days since the last purchase. |
+| 5 group | 0.2034 | 12.9% | Identify a group of customers with low consumption and few types of goods purchased: half-year amount 129, type of goods 7. |
+| 6 group | 0.2074 | 7.1% | High-frequency customers continue to be segmented: the most frequent group buys 9 times in half a year, accounting for 7.1%; groups with similar consumption and different recent activities are also separated. |
 
-**当前主模型沿用 3 群。** 三群与四群得分只差 0.0007，所以不能说三群明显胜出。三群适合讲总体结构；四群提供了有价值的业务细节，值得在展示中保留。五群、六群可作为更细的观察视角，分离程度并未持续改善。
+**The current main model follows the 3 group.** The score difference between the third group and the fourth group is only 0.0007, so it cannot be said that the third group clearly wins. Three groups are suitable for talking about the overall structure; four groups provide valuable business details that are worth retaining in the display. The five and six groups can be used as a more detailed observation perspective, and the degree of separation has not continued to improve.
 
-### 四群方案中，值得单独讲的“高单笔、低频”群
+### Among the four group solutions, the "high single transaction, low frequency" group deserves to be discussed separately.
 
-| 四群方案中的群体 | 记录占比 | 距上次购买 | 半年购买次数 | 典型单笔金额 |
+| Groups in the four-group scheme | Record proportion | since last purchase | Number of purchases in half a year | Typical single transaction amount |
 | --- | --- | --- | --- | --- |
-| 频繁购买型（C2） | 17.1% | 13天 | 6次 | 345 |
-| 高单笔、低频型（C1） | 27.8% | 53天 | 2次 | 417 |
-| 低频、可见历史较短型（C0） | 26.6% | 35天 | 1次 | 202 |
-| 长时间未购型（C3） | 28.6% | 131天 | 1次 | 231 |
+| Frequent purchase type (C 2 ) | 17.1% | 13 days | 6 times | 345 |
+| High single stroke, low frequency type (C 1 ) | 27.8% | 53 days | 2 times | 417 |
+| Low frequency, short visible history type (C 0 ) | 26.6% | 35 days | 1 times | 202 |
+| Long time unpurchased type (C 3 ) | 28.6% | 131 days | 1 times | 231 |
 
-“高单笔、低频型”占 **27.8%**，典型半年消费金额为 **987**。这提示我们：消费金额高可以来自“买得频繁”，也可以来自“每笔买得较多”。两类客户是否适合相同的维护节奏，需要进一步研究。
+"High single transaction, low frequency type" accounts for **27.8%**, and the typical half-year consumption amount is **987**. This reminds us: high consumption amount can come from "buying frequently" or "buying more each time". Whether the two types of customers are suitable for the same maintenance rhythm requires further research.
 
-六群方案还发现一对值得对比的群体：两群半年都买了约 **3次**，金额也接近（**1,027 / 1,024**），但距上次购买分别为 **14天 / 55天**。它们过去的消费规模相似，当前所处的购买阶段却不同。这是只按消费总额分层容易忽略的差别。
+The six-group plan also found a pair of groups worthy of comparison: both groups bought about **3 times** in half a year, and the amounts were similar (**1,027 / 1,024**), but the time since the last purchase was **14 days / 55 days** respectively. Their consumption scale in the past was similar, but their current purchasing stages are different. This is a difference that is easily overlooked when stratified only by total consumption.
 
-## 3. 新挖掘了哪些特征？
+## 3. What features were newly discovered?
 
-原来的特征告诉我们“买了多少”。这次补充“最近有没有改变、在有限历史里买得有多频繁”。这些特征由现有字段计算，属于新的表达方式；真实订单间隔、品类偏好、退货偏好仍需要交易明细。
+The original features tell us "how much was bought". This time I added "Have there been any changes recently, and how often have I purchased it in the limited history?" These features are calculated from existing fields and are new expressions; real order intervals, category preferences, and return preferences still require transaction details.
 
-| 新增特征 | 通俗含义与算法 | 怎么理解 |
+| New features | Popular meaning and algorithm | How to understand |
 | --- | --- | --- |
-| 购买节奏变化 | 最近30天购买次数 − 再往前60天的月均购买次数 | 例如最近30天买3次、前60天共买2次，变化为 +2。只给已有至少90天可见历史的人计算。 |
-| 近期购买占比 | 最近90天购买次数 ÷ 最近180天购买次数 | 接近1：半年内的购买集中在较近一段；为0：最近90天没有买。短历史客户天然可能偏高。 |
-| 按可见历史折算的月购次数 | 半年购买次数 ÷ 可见历史天数 × 30；天数限定30—180天 | 同样买2次，出现了两个月与出现了半年，购买频率应区别看待。 |
-| 历史是否足够长 | 是否已有至少90天可见购买历史 | 提示节奏变化是否有足够观察时间，避免把缺少历史当成没有购买。 |
+| Changes in buying pace | The number of purchases in the last 30 days − the average number of purchases per month in the previous 60 days | For example, in the last 30 days, 3 times were purchased, and in the previous 60 days, a total of 2 times were purchased, and the change is + 2. Only calculated for people who have at least 90 days of visible history. |
+| Proportion of recent purchases | Number of purchases in the last 90 days ÷ Number of purchases in the last 180 days | Close to 1: purchases within half a year are concentrated in the recent period; for 0: no purchases were made in the last 90 days. Customers with short history may naturally have higher prices. |
+| Number of monthly purchases converted based on visible history | Number of purchases in half a year ÷ Number of visible historical days × 30; limited number of days 30 — 180 days | For the same purchase 2 times, the purchase frequency should be treated differently if it occurs for two months and for half a year. |
+| Is history long enough? | Is there at least 90 days of visible purchase history? | Prompt whether there is enough observation time for changes in rhythm to avoid taking the lack of history as no purchase. |
 
-另外增加了两个便于找人的标记：**近期加速**＝节奏变化至少增加1次/月；**重复购买后暂时中断**＝已有90天可见历史、过去90天买过至少2次，但最近30天没有买。
+In addition, two markers have been added to facilitate finding people: **Recent Acceleration** = The rhythm change has increased by at least 1 times/month; **Temporary interruption after repeated purchases** = There has been a visible history of 90 days, and purchases have been made at least 2 times in the past 90 days, but no purchases have been made in the last 30 days.
 
-### 新特征真的让分群更好吗？实际试了一遍
+### Do new features really make clustering better? Actually tried it
 
-将上述4项加入原有8项后，再比较3—6群。新增特征方案选择了 **3群**。它单独识别出一个占 **20.1%** 的群体，首次可见购买距今典型只有 **48天**，其中 **98.5%** 的可见历史不足90天。说明新增特征让模型更强调“客户处在什么观察阶段”。
+After adding the above 4 item to the original 8 item, compare the 3 — 6 group. The new feature scheme selected **3 group**. It singles out a group of **20.1%** whose first visible purchase was typically only **48 days** ago, with **98.5%** having less than 90 days of visible history. Explain that the new features allow the model to emphasize "what observation stage the customer is in".
 
-用新增后的12项特征衡量，新方案得分 **0.3145**。但衡量的“尺子”变了，不能直接拿这个数与原来的得分比较。重新用原来8项特征衡量同为 3 群的新分法，得分为 **0.2056**，原方案为 **0.2242**。因此，现阶段的收获是找到了新的观察维度，还没有证据说明应该用新方案替换原模型。
+Measured by the newly added 12 features, the new solution scores **0.3145**. But the "ruler" of measurement has changed, and this number cannot be directly compared with the original score. Reusing the original 8 features to measure the new classification method for the same 3 group, the score is **0.2056**, and the original solution is **0.2242**. Therefore, the gain at this stage is that a new observation dimension has been found, and there is no evidence that the original model should be replaced with a new solution.
 
-## 4. 这些特点换一段时间还成立吗？
+## 4. Will these characteristics still hold true over time?
 
-用原模型给2011年6—8月的客户分群，再看他们之后30天实际有没有再次购买。以下结果只用于事后检查画像，未来购买记录没有参与分群。
+Use the original model to group customers from 2011, to 6 to 8 months, and then see if they actually purchase again after 30 days. The following results are only used for post-mortem inspection, and future purchase records will not be included in the grouping.
 
-| 群体 | 训练期实际复购比例 | 验证期实际复购比例 |
+| group | Actual repurchase ratio during training period | Actual repurchase ratio during validation period |
 | --- | --- | --- |
-| 常来常买型 | 47.9% | 47.8% |
-| 低频购买型 | 18.9% | 19.2% |
-| 长时间未购型 | 14.1% | 14.3% |
+| Frequent buyers | 47.9% | 47.8% |
+| Infrequent buyers | 18.9% | 19.2% |
+| Long inactive | 14.1% | 14.3% |
 
-![各群体在下一段时间的实际复购对照](figures/cluster_followup_story.png)
+![Actual repurchase comparison of each group in the next period of time](figures/cluster_followup_story.png)
 
-常来常买群在三个验证月份的复购比例为 **47.4%—48.5%**，长时间未购群为 **12.1%—16.3%**。这种差异在三个验证月份都存在，说明画像有后续行为上的对应。也说明“很久没买”不等于以后再也不会买。
+The repurchase ratio of the frequent buyers group in the three verification months is **47.4% — 48.5%**, and the repurchase ratio of the group that has not purchased for a long time is **12.1% — 16.3%**. This difference exists in the three verification months, indicating that the profiles have subsequent behavioral correspondence. It also shows that "I haven't bought it for a long time" does not mean that I will never buy it again.
 
-### 一个反直觉发现：近期加速，不一定持续加速
+### A counter-intuitive discovery: recent acceleration may not necessarily continue to accelerate
 
-在 **常来常买型** 内，只比较可见历史满90天的记录：
+In **Frequently Visited and Frequently Buyed**, only records with a visible history of 90 days are compared:
 
-| 验证期子组 | 客户月记录数 | 之后30天实际复购比例 |
+| Validation period subgroup | Number of customer records per month | Actual repurchase ratio after 30 days |
 | --- | --- | --- |
-| 最近购买次数明显增加 | 769 | 40.8% |
-| 没有达到上述增加幅度 | 1,787 | 50.8% |
+| The number of recent purchases has increased significantly | 769 | 40.8% |
+| did not reach the above-mentioned increase rate | 1,787 | 50.8% |
 
-这个结果提醒我们：购买有节奏，最近的集中购买未必会持续到下个月。是否与集中补货、季节性或客户构成有关，当前数据还不能确认。可以把“购买节奏变化”交给阶段五模型检验，而不能直接写成“越活跃越容易复购”。
+This result reminds us: there is a rhythm to buying, and the recent concentrated buying may not continue into the next month. Whether it is related to concentrated replenishment, seasonality or customer composition, the current data cannot be confirmed. "Changes in purchasing rhythm" can be submitted to the stage five model for testing, but cannot be written directly as "the more active you are, the easier it is to repurchase".
 
-### 另一个细节：暂时没买的人，也可能仍有购买基础
+### Another detail: People who haven't bought yet may still have the basis to buy.
 
-在 **低频购买型** 中，“重复购买后暂时中断”的记录有 **190条**，验证期之后30天复购比例为 **32.1%**；同群其余可见历史满90天的记录为 **18.1%**（1,550条）。
+In the **low-frequency purchase type**, there are **190 records** of "temporary interruption after repeated purchases", and the repurchase ratio 30 days after the validation period is **32.1%**; the remaining records in the same group that have a history of 90 days are **18.1%** ( 1,550 records).
 
-这个标记同时包含“过去买过不止一次”和“最近暂停”，所以较高复购率可能来自既有的购买基础。它适合用来区分客户状态，尚不能据此把“暂停”解释为复购的原因。
+This tag includes both "purchased more than once in the past" and "recently paused," so the higher repurchase rate may come from an existing purchase base. It is suitable for distinguishing customer status, but it cannot be used to interpret "pause" as the reason for repurchase.
 
-以上属于探索性观察。同一客户可贡献多个月份记录，不能当作独立样本做普通显著性检验；这里的“突出特点”指可观察的差异，没有声称统计显著或营销措施有效。测试期仍留给最终评估。
+The above are exploratory observations. The same customer can contribute records for multiple months and cannot be used as an independent sample for ordinary significance testing; the "prominent characteristics" here refer to observable differences, and there is no claim of statistical significance or effective marketing measures. The testing period is still left for final evaluation.
 
-## 5. 简单排序给后续预测模型定了什么参照？
+## 5. What reference does simple sorting set for subsequent prediction models?
 
-假设每个月只能查看20%的客户：RFM 同时看“最近买没买、买过几次、花了多少”，作为后续预测模型的简单排序参照。
+Assume that you can only view 20% customers every month: RFM At the same time, look at "whether you bought recently, how many times you bought, and how much you spent" as a simple sorting reference for subsequent prediction models.
 
-| 排序方法 | 验证期共选出的记录 | 其中之后30天再次购买 | 名单内复购比例 |
+| Sorting method | A total of records selected during the validation period | which will be purchased again after 30 days | Repurchase ratio within the list |
 | --- | --- | --- | --- |
-| 近期、次数和金额（RFM） | 1,631 | 910 | 55.8% |
+| Recent, times and amount ( RFM ) | 1,631 | 910 | 55.8% |
 
-后续复杂模型应该与这个简单办法比较，确认增加复杂度是否值得。这里是历史名单的回看，不代表营销活动带来了这些购买。
+Subsequent complex models should be compared with this simple approach to determine whether the added complexity is worth it. This is a look back at the historical list and does not mean that marketing campaigns resulted in these purchases.
 
-## 6. 汇报时可以怎么说？
+## 6. What can you say when reporting?
 
-> 我们先用三群抓住总体结构：常来常买、低频购买和长时间未购。然后把分群细化，发现高消费既可能来自高频购买，也可能来自较高的单笔金额；消费相似的人，近期活跃程度也可能不同。进一步构造购买节奏和可见历史特征后，发现近期加速不一定延续到下个月。因此，客户分群的价值是把这些差别说清楚，为后续复购预测提出可检验的问题。
+> We first use three groups to capture the overall structure: frequent buyers, low-frequency buyers, and long-term non-buyers. Then we refine the grouping and find that high consumption may come from high-frequency purchases or higher single amounts; people with similar consumption may have different levels of recent activity. After further constructing the buying rhythm and visible historical characteristics, it is found that the recent acceleration does not necessarily extend into the next month. Therefore, the value of customer segmentation is to clarify these differences and raise testable questions for subsequent repurchase predictions.
 
-## 数据文件与复现
+## Data files and reproduction
 
-- 全部合格快照 **54,040条**；训练期用于发现分群，验证期用于后续行为对照。
-- 在项目根目录运行 `python stage4/kmeans.py` 重新生成分析与报告；运行 `python stage4/kmeans.py --check` 检查已有结果。
-- `data/` 放结果表，`figures/` 放正文引用的两张图，`model/` 放可加载模型。
+- All qualified snapshots **54,040**; the training period is used to discover groupings, and the validation period is used for subsequent behavioral control.
+- Run `python stage4/kmeans.py` in the project root directory to regenerate analysis and reports; run `python stage4/kmeans.py --check` to check existing results.
+- `data/` holds the result table, `figures/` holds the two pictures quoted in the text, and `model/` holds the loadable model.
 
-| 文件 | 内容与用途 |
+| File | Content and purpose |
 | --- | --- |
-| [客户结果总表](data/customer_results.csv) | 每个客户每月一行：原始特征、新特征、分群、中心距离、两种排序和前20%标记。 |
-| [群体画像汇总](data/cluster_profiles.csv) | 原始与新增特征方案的各群体画像；按 feature_set、k、split 筛选。 |
-| [分群方案比较](data/model_comparison.csv) | 原始8项和新增后12项特征的 k=3—6 比较，合计8个方案。 |
-| [排序基线表现](data/baseline_metrics.csv) | 训练、验证期的逐月与汇总排序表现。 |
-| [行为发现的依据](data/behavior_evidence.json) | 同日消费份额、购买节奏子组、按月复购对照，合在一份记录中。 |
-| [模型包](model/segmentation_bundle.joblib) | 主模型、RFM切点、新特征探索模型，共用一个文件。 |
-| [运行记录](run_manifest.json) | 输入哈希、版本、配置、日期划分和预处理统计。 |
+| [Customer results summary table](data/customer_results.csv) | One row per customer per month: original features, new features, clustering, center distance, two sortings, and top 20% tags. |
+| [Group profile summary](data/cluster_profiles.csv) | Profiles of each group in the original and newly added feature schemes; filter by feature_set, k, split. |
+| [Comparison of grouping schemes](data/model_comparison.csv) | Comparison of k= 3 — 6 features of the original 8 term and the newly added 12 term, totaling 8 solutions. |
+| [Sort Baseline Performance](data/baseline_metrics.csv) | Month-by-month and summary sorting performance during training and validation periods. |
+| [Basis for behavioral discovery](data/behavior_evidence.json) | Same-day consumption share, purchase rhythm subgroups, and monthly repurchase comparisons are combined into one record. |
+| [Model package](model/segmentation_bundle.joblib) | The main model, RFM cut point, and new feature exploration model share one file. |
+| [Run record](run_manifest.json) | Enter hashes, versions, configurations, date partitioning, and preprocessing statistics. |
 
-画像表中，`feature_set=original_8` 是原始方案，`enhanced_12` 是新特征探索方案；`is_main_model=True` 是正文使用的主模型。`split` 区分训练、验证和测试；`snapshot_count` 是客户月记录数，`snapshot_share` 是占比，`_median` 是中位数，`_mean` 是均值。测试期的实际复购比例留空。
+In the profile table, `feature_set=original_8` is the original plan, `enhanced_12` is the new feature exploration plan; `is_main_model=True` is the main model used in the text. `split` distinguishes between training, verification and testing; `snapshot_count` is the number of monthly customer records, `snapshot_share` is the proportion, `_median` is the median, and `_mean` is the mean. The actual repurchase ratio during the test period is left blank.
 
 <details>
-<summary>方法与模型使用说明（点击展开）</summary>
+<summary>Instructions for using methods and models (click to expand)</summary>
 
-**训练边界。** 沿用上游时间划分，填补、变换和缩放只在训练期拟合；客户ID、日期和未来标签不作分群输入。原始交易与最后一期观察是否完整，仍需阶段二、三的交易明细佐证。
+**Training boundaries.** Following the upstream time division, filling, transformation and scaling are only fitted during the training period; customer ID, date and future labels are not entered for grouping. Whether the original transaction and the last period of observation are complete still need to be corroborated by the transaction details of stages two and three.
 
-**分群方法。** 原始8项特征以训练期中位数填补，偏度大于1的列做 log1p，再统一尺度。四个 k 使用同一批 4,000 条训练记录比较分离程度；随机种子 42，每个方案尝试20次初始中心。先要求最小群占比达到5%，再选择分离程度最高的方案。新特征方案允许购买节奏变化为负数，使用保留正负号的对数变换，独立拟合。
+**Group method.** The original 8 feature is filled with the median of the training period, and the column with a skewness greater than 1 is log 1 p, and then the scale is unified. Four k use the same batch of 4,000 training records to compare the degree of separation; random seeds 42, and each scheme tries 20 initial centers. First, the minimum group proportion is required to reach 5%, and then the solution with the highest degree of separation is selected. The new feature scheme allows purchase rhythm changes to be negative, using a logarithmic transformation that preserves the sign, and is fitted independently.
 
-**排序口径。** 最近购买时间分数为距上次购买天数的相反数。RFM按训练期五分位切点计分，R反向、F/M正向，各1—5分后相加；相同值同档。每个日期分别取前20%（人数向上取整），同分按客户ID文本升序。汇总名单表现采用逐月入选记录的合计；分数是排序依据。
+**Sort definition.** The recent purchase score is the inverse of the number of days since last purchase. RFM is scored according to the quintile cut-off point of the training period, R reverse, F/M forward, and the 1 - 5 points are added together; the same value is in the same bracket. Each date is preceded by 20% (the number of people is rounded up), and the same points are sorted in ascending order according to the customer ID text. The summary list performance is based on the total of the selected records month by month; the score is the basis for sorting.
 
-**加载模型。** 在项目根目录运行：
+**Load model.** Run in the project root directory:
 
 ```python
 import joblib
@@ -169,9 +169,9 @@ bundle = joblib.load('stage4/outputs/stage4/model/segmentation_bundle.joblib')
 X = snapshots[bundle['features']]
 clusters = bundle['pipeline'].predict(X)
 distances = bundle['pipeline'].transform(X)
-# 探索模型位于 bundle['exploratory']，输入先用 stage4.kmeans.derive_features 生成。
+# The exploration model is located in bundle['exploratory'], and the input is first generated using stage 4.kmeans.derive_features.
 ```
 
-主模型中心距离位于统一尺度后的特征空间，可供阶段五使用；滚动验证应在各折训练期重新拟合。模型包中的探索模型使用 stage4.transforms 中可导入的变换函数。依赖版本记录在 run_manifest.json。
+The center distance of the main model is located in the feature space after unified scale, which can be used in stage five; rolling verification should be refitted during each fold training period. The exploration models in the model package use the importable transformation functions in stage 4.transforms. Dependency versions are recorded in run_manifest.json.
 
 </details>

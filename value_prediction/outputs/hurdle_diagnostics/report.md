@@ -1,11 +1,11 @@
-# 两阶段金额模型误差来源审计
+# Two-stage amount model error source audit
 
-本报告使用已有两阶段模型的固定参数；2011 年 1–8 月按时间向前评估，9–11 月行未参与。
-购买概率、购买条件均值及中位数都只由截点前特征预测。实际购买状态仅在事后评估时使用。
+This report uses the fixed parameters of the existing two-stage model; 2011, January-August is evaluated forward in time, September-November line is not involved.
+The purchase probability, purchase condition mean and median are only predicted by the pre-cutoff features. Actual purchase status is only used for post-assessment purposes.
 
-`预测总额−实际总额 = [Σ(p×m)−Σ(I×m)] + [Σ(I×m)−Σ实际金额]`。前一项为购买发生部分，后一项为购买者金额部分；两项相加精确等于总额误差。
+`Forecast total−actual total = [Σ(p×m)−Σ(I×m)] + [Σ(I×m)−Σactual amount]`. The former item is the part where the purchase occurred, and the latter item is the part of the purchaser's amount; the sum of the two items is exactly equal to the total error.
 
-| 期间 | 金额特征 | AP | 预测购买人数偏差 | 购买发生部分 | 购买者金额部分 | 总额偏差 | 购买者中位数 MAE / 历史单均价 MAE |
+| period | Amount characteristics | AP | Deviation in forecasting the number of buyers | Purchase occurred part | Buyer's amount | total deviation | Median buyer MAE / Historical average order price MAE |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | rolling_jan_may | base_20 | 0.5201 | +28.79% | +19.63% | +5.65% | +25.28% | 334.51 / 360.23 |
 | rolling_jan_may | amount_plus_prior_year | 0.5201 | +28.79% | +17.59% | +0.94% | +18.53% | 329.21 / 360.23 |
@@ -32,9 +32,9 @@
 | rolling_jan_aug | base_20_l2_mean | 0.5510 | +17.83% | +12.02% | +11.79% | +23.81% | 341.39 / 379.78 |
 | rolling_jan_aug | base_20_segmented_buyer_lag_calibrated | 0.5510 | +17.83% | +10.79% | -1.58% | +9.21% | 341.39 / 379.78 |
 
-## 月度诊断
+## Monthly Diagnosis
 
-| 截点 | 金额特征 | 实际 / 预测购买数 | AP | 购买发生部分 | 购买者金额部分 | 总额偏差 |
+| cutoff point | Amount characteristics | Actual/forecast purchases | AP | Purchase occurred part | Buyer's amount | total deviation |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | 2011-01-01 | base_20 | 606 / 1109 | 0.5169 | +70.22% | +21.02% | +91.23% |
 | 2011-01-01 | base_20_buyer_lag_calibrated | 606 / 1109 | 0.5169 | +70.22% | +21.02% | +91.23% |
@@ -101,11 +101,11 @@
 | 2011-08-01 | base_20_recent_weighted | 715 / 751 | 0.6178 | +1.41% | -10.49% | -9.08% |
 | 2011-08-01 | base_20_l2_mean | 715 / 751 | 0.6178 | +1.09% | -0.87% | +0.22% |
 
-## 高额购买者尾部审计（原两阶段模型）
+## High-volume buyer tail audit (original two-stage model)
 
-每月在实际购买者中取消费额最高的约 1%；实际金额只用于事后审计。
+The highest monthly fee among actual buyers is approximately 1%; the actual amount is only used for post-auditing.
 
-| 截点 | 尾部人数 | 占当月实际金额 | 进入预测 Top20 | 尾部预测金额 / 实际金额 |
+| cutoff point | Number of people at the end | Accounting for the actual amount of the month | Enter prediction Top 20 | Tail forecast amount/actual amount |
 | --- | ---: | ---: | ---: | ---: |
 | 2011-01-01 | 7 | 21.52% | 7 / 7 | 38.32% |
 | 2011-02-01 | 7 | 19.27% | 7 / 7 | 62.05% |
@@ -116,4 +116,4 @@
 | 2011-07-01 | 8 | 19.49% | 8 / 8 | 60.24% |
 | 2011-08-01 | 8 | 28.01% | 8 / 8 | 33.51% |
 
-该分解用于定位误差来源，不等同于任何强化目标已经通过。原目标仍按 `optimization_protocol.md` 与未来可信数据判断。
+This decomposition is used to locate sources of error and does not equate to any reinforcement target being passed. The original target is still based on `optimization_protocol.md` and future credible data.

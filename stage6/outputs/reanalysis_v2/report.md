@@ -1,15 +1,15 @@
-# 新分群与复购模型：统一历史回放
+# New grouping and repurchase model: unified historical playback
 
-新 K-means 4 群与新阶段五选出的 14 项特征 XGBoost 已装入同一模型包。模型均只用原训练期拟合；验证期评分和分群结果与上游产物逐条复现。
-2011 年 9–11 月曾在早期项目中被查看，以下检查是回顾性诊断，不能称为全新独立测试。复购评分未经概率校准，只用于相对排序。
+The new K-means 4 group and the new phase five selected 14 features XGBoost have been loaded into the same model package. The models are only fitted using the original training period; the scoring and grouping results of the validation period are reproduced one by one with the upstream products.
+2011, September-November have been viewed in earlier projects, the following examination is a retrospective diagnosis and cannot be called a new independent test. Repurchase scores are not calibrated for probability and are only used for relative ranking.
 
-| 方法 | AP | Top 20% 精确率 | ROC-AUC | Brier |
+| method | AP | Top 20% accuracy | ROC-AUC | Brier |
 | --- | ---: | ---: | ---: | ---: |
-| XGBoost（base_8_plus_trend_and_rhythm） | 0.6201 | 66.22% | 0.7204 | 0.1928 |
-| LR（base_8） | 0.6064 | 63.96% | 0.7100 | 0.1969 |
+| XGBoost (base_8_plus_trend_and_rhythm) | 0.6201 | 66.22% | 0.7204 | 0.1928 |
+| LR (base_8) | 0.6064 | 63.96% | 0.7100 | 0.1969 |
 
-逐月检查：
-| 月份 | 方法 | AP | Top 20% 精确率 |
+Check monthly:
+| month | method | AP | Top 20% accuracy |
 | --- | --- | ---: | ---: |
 | 2011-09-01 | XGBoost | 0.6205 | 64.98% |
 | 2011-10-01 | XGBoost | 0.5740 | 60.62% |
@@ -18,7 +18,7 @@
 | 2011-10-01 | LR | 0.5562 | 56.85% |
 | 2011-11-01 | LR | 0.6529 | 70.38% |
 
-XGBoost 相对基础逻辑回归：AP 差 +0.0137，Top 20% 精确率差 +2.25 个百分点。
-这说明同一批历史记录上的排序差异，不能推断接触客户会增加收入。
+XGBoost relative to basic logistic regression: AP difference + 0.0137, Top 20% accuracy difference + 2.25 percentage points.
+This illustrates the ranking differences on the same batch of historical records and does not infer that reaching customers increases revenue.
 
-运行：`python -B -m stage6.integrate_reanalysis`；页面：`python -m streamlit run app/dashboard.py`。逐条评分在 `test_predictions.csv`，仪表板导出不含事后标签。
+Run: `python -B -m stage6.integrate_reanalysis`; Page: `python -m streamlit run app/dashboard.py`. Item-by-item scoring In `test_predictions.csv`, dashboard export does not include post-event tags.

@@ -1,18 +1,18 @@
-# 阶段四：三群与四群稳定性检查
+# Phase 4: Stability check of three groups and four groups
 
-从训练期留出固定的 2,000 条客户月记录；所有重复模型都只用其余训练记录拟合。“只换随机种子”保持拟合记录相同；“换训练抽样”每次抽取剩余记录的 80%，固定 K-means 种子为 42。每次都重新拟合填补、变换、缩放和 K-means。没有使用验证期或测试期标签。
+A fixed number of 2,000 customer-month records are set aside from the training period; all repeated models are fitted using only the remaining training records. "Just change random seeds" keeps the fitting records the same; "Change training sampling" extracts 80% of the remaining records each time, and fixes the K-means seed to 42. Fill, transform, scale and K-means are refitted each time. No validation or testing period labels are used.
 
-轮廓系数在同一批留出记录上计算；ARI 衡量它们与本检查参考模型的分组一致性，1 表示完全一致，聚类编号互换不影响 ARI。参考模型也未见过这批留出记录。
+Silhouette coefficients are calculated on the same batch of set-out records; ARI measures their grouping consistency with the reference model for this check, 1 means complete consistency, and cluster number exchange does not affect ARI. The reference model has also not been seen in this batch leaving records.
 
-| k | 变化方式 | 留出轮廓系数范围 | 相对参考模型 ARI 范围 | 最小训练群占比范围 |
+| k | Change mode | Leave a range of silhouette scores | Relative reference model ARI range | Minimum training group proportion range |
 | --- | --- | --- | --- | --- |
-| 3 | 只换初始化种子 | 0.2244–0.2244 | 0.9986–1.0000 | 27.4%–27.4% |
-| 3 | 换训练抽样 | 0.2239–0.2243 | 0.9603–0.9927 | 26.3%–27.4% |
-| 4 | 只换初始化种子 | 0.2215–0.2216 | 0.9764–0.9885 | 17.2%–17.3% |
-| 4 | 换训练抽样 | 0.2208–0.2216 | 0.9737–0.9910 | 16.7%–17.4% |
+| 3 | Only change the initialization seed | 0.2244–0.2244 | 0.9986–1.0000 | 27.4%–27.4% |
+| 3 | Change training samples | 0.2239–0.2243 | 0.9603–0.9927 | 26.3%–27.4% |
+| 4 | Only change the initialization seed | 0.2215–0.2216 | 0.9764–0.9885 | 17.2%–17.3% |
+| 4 | Change training samples | 0.2208–0.2216 | 0.9737–0.9910 | 16.7%–17.4% |
 
-同一次设置下，三群减四群的留出轮廓系数范围为 **+0.0026 至 +0.0032**；三群较高 6/6 次。
+Under the same setting, the remaining silhouette score range of the three groups minus the four groups is **+ 0.0026 to + 0.0032**; the three groups are 6 / 6 times higher.
 
-各群留出记录数、去重客户数、平均轮廓系数、负轮廓占比及 RFM 中位数，见 [stability_cluster_details.csv](data/stability_cluster_details.csv)。这里只检查随机因素和训练样本扰动；同一客户可跨月出现，因此留出记录可能与拟合记录共享客户，这不是跨客户的泛化测试。
+For the number of records set aside for each cluster, the number of deduplicated customers, the average silhouette coefficient, the proportion of negative silhouettes and the RFM median, see [stability_cluster_details.csv](data/stability_cluster_details.csv). Only random factors and training sample perturbations are examined here; the same customer can appear across months, so the set-aside records may share customers with the fitted records, and this is not a generalization test across customers.
 
-完整运行参数见 [stability_config.json](stability_config.json)；逐次结果见 [stability_runs.csv](data/stability_runs.csv)。
+See [stability_config.json](stability_config.json) for complete running parameters; see [stability_runs.csv](data/stability_runs.csv) for step-by-step results.

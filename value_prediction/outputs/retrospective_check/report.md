@@ -1,11 +1,11 @@
-# 2011 年 9–11 月固定方法回顾检查
+# 2011, September-November fixed method review check
 
-这三个月此前已经被查看，结果不能被称为全新独立测试，也不用于再次调参。
-滞后校准公式在原项目 1–8 月开发期固定；这里仅按同一公式回看。
-去年同期金额和“历史是否完整”也仅依开发期确定，在这里作回顾诊断。
-每月只用完整标签已结束的过去快照训练；9 月标签可以在 10 月训练中使用。
+These three months have been viewed before, and the results cannot be called a new independent test, nor are they used to adjust parameters again.
+The lag calibration formula was fixed during the January-Augustly development period of the original project; here we only review the same formula.
+The amount for the same period last year and "whether the history is complete" are only determined based on the development period, and are reviewed and diagnosed here.
+Only past snapshots with complete labels are used for monthly training; 9 month labels can be used in 10 month training.
 
-| 期间 | 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 |
+| period | method | MAE | Buyer MAE | Top 20 coverage | total deviation |
 | --- | --- | ---: | ---: | ---: | ---: |
 | 2011-09-01 | historic_180d | 255.22 | 527.51 | 68.60% | -23.45% |
 | 2011-09-01 | extended_tweedie | 245.39 | 540.15 | 71.61% | -32.41% |
@@ -22,10 +22,10 @@
 | 2011-11-01 | extended_tweedie_lag_calibrated | 262.51 | 495.36 | 66.86% | -17.49% |
 | 2011-11-01 | extended_tweedie_history_available | 255.93 | 510.66 | 66.85% | -30.09% |
 | 2011-11-01 | extended_tweedie_previous_year | 256.13 | 509.88 | 67.55% | -27.27% |
-| 合计 | historic_180d | 263.47 | 529.85 | 67.28% | -20.77% |
-| 合计 | extended_tweedie | 252.58 | 535.01 | 69.47% | -26.16% |
-| 合计 | extended_tweedie_lag_calibrated | 255.56 | 525.20 | 69.47% | -19.25% |
-| 合计 | extended_tweedie_history_available | 249.40 | 542.77 | 69.29% | -29.87% |
-| 合计 | extended_tweedie_previous_year | 247.59 | 536.64 | 70.11% | -27.92% |
+| total | historic_180d | 263.47 | 529.85 | 67.28% | -20.77% |
+| total | extended_tweedie | 252.58 | 535.01 | 69.47% | -26.16% |
+| total | extended_tweedie_lag_calibrated | 255.56 | 525.20 | 69.47% | -19.25% |
+| total | extended_tweedie_history_available | 249.40 | 542.77 | 69.29% | -29.87% |
+| total | extended_tweedie_previous_year | 247.59 | 536.64 | 70.11% | -27.92% |
 
-客户级预测、月度指标和训练截止审计见同目录。
+Customer-level forecasts, monthly metrics, and training deadline audits are found in the same directory.

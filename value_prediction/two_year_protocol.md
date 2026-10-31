@@ -1,13 +1,13 @@
-# Complete Journey 两年数据时序检验预案
+# Complete Journey two-year data timing inspection plan
 
-写入日期：2026-10-23；在下载并读取完整两年交易文件或末段标签前确定。此检验与此前读取的一年版 R 数据包分开。完整两年数据在 Kaggle 公开镜像中以 `transaction_data.csv` 提供，原始交易来自 dunnhumby Source Files；仅在本机临时目录使用，不提交或再分发原始行。
+Date written: 2026-10-23; determined before downloading and reading the full two-year transaction file or end tag. This check is separate from the one-year version of the R package that was read earlier. The complete two years of data are available in the Kaggle public mirror as `transaction_data.csv`, with the original transactions coming from dunnhumby Source Files; only used in the local temporary directory, the original rows are not committed or redistributed.
 
-## 固定口径
+## Fixed definition
 
-- 只读 `transaction_data.csv`。保留家庭、订单、商品、`DAY`、`QUANTITY`、`SALES_VALUE` 均非空，且天数为正整数、数量和销售额均大于零的交易行。销售额按分精确汇总；报告剔除数。促销、人口属性和其他表不作为特征。
-- `DAY=1` 作为连续时间起点；不用凭空添加真实公历日期。截点天数固定为 `181 + 30k`，其中 `k` 为从 0 开始的整数，且 `[t,t+30)` 在源数据时间范围内完整。输入窗口 `[t-180,t)`，标签窗口 `[t,t+30)`，只纳入输入窗口内至少有一笔订单的家庭。
-- 截点按时间排序，最后 3 个是锁定测试，之前 3 个是开发确认，其余是训练。每个目标截点仅用完整标签窗口已结束的早期截点训练。已查看的一年版数据大约覆盖第一年，最后三段位于更晚的第二年；仍须在审计中确认日序号。
-- 固定模型为原项目开发期已经使用的 LightGBM Tweedie：20 个历史特征（原 8 项加 12 项时序特征），120 棵树，学习率 0.05，15 叶，方差幂 1.5，随机种子 42。基线为近 180 天金额除以 6；近 90 天金额除以 3 仅作附加对照。不读取末段标签后再改变特征、模型或清洗。
-- 对每个测试截点报告同客户的 MAE、购买者 MAE、Top 20% 客户实际消费额覆盖率、总额偏差、零金额比例和训练标签可用日期。每段和合并结果都保留。与原项目金额不合并计算。
+- Read only `transaction_data.csv`. Keep transaction lines where family, order, product, `DAY`, `QUANTITY`, `SALES_VALUE` are all non-empty, the number of days is a positive integer, and the quantity and sales are both greater than zero. Sales are accurately summarized by points; eliminations are reported. Promotions, demographic attributes, and other tables are not features.
+- `DAY=1` as the starting point of continuous time; no need to add real Gregorian calendar dates out of thin air. The cutoff number of days is fixed at `181 + 30k`, where `k` is an integer starting from 0, and `[t,t+30)` is complete within the source data time range. The input window `[t-180,t)` and the label window `[t,t+30)` only include families with at least one order in the input window.
+- The cutoff points are sorted by time, the last 3 are lock tests, the previous 3 are development confirmations, and the rest are training. Each target cutoff is trained only with early cutoffs for which the full label window has ended. The one-year version of the data viewed covers approximately the first year, with the last three segments in the later second year; day numbers still need to be confirmed in the audit.
+- The fixed model is LightGBM Tweedie that has been used in the original project development period: 20 historical features (original 8 items plus 12 time series features), 120 tree, learning rate 0.05, 15 leaves, variance power 1.5, random seed 42. The baseline is the amount in the last 180 days divided by 6; the amount in the last 90 days divided by 3 is only for additional comparison. Do not read the last tag before changing features, models or cleaning.
+- For each test cut-off point, the actual consumption coverage, total deviation, zero amount ratio and training label available date of the same customer MAE, buyer MAE and Top 20% are reported. Each segment and merged results are preserved. It will not be combined with the original project amount.
 
-这是另一家杂货零售商的纵向数据。即使末段结果好，也只是方法跨零售商、跨时间的证据，不能直接证明原在线零售系统的 2011 年之后表现。原项目强化挑战目标仍由 `optimization_protocol.md` 约束；不得把此处的差异解释为原项目同域独立验收。
+Here is longitudinal data from another grocery retailer. Even if the final results are good, they are only evidence of methods across retailers and time, and cannot directly prove the performance of the original online retail system after 2011 years. The original project's enhanced challenge goal is still bound by `optimization_protocol.md`; the difference here shall not be interpreted as an independent acceptance of the original project in the same domain.

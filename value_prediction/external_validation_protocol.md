@@ -1,20 +1,20 @@
-# 独立交易数据检验预案（2026-10-23，读取外部标签前写入）
+# Independent transaction data inspection plan ( 2026-10-23, written before reading external tags)
 
-## 目的与边界
+## Purpose and Boundaries
 
-公开的 Complete Journey 零售交易用于检验“先做无泄漏客户月快照，再预测未来 30 天消费额”的方法在另一家零售商上的可迁移性。数据来源：dunnhumby Source Files 页面及 `bradleyboehmke/completejourney` R 数据包的 `transactions.rds`。原始数据仅保存在本机临时目录，不加入 Git 仓库；记录来源 URL 和 SHA-256。该数据是杂货零售，不等同于原项目的在线零售业务，不能用其单独证明原数据上的金额模型已达标。
+The public Complete Journey retail transaction is used to test the transferability of the method of "first taking a leak-free customer monthly snapshot and then predicting 30 days of consumption in the future" to another retailer. Data source: dunnhumby Source Files page and `transactions.rds` of `bradleyboehmke/completejourney` R packet. The original data is only saved in the local temporary directory and is not added to the Git repository; the source URL and SHA- 256 are recorded. This data is for grocery retail, which is not equivalent to the online retail business of the original project. It cannot be used to independently prove that the amount model on the original data has reached the standard.
 
-## 锁定的数据处理
+## Locked data processing
 
-- 仅用有非空 `household_id`、`basket_id`、`product_id`、`transaction_timestamp`，且 `sales_value > 0`、`quantity > 0` 的交易行。每笔订单以 `basket_id` 和家庭共同标识；记录剔除数。
-- 对每个自然月 1 日 `t`，输入只看 `[t-180d,t)`，标签为 `[t,t+30d)` 的合格销售金额。客户必须在输入窗口内有至少一笔订单；不使用人口属性、促销、优惠券和未来交易做特征。
-- 可用截点从数据起点之后第一个拥有完整 180 天历史的自然月开始，到数据末尾之前最后一个拥有完整 30 天标签的自然月结束。按时间排序，最后 2 个可用截点留作最终检验，之前 1 个作开发确认，其他仅用于训练。若总截点少于 5 个，则不进行模型验收。
-- 每个未来截点只用完整 30 天标签已结束的历史截点训练；月度快照的同一客户可以跨月出现，这是实际按月预测场景，结果不得解释为“新客户泛化”。
+- Only use trading lines with non-empty `household_id`, `basket_id`, `product_id`, `transaction_timestamp`, and `sales_value > 0`, `quantity > 0`. Each order is identified by `basket_id` and the household; the number of culls is recorded.
+- For each calendar month 1 and day `t`, enter only `[t-180d,t)` and the qualifying sales amount labeled `[t,t+30d)`. Customers must have at least one order within the input window; demographic attributes, promotions, coupons, and future transactions are not used for features.
+- Available cutoff points begin with the first calendar month with a full 180 day history after the start of the data and end with the last calendar month with a full 30 day label before the end of the data. Sorted by time, the last 2 available cutoff points are reserved for final testing, the previous 1 are used for development confirmation, and the others are only used for training. If the total cutoff points are less than 5, model acceptance will not be performed.
+- Each future cutoff is only trained with historical cutoffs that have ended with full 30 day labels; the same customer for a monthly snapshot can appear across months, which is an actual monthly forecasting scenario, and the results should not be interpreted as "new customer generalization".
 
-## 锁定模型与评价
+## Lock model and evaluation
 
-候选固定为在原项目开发期已研究的 LightGBM Tweedie（120 棵树、学习率 0.05、15 叶、方差幂 1.5、随机种子 42）和原项目的 8 个同义特征加 12 个严格早于截点的时序特征。对照为近 180 天金额 `/6`；另报近 90 天金额 `/3`。不根据外部最终两个月结果调特征、清洗、模型参数、阈值或报告口径。
+The candidates are fixed to LightGBM Tweedie ( 120 tree, learning rate 0.05, 15 leaves, variance power 1.5, random seed 42 ) that have been studied during the original project development period and 8 synonymous features of the original project plus 12 time series features that are strictly earlier than the cutoff point. The comparison is the amount of `/6` in the last 180 days; the amount of `/3` in the last 90 days is also reported. Do not adjust features, cleaning, model parameters, thresholds or reporting standards based on external final two-month results.
 
-主要指标：客户 MAE、每月 Top 20% 客户实际消费额覆盖率、全体预测总额偏差，以及逐月相对基线差值。购买者 MAE 作为诊断；零消费客户比例另报。开发确认期可用于发现实现错误；最终两个月只评估一次。采用同客户同截点比较，不把不同币种金额合并。
+Main indicators: customer MAE, monthly top 20% customer actual consumption coverage, overall forecast total deviation, and month-to-month relative baseline difference. Purchaser MAE is used as diagnosis; the proportion of zero-consuming customers is reported separately. The development validation period can be used to catch implementation bugs; the final evaluation is only done once every two months. The same customers are compared with the same cut-off point, and amounts in different currencies are not combined.
 
-这是一项跨领域稳健性检验。原项目的强化挑战目标保持在 `optimization_protocol.md` 中；外部数据不用于事后降低该目标。通过外部检验也不能替代原项目未来新时间段的最终验证。
+This is a cross-domain robustness check. The original project's hardening challenge goal remains at `optimization_protocol.md`; external data is not used to lower this goal post hoc. Passing external inspections does not replace the final verification of the original project in a new time period in the future.

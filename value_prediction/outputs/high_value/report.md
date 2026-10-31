@@ -1,24 +1,24 @@
-# 未来 30 天高消费潜力名单：历史回放
+#Future 30 List of Sky-high Consumption Potential: Historical Replay
 
-固定使用既有 20 特征模型的排序，与过去 180 天消费额排序比较。这是已查看月份的课程演示，**不是新独立测试，也不是个人消费额预测验收**。
+The ranking of the existing 20 feature model is fixed and compared with the ranking of consumption amount in the past 180 days. This is a course demonstration for the month viewed, **not a new independent test, nor a personal spending forecast acceptance**.
 
-## 同一批客户的 Top 20% 名单
+## Top 20% list of the same batch of customers
 
-| 月份 | 客户数 | 名额 | 模型覆盖 | 历史金额基线覆盖 | 提升 |
+| month | Number of customers | Quota | Model coverage | Historical amount baseline coverage | promote |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| 2011-06 | 2,658 | 532 | 71.95% | 70.37% | +1.58 个百分点 |
-| 2011-07 | 2,722 | 545 | 72.69% | 71.16% | +1.52 个百分点 |
-| 2011-08 | 2,766 | 554 | 74.88% | 72.57% | +2.31 个百分点 |
-| 2011-09 | 2,768 | 554 | 71.61% | 68.60% | +3.01 个百分点 |
-| 2011-10 | 2,919 | 584 | 70.63% | 68.48% | +2.15 个百分点 |
-| 2011-11 | 3,188 | 638 | 66.86% | 65.29% | +1.57 个百分点 |
+| 2011-06 | 2,658 | 532 | 71.95% | 70.37% | + 1.58 percentage points |
+| 2011-07 | 2,722 | 545 | 72.69% | 71.16% | + 1.52 percentage points |
+| 2011-08 | 2,766 | 554 | 74.88% | 72.57% | + 2.31 percentage points |
+| 2011-09 | 2,768 | 554 | 71.61% | 68.60% | + 3.01 percentage points |
+| 2011-10 | 2,919 | 584 | 70.63% | 68.48% | + 2.15 percentage points |
+| 2011-11 | 3,188 | 638 | 66.86% | 65.29% | + 1.57 percentage points |
 
-| 期间 | 客户月 | 模型覆盖 | 基线覆盖 | 提升 | 不退步月份 |
+| period | customer months | Model coverage | baseline coverage | promote | Month of no regression |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| known_jun_aug | 8,146 | 73.19% | 71.38% | +1.82 个百分点 | 3/3 |
-| viewed_sep_nov | 8,875 | 69.47% | 67.28% | +2.19 个百分点 | 3/3 |
+| known_jun_aug | 8,146 | 73.19% | 71.38% | + 1.82 percentage points | 3/3 |
+| viewed_sep_nov | 8,875 | 69.47% | 67.28% | + 2.19 percentage points | 3/3 |
 
-**历史演示门槛：达到。** 该门槛是在既有结果已被查看后制定，仅决定课程演示是否展示名单，不表示统计显著、未来泛化或营销增量。
+**Historical demo threshold: reached.** This threshold was developed after existing results had been viewed and only determines whether a list will be shown in a course demonstration and does not indicate statistical significance, future generalization, or marketing increments.
 
-名单 CSV 只含当时可用的客户 ID、历史特征与排名；未来实际消费额只保留在汇总评价中。金额数值预测仍未通过原强化验收。
-比较月份并非线上触达试验，没有活动成本、对照组或真实 ROI。
+The list CSV only contains the customer ID, historical characteristics and rankings available at that time; the actual consumption in the future is only retained in the summary evaluation. The numerical prediction of the amount has not yet passed the original enhanced acceptance.
+Comparison months are not an online reach trial and have no campaign costs, control groups, or true ROI.

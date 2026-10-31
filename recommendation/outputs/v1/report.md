@@ -1,68 +1,68 @@
-# 下一笔订单商品推荐：比较结果
+# Product recommendations for next order: comparison results
 
-**最终采用：个人重复购买。**
+**Final adoption: Individual repeat purchase.**
 
-每月为过去180天买过东西的客户推荐10种商品。答案是随后30天内下一笔订单的不同商品，允许推荐以前买过的商品。主指标NDCG@10同时衡量是否命中及命中商品的排名。
+Recommend 10 products each month to customers who have purchased something in the past 180 days. The answer is a different product for the next order within 30 days, allowing recommendations for previously purchased products. The main indicator NDCG@10 simultaneously measures whether the product is hit and the ranking of the hit product.
 
-## 五种方法的公平比较
+## Fair comparison of five methods
 
-| 方法 | 验证NDCG@10 | 验证Recall@10 | 验证Hit@10 | 测试NDCG@10 | 测试Recall@10 | 测试Hit@10 |
+| method | Verify NDCG@10 | Verify Recall@10 | Verify Hit@10 | Test NDCG@10 | Test Recall@10 | Test Hit@10 |
 |---|---:|---:|---:|---:|---:|---:|
-| 热门商品 | 0.1270 | 6.64% | 55.45% | 0.0862 | 3.65% | 39.84% |
-| 个人重复购买 | 0.3226 | 20.01% | 80.60% | 0.2863 | 17.17% | 75.09% |
+| Popular products | 0.1270 | 6.64% | 55.45% | 0.0862 | 3.65% | 39.84% |
+| Personal repeat purchase | 0.3226 | 20.01% | 80.60% | 0.2863 | 17.17% | 75.09% |
 | ItemKNN | 0.2015 | 11.65% | 63.16% | 0.1619 | 8.61% | 52.66% |
-| 隐式反馈ALS | 0.2526 | 14.87% | 72.73% | 0.2124 | 11.37% | 63.87% |
+| Implicit ALS | 0.2526 | 14.87% | 72.73% | 0.2124 | 11.37% | 63.87% |
 | EASE | 0.2779 | 16.81% | 75.80% | 0.2418 | 13.91% | 68.97% |
 
-各月份等权平均。上述三个指标仅评价有下一笔订单的客户；所有合格客户都会生成名单。完整表另报全体客户命中率、@5、商品覆盖、已买/未买商品的召回及未知新品占比。
+Equally weighted average for each month. The above three indicators only evaluate customers with next orders; a list is generated for all qualified customers. The complete table also reports the hit rate of all customers, @ 5, product coverage, recalls of purchased/unpurchased products, and the proportion of unknown new products.
 
-## 为什么选它
+## Why choose it?
 
-- 验证期最强规则为个人重复购买，最强学习方案为EASE。
-- 最强学习方案相对最强规则的验证平均NDCG差值：-0.0447。
-- 事先条件：平均NDCG至少高0.002、至少2/3个月不退步、平均Recall落后不超过0.005。
-- 条件结果：`{"ndcg_gain_at_least_002": false, "at_least_two_months_nonworse": false, "mean_recall_loss_at_most_005": false}`。
-- 最终参数：`{"id": "personal_repeat_None", "method": "personal_repeat", "half_life": null}`。
+- The strongest rule during the validation period is individual repeated purchases, and the strongest learning plan is EASE.
+- The average NDCG difference between the validation of the strongest learning scheme and the strongest rule: - 0.0447.
+- Prior conditions: the average NDCG is at least 0.002 higher, at least 2 / 3 does not regress for months, and the average Recall lags no more than 0.005.
+- Condition result: `{"ndcg_gain_at_least_002": false, "at_least_two_months_nonworse": false, "mean_recall_loss_at_most_005": false}`.
+- Final parameters: `{"id": "personal_repeat_None", "method": "personal_repeat", "half_life": null}`.
 
-## 数据与时间顺序
+## Data and time sequence
 
-清洗交易776,579行；合并同一发票同一商品的多行后，得到766,089条购买互动。数量和金额不参与互动加权，减少批发大单影响。
+Clean transaction lines 776,579; after merging multiple lines of the same invoice and the same product, 766,089 purchase interactions are obtained. Quantity and amount do not participate in interactive weighting, reducing the impact of large wholesale orders.
 
-| 用途 | 客户月 | 有下一笔订单的客户月 |
+| Purpose | customer months | Customer months with next order |
 |---|---:|---:|
-| 验证：6–8月 | 8,146 | 2,177 |
-| 测试：9–11月 | 8,875 | 3,025 |
+| Verification: June-August | 8,146 | 2,177 |
+| Test: September-November | 8,875 | 3,025 |
 
-1–5月向前开发，每类学习方案8组参数。6–8月用6月1日前的全局商品关系选型；选定后，用9月1日前交易拟合并冻结最终商品关系，再一次性计算9–11月商品推荐结果。客户自身输入按月只使用当时已发生的订单，全部方法遵守相同规则。9–11月此前已用于复购和金额任务，本轮商品答案未参与选型。
+1 – 5 is developed monthly, and each type of learning program has 8 set of parameters. June-August use the global product relationship selection of 6 months and 1 days ago; after selection, use 9 months and 1 days ago transactions to fit and freeze the final product relationships, and then calculate the September-Novemberly product recommendation results at once. The customer's own input only uses orders that have occurred at that time on a monthly basis, and all methods follow the same rules. 9 – 11 have been used for repurchase and amount tasks before this month, and the product answers in this round are not involved in the selection.
 
-候选商品由各阶段训练期180天内全部已售商品确定，各方法一致；同分统一按训练期热门程度及编码排序；测试中出现的新品保留在答案分母中。没有库存数据，商品清单不代表当时有货。
+Candidate products are determined by all sold products within 180 days of the training period in each stage, and the methods are consistent; the same scores are sorted according to the popularity and coding during the training period; new products that appear in the test are retained in the denominator of the answer. There is no inventory data, and product listings do not represent availability at that time.
 
-## 逐月效果与难点
+## Month by month effects and difficulties
 
-| 月份 | 用途 | 有下一单客户 | NDCG@10 | Recall@10 | Hit@10 | 候选内答案占比 | 已买商品Recall | 未买商品Recall |
+| month | Purpose | There is a next customer | NDCG@10 | Recall@10 | Hit@10 | Proportion of answers among candidates | Purchased item Recall | Unbought item Recall |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| 2011-06 | 验证 | 745 | 0.2958 | 18.28% | 78.12% | 93.66% | 45.77% | 0.08% |
-| 2011-07 | 验证 | 717 | 0.3342 | 20.86% | 80.06% | 89.65% | 46.82% | 0.09% |
-| 2011-08 | 验证 | 715 | 0.3378 | 20.88% | 83.64% | 87.65% | 44.49% | 0.35% |
-| 2011-09 | 测试 | 903 | 0.3146 | 18.76% | 76.41% | 95.10% | 48.14% | 0.12% |
-| 2011-10 | 测试 | 900 | 0.2729 | 15.49% | 72.67% | 89.08% | 42.59% | 0.18% |
-| 2011-11 | 测试 | 1,222 | 0.2714 | 17.25% | 76.19% | 88.50% | 41.12% | 0.12% |
+| 2011-06 | Verify | 745 | 0.2958 | 18.28% | 78.12% | 93.66% | 45.77% | 0.08% |
+| 2011-07 | Verify | 717 | 0.3342 | 20.86% | 80.06% | 89.65% | 46.82% | 0.09% |
+| 2011-08 | Verify | 715 | 0.3378 | 20.88% | 83.64% | 87.65% | 44.49% | 0.35% |
+| 2011-09 | test | 903 | 0.3146 | 18.76% | 76.41% | 95.10% | 48.14% | 0.12% |
+| 2011-10 | test | 900 | 0.2729 | 15.49% | 72.67% | 89.08% | 42.59% | 0.18% |
+| 2011-11 | test | 1,222 | 0.2714 | 17.25% | 76.19% | 88.50% | 41.12% | 0.12% |
 
-已买/未买指过去180天是否买过。下一单可能包含很多商品，因此推荐10件的Recall可能较低；Hit只要求至少命中一件，不能单独用它宣称推荐非常准确。
+Bought/Not Bought refers to whether the item was purchased in the past 180 days. The next order may contain many products, so the Recall of recommended 10 pieces may be lower; Hit only requires at least one hit, and cannot be used alone to claim that the recommendation is very accurate.
 
-验证期500次客户成组配对抽样（最强学习方案减最强规则）：
-- ndcg_10：-0.0447，95%客户抽样区间[-0.0533, -0.0357]。
-- recall_10：-0.0319，95%客户抽样区间[-0.0394, -0.0247]。
-抽样是选型后的内部稳健性检查，不是新月份效果保证。ALS额外种子结果见als_seed_monthly.csv。
+Validation period 500 customer group paired sampling (the strongest learning plan minus the strongest rule):
+- ndcg_ 10: - 0.0447, 95% customer sampling interval [- 0.0533, - 0.0357 ].
+- recall_ 10: - 0.0319, 95% customer sampling interval [- 0.0394, - 0.0247 ].
+Sampling is an internal robustness check after selection and is not a guarantee of new month results. ALS Additional seed results are available in als_seed_monthly.csv.
 
-![逐月推荐比较](comparison.png)
+![Monthly recommended comparison](comparison.png)
 
-## 打开与复现
+## Open and reproduce
 
 `python -B -m recommendation.experiment`
 
-`python -m streamlit run app/dashboard.py` → **Product recommendations** → 选择日期和客户。
+`python -m streamlit run app/dashboard.py` → **Product recommendations** → Select date and customer.
 
-recommendations.csv用于页面和导出，不含未来订单、命中结果或答案。validation_labels.csv/test_labels.csv和逐客户指标仅作离线核对；locked_selection.json保存选型、参数和模型哈希，tuning_comparison.csv保存全部30组配置。
+recommendations.csv is used for pages and exports and does not contain future orders, hits or answers. validation_labels.csv/test_labels.csv and customer-by-customer indicators are only used for offline verification; locked_selection.json saves selection, parameters and model hashes, and tuning_comparison.csv saves all 30 group configurations.
 
-算法依据：[ItemKNN](https://www.ra.ethz.ch/CDstore/www10/papers/519/) · [隐式反馈ALS](https://yifanhu.net/PUB/cf.pdf) · [EASE](https://arxiv.org/abs/1905.03375)。
+Algorithm basis: [ItemKNN](https://www.ra.ethz.ch/CDstore/www10/papers/519/) · [Implicit feedback ALS](https://yifanhu.net/PUB/cf.pdf) · [EASE](https://arxiv.org/abs/1905.03375).

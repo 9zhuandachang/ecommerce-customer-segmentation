@@ -1,8 +1,8 @@
 {
   "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
   "clean_transactions_sha256": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
-  "script_sha256": "6bce22c4418bf0b99fd7ae17dbb2c1a2ef6af78ea72e1ac4b8d4441d78fab9fc",
-  "protocol_sha256": "6581878bb2519e24b257cc6621261826eb1770d0bc8065bf46d014a9a3622818",
+  "script_sha256": "6b9b8d22e3ea1933bc7bdb5fc3420272b6c2965981c7ec6dda45024bb7b62900",
+  "protocol_sha256": "ff05bea6f8401f608ed66b9b6c42c29d3e7ca036a6b515c4519e81f8df65052e",
   "feature_sets": {
     "base_8": [
       "recency_days",

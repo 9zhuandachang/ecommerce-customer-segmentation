@@ -1,16 +1,16 @@
-# 购买者金额误差定向实验：运行前锁定
+# Buyer amount error orientation experiment: lock before running
 
-记录于查看本候选的任何运行结果之前。本实验是原商家 2011 年已查看开发月份的模型研究，不产生新的独立测试，也不改变 `optimization_protocol.md` 的强化挑战目标。
+Recorded before viewing any run results for this candidate. This experiment is a model study of the viewed development months of the original merchant 2011. It does not generate new independent tests, nor does it change the enhanced challenge goals of `optimization_protocol.md`.
 
-## 问题与唯一候选
+## Problem and only candidate
 
-此前 `ranking_audit` 显示，20 特征直接金额模型降低了全体客户的 MAE，但近期实际购买者的金额 MAE 变差。固定检验一个有明确代价含义的改动：对训练中**已经完整成熟**的未来 30 天购买金额大于零的快照赋权 2，金额为零的快照赋权 1。这个倍数只表达“购买者金额误差值得双倍关注”的研发假设，不从已查看月份搜索。预测时不使用当前客户的未来购买状态，也不改变预测名单的 20% 定义。
+Previously `ranking_audit` showed that the 20 feature direct amount model reduced MAE for all customers, but recently the amount of MAE for actual buyers has worsened. Fixed test for a change with a clear cost meaning: 2 is given to snapshots with a purchase amount greater than zero in the future 30 days that are fully mature during training, and 1 is given to snapshots with a purchase amount of zero. This multiple only expresses the research and development hypothesis that "the buyer's amount error deserves double the attention" and does not search from the viewed month. The future purchase status of current customers is not used when forecasting, and the 20% definition of the forecast list is not changed.
 
-候选与现有 `extended_tweedie` 完全共享 20 个截点前特征、LightGBM Tweedie 目标、120 棵树、学习率 0.05、15 个叶、方差幂 1.5、随机种子 42 和每折成熟标签筛选；唯一差别为训练样本权重。对照还包括同批客户的 `historic_180d`。不加入去年同期新特征或额外后处理，以便单独判断加权的作用。
+The candidate fully shares 20 pre-cutoff features, LightGBM Tweedie targets, 120 trees, learning rate 0.05, 15 leaves, variance power 1.5, random seed 42 and per-fold mature label filtering with existing `extended_tweedie`; the only difference is the training sample weight. The comparison also includes `historic_180d` from the same customer. No new features or additional post-processing for the same period last year are added so that the effect of weighting can be judged independently.
 
-## 评估和纪律
+## Assessment and Discipline
 
-- 按时间向前生成 2011 年 1–8 月各月预测，每折只训练 `snapshot_date + 30 天 <= 目标快照日` 的历史快照。1–5 月为滚动开发，6–8 月此前已查看，仅作开发确认；9–11 月不用于本实验选择权重或模型。
-- 对每月和两个期间报告同一批客户的整体 MAE、实际购买者 MAE、预测前 20% 客户实际消费额覆盖、全体预测总额偏差、Top20 群体偏差和零消费比例；同时保留客户级预测、训练截止日和源文件哈希。
-- 是否值得进入**新的外部固定测试**，先看 1–5 月：购买者 MAE 至少比未加权模型降低 5%，全体 MAE 相对未加权模型增加不超过 2%，Top20 消费额覆盖不下降，且预测总额偏差绝对值不扩大。6–8 月只检查该判断跨月是否脆弱，不重新选择倍数。这个研发推进门槛不是最终验收，也不得把测试失败变成事后改阈值的理由。
-- 所有未达到的指标如实保留。只有新的可信未查看数据满足原强化目标，才考虑系统接入。
+- Generate monthly predictions for 2011, January-August forward in time, and only train the historical snapshot of `snapshot_date + 30 day <= target snapshot day` at each fold. The January-May are for rolling development, the June-August have been viewed previously and are only for development confirmation; the September-November are not used to select weights or models for this experiment.
+- Report the overall MAE, actual buyers MAE, pre-forecast 20% customer actual consumption coverage, overall forecast total deviation, Top 20 group deviation and zero consumption ratio for the same group of customers every month and two periods; while retaining customer-level forecasts, training deadlines and source file hashes.
+- Whether it is worth entering the **new external fixed test**, first look at January-May: Buyer MAE is at least 5% lower than the unweighted model, the overall MAE increase relative to the unweighted model does not exceed 2%, Top 20 consumption coverage does not decrease, and the absolute value of the forecast total deviation does not expand. June-August only check whether the judgment is fragile across months, and do not re-select the multiple. This R&D promotion threshold is not the final acceptance, and test failure must not be used as a reason to change the threshold afterwards.
+- All unfulfilled indicators will be retained truthfully. Only new trusted unviewed data that meets the original hardening goals will be considered for system access.

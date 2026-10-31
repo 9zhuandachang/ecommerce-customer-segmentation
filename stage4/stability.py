@@ -111,17 +111,17 @@ def analyze(train: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
 
 def write_report(runs: pd.DataFrame) -> str:
     lines = [
-        '# 阶段四：三群与四群稳定性检查', '',
-        '从训练期留出固定的 2,000 条客户月记录；所有重复模型都只用其余训练记录拟合。'
-        '“只换随机种子”保持拟合记录相同；“换训练抽样”每次抽取剩余记录的 80%，固定 K-means 种子为 42。'
-        '每次都重新拟合填补、变换、缩放和 K-means。没有使用验证期或测试期标签。', '',
-        '轮廓系数在同一批留出记录上计算；ARI 衡量它们与本检查参考模型的分组一致性，1 表示完全一致，'
-        '聚类编号互换不影响 ARI。参考模型也未见过这批留出记录。', '',
-        '| k | 变化方式 | 留出轮廓系数范围 | 相对参考模型 ARI 范围 | 最小训练群占比范围 |',
+        '# Phase 4: Stability check of three groups and four groups', '',
+        'A fixed number of 2,000 customer-month records are set aside from the training period; all repeated models are fitted using only the remaining training records.'
+        '"Just change random seeds" keeps the fitting records the same; "Change training sampling" extracts 80% of the remaining records each time, and fixes the K-means seed to 42.'
+        'Fill, transform, scale and K-means are refitted every time. No validation or testing period labels are used.', '',
+        'Contour coefficients are calculated on the same batch of set-out records; ARI measures their grouping consistency with the reference model for this inspection, 1 indicates complete consistency,'
+        'Cluster number swapping does not affect ARI. The reference model has also not been seen in this batch leaving records.', '',
+        '| k | Change method | Leave the silhouette coefficient range | Relative reference model ARI range | Minimum training group proportion range |',
         '| --- | --- | --- | --- | --- |',
     ]
     for k in (3, 4):
-        for kind, label in [('initialization', '只换初始化种子'), ('training_sample', '换训练抽样')]:
+        for kind, label in [('initialization', 'Only change the initialization seed'), ('training_sample', 'Change training samples')]:
             part = runs.loc[(runs.k == k) & (runs.variation == kind)]
             lines.append(f'| {k} | {label} | {part.evaluation_silhouette.min():.4f}–'
                          f'{part.evaluation_silhouette.max():.4f} | {part.ari_to_reference.min():.4f}–'
@@ -130,15 +130,15 @@ def write_report(runs: pd.DataFrame) -> str:
     paired = runs.pivot(index=['variation', 'seed'], columns='k', values='evaluation_silhouette')
     difference = paired[3] - paired[4]
     lines += [
-        '', f'同一次设置下，三群减四群的留出轮廓系数范围为 '
-        f'**{difference.min():+.4f} 至 {difference.max():+.4f}**；'
-        f'三群较高 {int((difference > 0).sum())}/{len(difference)} 次。',
-        '', '各群留出记录数、去重客户数、平均轮廓系数、负轮廓占比及 RFM 中位数，'
-        '见 [stability_cluster_details.csv](data/stability_cluster_details.csv)。'
-        '这里只检查随机因素和训练样本扰动；同一客户可跨月出现，因此留出记录可能与拟合记录共享客户，'
-        '这不是跨客户的泛化测试。',
-        '', '完整运行参数见 [stability_config.json](stability_config.json)；'
-        '逐次结果见 [stability_runs.csv](data/stability_runs.csv)。',
+        '', f'Under the same setting, the remaining contour coefficient range of three groups minus four groups is'
+        f'**{difference.min():+.4f} to {difference.max():+.4f}**;'
+        f'The three groups are higher {int((difference > 0).sum())} / {len(difference)} times.',
+        '', 'The number of records left by each group, the number of deduplicated customers, the average contour coefficient, the proportion of negative contours and the RFM median,'
+        'See [stability_cluster_details.csv ](data/stability_cluster_details.csv).'
+        'Only random factors and training sample perturbations are checked here; the same customer can appear across months, so the reserved records may share customers with the fitted records,'
+        'This is not a generalization test across customers.',
+        '', 'For complete operating parameters, see [stability_config.json ](stability_config.json);'
+        'See [stability_runs.csv ](data/stability_runs.csv) for the successive results.',
     ]
     return '\n'.join(lines) + '\n'
 

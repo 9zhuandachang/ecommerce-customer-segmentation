@@ -1,17 +1,17 @@
-# 独立电商珠宝交易时序检验预案
+# Independent e-commerce jewelry transaction timing inspection plan
 
-写入日期：2026-10-23；完整文件与未来金额标签尚未读取。数据由 REES46 数据发布方在其数据目录中链接到 Kaggle 的 `ecommerce-purchase-history-from-jewelry-store`，标注约两年、13 万笔珠宝商品购买。原始文件只保存在本机临时目录，不提交仓库。
+Date written: 2026-10-23; The complete file and future amount tags have not yet been read. The data is linked to Kaggle's `ecommerce-purchase-history-from-jewelry-store` by the REES 46 data publisher in its data directory, marking 13 10,000 jewelry product purchases in about two years. The original files are only saved in the local temporary directory and are not submitted to the warehouse.
 
-## 固定流程
+## Fixed process
 
-- 只使用带真实客户标识、订单标识、商品标识、事件时间和正金额的成交行。若来源列名与这五个含义不符，先只检查表头并记录映射，不看时间分布和消费标签再改选择规则。订单金额为合格商品行金额之和；排除缺失、非正金额行并记录数量。任何取消、退款行不能作为正向销售额。
-- 每个自然月 1 日 `t` 取过去 `[t-180d,t)` 交易建客户快照，只纳入过去 180 天有订单的客户。未来 `[t,t+30d)` 的合格订单金额为标签。必须有完整 180 天输入和 30 天结果窗口；最后三个可用截点为锁定测试，之前三个为开发确认，其余为训练。若不足九个可用截点或每个测试截点实际购买客户不足 100，则该数据仅作可行性分析。
-- 训练任何目标截点时，只使用 30 天标签已完整结束的更早截点。测试期采取按时间向前的每月重新训练，因此早一个测试月的真实标签在完全成熟后可用于下一个测试月训练，但不得用测试结果调整特征、参数或阈值。
-- 先比较已固定的 `extended_tweedie`（原 8 个历史特征 + 12 个时序特征，120 棵树、0.05 学习率、15 叶、方差幂 1.5、种子 42）与历史 180 天金额 `/6` 和近 90 天金额 `/3`。去年同期特征及校准规则在原项目仍属开发诊断，本次锁定测试不使用它们。
-- 同客户同截点分别计算整体 MAE、购买者 MAE、每月 Top20 消费额覆盖、总额偏差和零消费比例。保存每月及三个测试截点合并结果、输入文件哈希、剔除与金额对账、训练标签结束日期。不同币种或不同商家的金额不混算。
+- Only use transaction lines with real customer ID, order ID, item ID, event time and positive amount. If the source column name does not match these five meanings, first check only the table header and record the mapping, without looking at the time distribution and consumption labels, and then change the selection rules. The order amount is the sum of the amounts of qualified product lines; missing and non-positive amount lines are excluded and the quantity is recorded. Any cancellations and refunds cannot be regarded as positive sales.
+- On each calendar month 1 day `t` takes the past `[t-180d,t)` transactions to create a customer snapshot, and only includes customers with orders in the past 180 days. The qualifying order amount for future `[t,t+30d)` is the tag. There must be a full 180 day input and 30 day result window; the last three available cutoffs are for locked testing, the first three are for development validation, and the remainder are for training. If there are less than nine available cut-off points or the actual purchasing customers at each test cut-off point are less than 100, the data will only be used for feasibility analysis.
+- When training any target cutpoint, only use earlier cutpoints where the 30 day label has completely ended. The testing period adopts monthly retraining in time forward direction, so the real labels from one testing month earlier can be used for training in the next testing month after they are fully mature, but the test results must not be used to adjust features, parameters or thresholds.
+- First compare the fixed `extended_tweedie` (original 8 historical features + 12 time series features, 120 tree, 0.05 learning rate, 15 leaf, variance power 1.5, seed 42 ) with the historical 180 day amount `/6` and recent 90 day amount `/3`. The characteristics and calibration rules of the same period last year were still development diagnostics in the original project, and they will not be used in this lock-in test.
+- Calculate the overall MAE, buyer MAE, monthly Top 20 consumption coverage, total deviation and zero consumption proportion for the same customer and the same cut-off point. Save monthly and three test cutoff merge results, input file hash, elimination and amount reconciliation, and training label end date. Amounts in different currencies or from different merchants are not mixed.
 
-这是真实电商但不是原英国礼品商家。它提供独立行业环境的稳健性证据，不能替代原项目未来新月份的同商家最终验收。原 `optimization_protocol.md` 的挑战目标仍保留；不会看结果后降低门槛或把回顾性结果称为独立测试。
+This is a real e-commerce but not the original British gift merchant. It provides evidence of the robustness of an independent industry environment and cannot replace the original project's final acceptance by the same merchant in the new month in the future. The original challenge goal of `optimization_protocol.md` remains; the threshold will not be lowered after looking at the results or the retrospective results will be called independent tests.
 
-## 导入映射补记（读取金额标签和模型结果前）
+## Import mapping supplement (before reading amount tags and model results)
 
-发行包内的 `jewelry.csv` 首行为空，数据行无表头。按发布数据的字段顺序读取为 `event_time, order_id, product_id, quantity, category_id, category_code, brand, price, user_id, gender, color, metal, gem`。其中客户、订单、商品、时间分别取 `user_id, order_id, product_id, event_time`；合格商品行金额按 `price × quantity` 计算，四舍五入到分。时间统一转为 UTC 后去时区标识。忽略开头空白行。该映射在查看标签与模型结果前固定。
+The first row of `jewelry.csv` in the distribution package is empty, and the data row has no header. The field order of the published data is read as `event_time, order_id, product_id, quantity, category_id, category_code, brand, price, user_id, gender, color, metal, gem`. Among them, the customer, order, product, and time are respectively taken as `user_id, order_id, product_id, event_time`; the amount of the qualified product line is calculated as `price × quantity`, rounded to the nearest cent. The time is uniformly converted to UTC and then the time zone identifier is removed. Ignore leading blank lines. This mapping is fixed before viewing labels and model results.

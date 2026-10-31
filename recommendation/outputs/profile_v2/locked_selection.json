@@ -1,6 +1,6 @@
 {
   "selected_method": "personal_repeat",
-  "selected_name": "纯个人补货",
+  "selected_name": "Purely personal replenishment",
   "best_fixed": "fixed_itemknn",
   "best_adaptive": "adaptive_ease",
   "best_pure": "personal_repeat",
@@ -123,7 +123,7 @@
     }
   },
   "model_sha256": "3bd83080dc4c41b3f1d65d0d28e28675f409c7a41e446d98c6e43441de13cb44",
-  "plan_sha256": "6446ac18115a6e5bc6245140e659812f4f66e99a5baf3ce857c5508bf1d464f1",
+  "plan_sha256": "d5e322d2c6053be0f731fd30a249e7cb56c886b438bf15a117ca1942b12e9e30",
   "source_hashes": {
     "transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
     "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",

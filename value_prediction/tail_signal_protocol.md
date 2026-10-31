@@ -1,23 +1,23 @@
-# 高额未来消费的截点前信号：分析前固定口径
+# Pre-cutoff signal of high future consumption: fixed definition before analysis
 
-本方案在运行 `tail_signal_audit.py`、查看本分析结果之前记录。只作原商家已查看月份的**事后诊断**，不拟合新模型、不选择特征或改写 `optimization_protocol.md` 的强化验收标准。未来实际消费仅用于评估和定义诊断组，绝不进入任何预测输入。
+This solution is recorded before running `tail_signal_audit.py` and viewing the analysis results. Only perform post-mortem diagnosis for months viewed by the original merchant, and do not fit new models, select features, or rewrite the enhanced acceptance criteria for `optimization_protocol.md`. Actual future consumption is used only to evaluate and define diagnostic groups and never enters into any forecast input.
 
-## 数据与分组
+## Data and grouping
 
-- 2011 年 1–5 月为滚动开发、6–8 月为已查看的开发确认、9–11 月为已查看的回顾诊断。三段分别报告，不能称作新的独立测试。
-- 使用已经保存的客户月样本外 `extended_tweedie` 分数、历史 180 天金额基线与真实未来 30 天金额。核对其源哈希、客户月主键和不同方法的目标一致性。截点前特征来自原快照、已审计的时序特征、去年同期特征和已逐分对齐的交易构成特征；逐次一对一连接且要求完整覆盖。
-- 每个月仅在未来实际购买客户中，按真实未来 30 天金额降序、客户 ID 升序取 `ceil(1% × 当月购买者数)` 作为**事后高额组**；同月其他实际购买者作对照。这一选组规则利用未来结果，所以只用于诊断，不得用来标记待预测客户。
+- 2011 years, January-May are rolling development, June-August are viewed development confirmations, September-November are viewed retrospective diagnoses. The three sections are reported separately and cannot be called new independent tests.
+- Use the saved customer monthly sample extra `extended_tweedie` score, historical 180 day amount baseline and true future 30 day amount. Check its source hash, customer monthly primary key, and target consistency across methods. The features before the cutoff point come from the original snapshot, audited time series features, characteristics of the same period last year and transaction composition features that have been aligned minute by minute; they are connected one-to-one one by one and require complete coverage.
+- Only among the actual future purchasing customers each month, `ceil(1% × Number of buyers in the month)` will be selected as the **post-hoc high-amount group** in descending order of actual future 30 day amount and ascending order of customer ID; other actual purchasers in the same month will be used for comparison. This grouping rule uses future results, so it is only used for diagnosis and should not be used to flag customers for prediction.
 
-## 固定检查
+## Fixed check
 
-1. 每月高额组占当月实际销售额的比例、模型预测金额/实际金额、该组进入当月模型预测 Top20 名单的比例。Top20 名单始终按预测分数在当月全部 eligible 客户中选出。
-2. 对每段期间分别报告高额组与其余购买者的截点前信号：180 天总消费、最大单笔订单金额、最近 90 天消费、180 天订单频次、最近购买间隔、批量金额占比、单价中位数、是否有非英国交易、去年同期 30 天金额可用比例。连续特征报告中位数，二元特征报告均值；还报告高额组在当月全体 eligible 客户中的 180 天金额与最大历史订单金额的中位百分位。
-3. 以 `历史 180 天金额 / 6` 为旧月均金额，计算真实未来 30 天消费与该值之比；报告高额组和其他购买者的中位数及超过 2 倍的比例。这是事后波动指标，不是可用于预测的特征。
+1. The proportion of the monthly high-value group in the actual sales of the month, the model predicted amount/actual amount, and the proportion of this group entering the top 20 list predicted by the model for the month. The Top 20 list is always selected among all eligible customers for the month based on predicted scores.
+2. The pre-cutoff signals of the high-value group and the remaining buyers are reported separately for each period: 180 -day total consumption, maximum single order amount, recent 90 -day consumption, 180 -day order frequency, recent purchase interval, proportion of batch amount, median unit price, whether there are non-UK transactions, and 30 -day amount available ratio in the same period last year. Continuous features report the median, and binary features report the mean; the high-value group also reports the median percentile of the 180 day amount and the maximum historical order amount among all eligible customers in the month.
+3. Taking `history 180 Amount per day / 6` as the old monthly average amount, calculate the ratio of the real consumption in the next 30 days to this value; report the median of the high-value group and other buyers and the proportion exceeding 2 times. This is an after-the-fact volatility indicator and is not a feature that can be used for prediction.
 
-若高额组历史金额和订单大小已经高于其他客户，而未来/历史比例仍大幅变化，则说明现有信号有助于**排序**，但不足以稳定给出金额；若历史信号接近其他客户，则说明需要寻找截点前的新数据。任何判断都必须同时注明组人数和月份差异，不因单月结果调模型或阈值。
+If the historical amount and order size of the high-value group are already higher than those of other customers, but the future/historical ratio still changes significantly, it means that the existing signal is helpful for **sorting**, but it is not enough to give the amount stably; if the historical signal is close to other customers, it means that new data before the cutoff point needs to be found. Any judgment must also note the group size and monthly differences, and do not adjust the model or threshold based on the results of a single month.
 
-## 首轮结果之后的解释性补充
+## Explanatory supplement after first round results
 
-首轮聚合发现实际高额组几乎都进入预测 Top20，且其历史金额远高于其他购买者。为避免把无条件预测的合理“购买概率折减”误判为条件金额建模失败，追加**只对 2011 年 1–8 月**已保存的两阶段样本外预测作事后分解：核对 `hurdle_diagnostics/customer_predictions.csv` 原 manifest 哈希，按同一客户月及真实金额一对一连接实际高额组，分别报告购买概率均值、条件均值预测合计/实际金额合计、概率×条件均值预测合计/实际金额合计，以及原直接模型预测合计/实际金额合计。9–11 月没有对应的已保存两阶段预测，不填造结果。此补充发生在查看首轮高额组结果之后，只用于解释机制，不用于选择模型或调整阈值。
+The first round of aggregation found that the actual high-value groups almost all entered the predicted Top 20, and their historical amounts were much higher than other buyers. In order to avoid misjudging the reasonable "purchase probability reduction" of the unconditional forecast as a conditional amount modeling failure, the additional **only performs post-hoc decomposition on the saved two-stage out-of-sample forecast of 2011, January-August**: check the original manifest of `hurdle_diagnostics/customer_predictions.csv` Hash, connect the actual high-value groups one-to-one by the same customer month and real amount, and report respectively the purchase probability mean, conditional mean forecast total/actual amount total, probability × conditional mean forecast total/actual amount total, and the original direct model forecast total/actual amount total. There is no corresponding saved two-stage forecast for September-November, and the results will not be filled in. This addition occurs after reviewing the first round high stakes group results and is only used to explain the mechanism and not to select models or adjust thresholds.
 
-**极值组选样偏差纠正**：按实际结果选“前 1%”会偏向偶然较高的本月金额，即使一个模型完全校准，在这个组里预测也可能系统性低于结果。因此再以每个月全部 eligible 客户的**截点前模型预测分数**降序、客户 ID 升序取 `ceil(1% × 当月快照数)`；报告这组在之后 30 天的实际金额、预测金额、预测/实际比及实际前 1% 购买者的重叠。该组的选择不使用未来结果，能比“实际极值组”更适合检查高分客户的金额校准。这个分析也在首轮结果之后追加，只作诊断，不反过来改模型或阈值。
+**Extreme value group selection bias correction**: Selecting "Top 1% " according to actual results will be biased towards the occasionally higher amount of this month. Even if a model is fully calibrated, the predictions in this group may be systematically lower than the results. Therefore, `ceil(1% × Number of snapshots in the current month)` is taken in descending order of the **pre-cutoff model prediction score** of all eligible customers in each month, and in ascending order of customer ID; the actual amount, predicted amount, predicted/actual ratio and overlap of actual 1% buyers in the next 30 days are reported. The selection of this group does not use future results and is more suitable than the "actual extreme value group" for checking the amount calibration of high-scoring customers. This analysis is also added after the first round of results. It is only used for diagnosis and does not change the model or threshold.

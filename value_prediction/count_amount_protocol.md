@@ -1,16 +1,16 @@
-# 订单笔数 × 单均金额：运行前固定的开发实验
+# Number of orders × average order amount: fixed development experiment before running
 
-记录于本候选的任何结果计算之前。本实验仅用原商家 2011 年 1–8 月客户月快照；2011 年 9–11 月的金额标签不参与训练、候选选择或结果表。1–5 月是滚动开发，6–8 月已查看，仅作脆弱性检查。目标仍是每名已有客户未来 30 天的**无条件消费额**，不是在已知其会购买时的条件金额。原强化验收标准保持不变；本文件的条件只决定是否值得以后带入新的独立检验。
+Recorded before any results are calculated for this candidate. This experiment only uses the customer monthly snapshots of the original merchant from 2011 to 1 to 8; the amount tags from 2011 to 9 to 11 do not participate in training, candidate selection or result tables. The months 1 – 5 are under rolling development, and the months 6 – 8 have been viewed for vulnerability checking only. The target is still the **unconditional spending** of each existing customer in the next 30 days, not the conditional amount when they are known to buy. The original enhanced acceptance criteria remain unchanged; the conditions of this document only determine whether it is worthwhile to introduce new independent inspections at a later date.
 
-## 唯一候选
+## The only candidate
 
-- 标签 `invoice_count_30d_future`：在 `[t,t+30d)` 的合格交易中，每名快照客户的**唯一发票数**，无订单记 0。同一个发票里的多条商品行仅算一笔；与已经审计的 `spend_30d` 核对，订单数为零当且仅当金额为零。
-- 订单数模型：全部成熟训练快照，LightGBM Poisson，20 个既有截点前客户特征，120 棵树，学习率 0.05，15 个叶，随机种子 42。
-- 单均金额模型：只用成熟训练中 `invoice_count_30d_future>0` 的快照，目标 `spend_30d/invoice_count_30d_future`，LightGBM Gamma，同样的 20 特征与参数。预测订单数与预测单均金额相乘，输出非负预计消费额。不使用预测月份的真实订单数、购买状态或未来金额。
-- 对照是相同客户、相同月份的历史 180 天金额 `/6` 和已有 20 特征 Tweedie。只改目标分解方式，不增加特征、日历变量或事后倍率。
+- Tag `invoice_count_30d_future`: **Number of unique invoices** per snapshot customer in qualifying transactions for `[t,t+30d)`, no order recorded as 0. Multiple product lines in the same invoice are only counted as one; check with the audited `spend_30d`, the number of orders is zero if and only if the amount is zero.
+- Order number model: all mature training snapshots, LightGBM Poisson, 20 existing pre-cutoff customer features, 120 trees, learning rate 0.05, 15 leaves, random seeds 42.
+- Average order amount model: only use the snapshot of `invoice_count_30d_future>0` in mature training, target `spend_30d/invoice_count_30d_future`, LightGBM Gamma, and the same 20 features and parameters. Multiply the forecast order number and the forecast order average amount to output a non-negative estimated consumption amount. Does not use actual order numbers, purchase status, or future amounts for the forecast month.
+- The comparison is the historical 180 day amount `/6` and the existing 20 feature Tweedie for the same customer and the same month. Only the target decomposition method is changed, and features, calendar variables or post-event multipliers are not added.
 
-## 核对与推进条件
+## Check and advance conditions
 
-逐月及 1–5 月、6–8 月两个期间报告：全体 MAE、实际购买者 MAE、Top20 消费额覆盖、总额偏差、Top20 群体偏差和零金额比例。保存开发期逐客户预测、每折最新训练标签截止、来源与脚本哈希、订单计数和金额核对。每折训练标签窗口须完整结束：`snapshot_date+30天<=目标截点`。
+Monthly and two period reports of 1 – 5 and 6 – 8: consumption coverage of all MAE, actual purchasers MAE, Top 20, total deviation, Top 20 group deviation and zero amount ratio. Save customer-by-customer forecasts during the development period, latest training label cutoffs for each fold, source and script hashes, order counts and amount checks. Each fold training label window must end completely: `snapshot_date+30day<=target cutoff`.
 
-在**1–5 月**相对已有 Tweedie 的研发推进门槛事先固定为：实际购买者 MAE 至少降低 5%；全体 MAE 不得增加超过 2%；Top20 消费额覆盖不得下降；总额偏差的绝对值不得扩大。四项须全部满足，6–8 月只观察稳定性，不据其调整模型或门槛。无论是否推进，都报告全部结果。开发期即使满足条件，也不能冒充新的独立验收；没有可信新数据前，不接入仪表板。
+In **January-May**, the R&D promotion threshold for existing Tweedie is fixed in advance as: the actual purchaser MAE must be reduced by at least 5%; all MAE must not increase by more than 2%; the top 20 consumption coverage must not decrease; the absolute value of the total deviation must not expand. All four items must be met. 6 – 8 only observes stability and does not adjust the model or threshold based on it. Full results are reported regardless of whether they are advanced or not. Even if the conditions are met during the development period, it cannot pretend to be a new independent acceptance; the dashboard will not be connected until there is credible new data.

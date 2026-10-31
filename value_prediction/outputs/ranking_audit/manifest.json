@@ -14,12 +14,12 @@
   "retrospective_monthly_metrics_sha256": "47be8daa1ae45592ac527d6b81332c3310a145cc9de39320eea481d5dd0a940a",
   "retrospective_metrics_reconciled": true,
   "snapshot_source_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
-  "protocol_sha256": "7aa0426238f893c44fb2e9d97757791bb8180b208f56450f34735917f279c3de",
-  "script_sha256": "103e63169d3ae5294f8eb2f888e06c5b1237950d400d1f1d455dcb31f6bd11c1",
+  "protocol_sha256": "407b59d90dcdeae435df4e6d9a5515c2ef0e6c62b8cf0e2d7887f9c5f3cd2d98",
+  "script_sha256": "a474dd096dff6d3fa82293637cc3f4791d46aa1b9ab6241c33044ab8bdde7f12",
   "output_sha256": {
     "list_stability": "eb315ad0c9769254e6440fc8f05128c938f6c0a69e0446796b762e4533ca6811",
     "recency_period_metrics": "92ffa9bf02d4c9ea9fb3c390f6696a40dd74d9539ff7666fb19f686dd871560b",
     "recency_monthly_metrics": "875c589139bee896aa555d150132be29a02d45f4d7c5893a1105ba931152707f"
   },
-  "report_sha256": "b41565a63b2d665071673cb3894fe057c1746c5f0d00f3b105ea3bfed39a4204"
+  "report_sha256": "6c93b6ab9d010347795cbfe42b6c326475a4587060f196783f526552564d3f0a"
 }

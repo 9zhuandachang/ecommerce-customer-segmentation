@@ -191,10 +191,10 @@
   ],
   "code_hashes": {
     "data.py": "d959a9249e6e379672cdb4471e2f1836f24e0a309631c034e02fa91381e24966",
-    "models.py": "784416c7c3fe9d01e6ee98ad81048c41c39f017e3b194749b321ba5119ea6573",
+    "models.py": "2931a2e1e9f9627e3fa1d27d51f8009eb7dd8faf6ba259bad30fe5da97a7af76",
     "metrics.py": "e80d61f13f70be1b9c165b67a8a32bfcca61fcb7da5f53818eb2a23d46e13154",
-    "experiment.py": "32abcda4cbb5ad8c71ad57ebed91600d4be2b0f586970a41ab9675b4ff85f17d",
-    "protocol.md": "a83f25e6a986a636333cd7568e2b26486df15c933d817ef21a8e4b6d29e91461"
+    "experiment.py": "69514f65b6b556b074bc3d9253a9401d5040b8202092838757898c1cb7101ffe",
+    "protocol.md": "68b7f1144b51d23ca0cd0221cc3985abd5386d122ffb7135f72366e1227fc773"
   },
   "target": "first purchase timestamp product set in [t,t+30d)",
   "history_days": 180,

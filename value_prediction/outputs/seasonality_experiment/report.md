@@ -1,8 +1,8 @@
-# 日历月份候选：按时间向前研究
+# Calendar month candidates: study forward in time
 
-事先固定的唯一差别是快照月份的正弦和余弦；其余模型设置与原 20 特征 Tweedie 相同。2011 年 6–11 月均已查看，只用于开发确认或回顾诊断。
+The only difference that is fixed a priori is the sine and cosine of the snapshot month; the rest of the model settings are the same as the original 20 feature Tweedie. 2011, 6 – 11 months have been viewed and are only used for development confirmation or review diagnosis.
 
-| 期间 | 方法 | 全体 MAE | 购买者 MAE | Top20 消费覆盖 | 总额偏差 | Top20 群体偏差 |
+| period | method | All MAE | Buyer MAE | Top 20 consumption coverage | total deviation | Top 20 Group bias |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | rolling_jan_may | historic_180d | 195.95 | 396.56 | 71.05% | +64.51% | +62.52% |
 | rolling_jan_may | extended_tweedie | 171.92 | 420.92 | 71.55% | +19.91% | +8.93% |
@@ -14,9 +14,9 @@
 | viewed_sep_nov | extended_tweedie | 252.58 | 535.01 | 69.47% | -26.16% | -24.09% |
 | viewed_sep_nov | calendar_tweedie | 267.48 | 502.95 | 69.10% | -8.83% | -13.61% |
 
-## 预测分数事先选出的前 1% 客户：金额尺度诊断
+## Prediction score for the top 1% customers selected in advance: amount scale diagnosis
 
-| 期间 | 方法 | 名单客户月 | 预测金额/实际金额 | 实际消费覆盖 |
+| period | method | list customer month | Forecast amount/actual amount | actual consumption coverage |
 | --- | --- | ---: | ---: | ---: |
 | rolling_jan_may | historic_180d | 167 | 146.84% | 29.91% |
 | rolling_jan_may | extended_tweedie | 167 | 102.26% | 27.50% |
@@ -28,13 +28,13 @@
 | viewed_sep_nov | extended_tweedie | 90 | 73.88% | 31.56% |
 | viewed_sep_nov | calendar_tweedie | 90 | 77.47% | 31.94% |
 
-该名单仅按预测分数选择；前 1% 指标是诊断项，不用于事后选择日历模型或调整推进门槛。
+This list is selected by forecast score only; the former 1% indicators are diagnostic and are not used to select calendar models or adjust advance thresholds after the fact.
 
-## 仅 1–5 月的预设研发推进门槛
+## Only January-May's default R&D advancement threshold
 
-- `buyer_mae_reduction_at_least_5pct`：未满足
-- `overall_mae_increase_at_most_2pct`：满足
-- `top20_capture_not_lower`：满足
-- `aggregate_bias_abs_not_larger`：满足
+- `buyer_mae_reduction_at_least_5pct`: Not met
+- `overall_mae_increase_at_most_2pct`: satisfied
+- `top20_capture_not_lower`: satisfied
+- `aggregate_bias_abs_not_larger`: satisfied
 
-全部满足也只说明值得带到新的固定测试；这些已查看月份不能提供同商家独立验收。逐月、客户级预测、训练标签截止与文件哈希见同目录。
+All satisfaction only means that it is worth bringing to a new fixed test; these months that have been viewed cannot provide independent acceptance by the same merchant. Month-by-month, client-level forecasts, training label cutoffs and file hashes are in the same directory.

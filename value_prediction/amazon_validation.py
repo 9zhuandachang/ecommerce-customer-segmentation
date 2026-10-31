@@ -261,19 +261,19 @@ def main() -> None:
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     lines = [
-        '# 亚马逊购买历史：固定跨平台时序检验', '',
-        '来源为 [Open e-commerce 1.0](https://doi.org/10.7910/DVN/YGLYDY)，'
-        '从公开 Kaggle 镜像读取；执行细则先写入 `amazon_protocol.md`。',
-        f'源文件 {audit["source_rows"]:,} 行，合格购买记录 '
-        f'{audit["eligible_rows"]:,} 行，客户 {audit["eligible_customers"]:,} 名；'
-        '原始行及客户级预测未写入仓库。',
-        '本发行文件没有订单 ID，购买记录频次不等同于原商家发票频次。'
-        '参与者自愿分享历史，样本选择与原项目不同。',
-        f'镜像中有 {audit["source_rows_after_2023_03_31"]} 行日期晚于 '
-        '2023-03-31；锁定模型的最后标签于 2022-10-01 结束，'
-        '这些晚日期没有进入输入或标签。',
-        f'测试月样本下限：{"仅作可行性分析" if feasibility_only else "达到预案要求"}。',
-        '', '| 截点 | 分区 | 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 | Top20 群体偏差 |',
+        '# Amazon purchase history: fixed cross-platform timing verification', '',
+        'The source is [Open e-commerce 1.0 ](https://doi.org/10.7910/DVN/YGLYDY),'
+        'Read from the public Kaggle mirror; execution details are written to `amazon_protocol.md` first.',
+        f'Source file line {audit["source_rows"]:,}, qualifying purchase record'
+        f'{audit["eligible_rows"]:,} row, customer {audit["eligible_customers"]:,} name;'
+        'Raw row and customer level forecasts are not written to the warehouse.',
+        'This issuance document does not have an order ID, and the purchase record frequency is not equal to the original merchant invoice frequency.'
+        'Participants volunteered to share history, and the sample selection differed from the original project.',
+        f'There are rows {audit["source_rows_after_2023_03_31"]} in the image with dates later than'
+        '2023 - 03 - 31; the last tag of the locked model ends at 2022 - 10 - 01,'
+        'These late dates are not entered into inputs or labels.',
+        f'The lower limit of the test month sample is: {"Feasibility analysis only" if feasibility_only else "Meet plan requirements"}.',
+        '', '| Cutoff | Partition | Method | MAE | Buyers MAE | Top 20 Coverage | Total Deviation | Top 20 Population Deviation |',
         '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |',
     ]
     for row in monthly.itertuples(index=False):
@@ -282,8 +282,8 @@ def main() -> None:
                      f'{row.top20_spend_capture:.2%} | '
                      f'{row.aggregate_bias:+.2%} | '
                      f'{row.top20_group_bias:+.2%} |')
-    lines += ['', '最后三个测试月合并：', '',
-              '| 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 | Top20 群体偏差 |',
+    lines += ['', 'The last three test months combined:', '',
+              '| Method | MAE | Buyers MAE | Top 20 Coverage | Total Bias | Top 20 Group Bias |',
               '| --- | ---: | ---: | ---: | ---: | ---: |']
     for row in pooled.itertuples(index=False):
         lines.append(f'| {row.method} | {row.mae:.2f} | '
@@ -291,16 +291,16 @@ def main() -> None:
                      f'{row.top20_spend_capture:.2%} | '
                      f'{row.aggregate_bias:+.2%} | '
                      f'{row.top20_group_bias:+.2%} |')
-    lines += ['', '若未来 30 天确实购买，条件金额模型的购买者误差。'
-              '历史每月金额速率是结果后加入的更强对照，'
-              '避免把逐行购买均价误作有竞争力的月金额基线：', '',
-              '| 方法 | 购买者 MAE | 购买者金额偏差 |',
+    lines += ['', 'If the purchase is indeed made 30 days in the future, the buyer error of the conditional amount model.'
+              'The historical monthly amount rate is a stronger comparison added after the results,'
+              'Avoid mistaking the line-by-line purchase average price for a competitive monthly amount baseline:', '',
+              '| Method | Buyer MAE | Buyer Amount Deviation |',
               '| --- | ---: | ---: |']
     for row in conditional_pooled.itertuples(index=False):
         lines.append(f'| {row.method} | {row.buyer_mae:.2f} | '
                      f'{row.buyer_amount_bias:+.2%} |')
-    lines += ['', '这是另一平台自愿参与者样本的稳健性证据。'
-              '不代替原英国商家未来新月份的验收，也不证明营销收益。', '']
+    lines += ['', 'This is evidence of the robustness of another sample of platform voluntary participants.'
+              'It does not replace the original UK merchant\'s acceptance in the new month, nor does it prove marketing benefits.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote Amazon cross-platform report to {OUTPUT}', flush=True)
 

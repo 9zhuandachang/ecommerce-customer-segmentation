@@ -2,8 +2,8 @@
   "status": "feasibility_only_no_model_scoring",
   "source_url": "https://www.kaggle.com/api/v1/datasets/download/olistbr/brazilian-ecommerce",
   "source_sha256": "967e41e04fc306fe604e2a693f488995a8b41e5047418f8a5c8e4abd6deca784",
-  "protocol_sha256": "eed201f774188d0881604406cd5abf2056d93181263017ea92711294167987d2",
-  "script_sha256": "6392310820dae2dca3d2f7128a6a0242fb2cc56b650c46f91693a1e268c2acf8",
+  "protocol_sha256": "59b9803319069887cd5b18ef319ddd08a1fe5af494c5ca653ba4b088b5ffdc7d",
+  "script_sha256": "8ea1afc49a88bbef3f65502d4cc89e95cf76f47450fdd83ac6cf975f376683d1",
   "source_audit": {
     "source_orders": 99441,
     "source_customers": 99441,

@@ -1,10 +1,10 @@
-# 消费额预测开发期向前验证
+# Consumption forecast development period forward verification
 
-本报告只使用 2011 年 1–8 月开发期，9–11 月测试行未参与训练或评估。
-每月重新训练时，仅使用未来 30 天标签窗口已经结束的更早客户快照。
-1–5 月用于滚动开发比较；6–8 月是此前已看过的开发确认期。
+This report only uses the 2011, January-August development period, and the September-November test line does not participate in training or evaluation.
+When retraining each month, only older customer snapshots for which the label window has ended 30 days in the future are used.
+The January-May are for rolling development comparisons; the June-August are previously viewed development confirmation periods.
 
-| 期间 | 方法 | MAE | 购买者 MAE | Top20 消费额覆盖 | 总额偏差 | Top20 群体偏差 |
+| period | method | MAE | Buyer MAE | Top 20 consumption coverage | total deviation | Top 20 Group bias |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | rolling_jan_may | historic_180d | 195.95 | 396.56 | 71.05% | +64.51% | +62.52% |
 | rolling_jan_may | recent_90d | 185.38 | 423.56 | 68.43% | +44.44% | +63.37% |
@@ -43,40 +43,40 @@
 | rolling_jan_aug | extended_two_stage | 179.68 | 422.94 | 72.59% | +11.57% | +1.44% |
 | rolling_jan_aug | extended_two_stage_previous_year | 165.82 | 439.44 | 72.95% | -4.19% | -6.96% |
 
-与同期间历史金额基线相比：
+Compared to the historical amount baseline for the same period:
 
-- rolling_jan_may / recent_90d：MAE -5.40%；Top20 覆盖 -2.62 个百分点。
-- rolling_jan_may / base_tweedie：MAE -9.95%；Top20 覆盖 -0.77 个百分点。
-- rolling_jan_may / extended_tweedie：MAE -12.26%；Top20 覆盖 +0.50 个百分点。
-- rolling_jan_may / extended_tweedie_lag_calibrated：MAE -14.91%；Top20 覆盖 +0.50 个百分点。
-- rolling_jan_may / extended_tweedie_history_available：MAE -20.72%；Top20 覆盖 +2.15 个百分点。
-- rolling_jan_may / extended_tweedie_previous_year：MAE -20.21%；Top20 覆盖 +1.42 个百分点。
-- rolling_jan_may / extended_tweedie_previous_year_recent_weighted：MAE -20.78%；Top20 覆盖 +1.84 个百分点。
-- rolling_jan_may / extended_poisson：MAE -4.69%；Top20 覆盖 +1.46 个百分点。
-- rolling_jan_may / extended_l2：MAE -2.43%；Top20 覆盖 +0.84 个百分点。
-- rolling_jan_may / extended_two_stage：MAE -10.63%；Top20 覆盖 +1.11 个百分点。
-- rolling_jan_may / extended_two_stage_previous_year：MAE -18.94%；Top20 覆盖 +1.53 个百分点。
-- known_jun_aug / recent_90d：MAE +2.83%；Top20 覆盖 -4.02 个百分点。
-- known_jun_aug / base_tweedie：MAE -6.45%；Top20 覆盖 +0.71 个百分点。
-- known_jun_aug / extended_tweedie：MAE -7.33%；Top20 覆盖 +1.82 个百分点。
-- known_jun_aug / extended_tweedie_lag_calibrated：MAE -6.09%；Top20 覆盖 +1.82 个百分点。
-- known_jun_aug / extended_tweedie_history_available：MAE -10.72%；Top20 覆盖 +1.39 个百分点。
-- known_jun_aug / extended_tweedie_previous_year：MAE -12.64%；Top20 覆盖 +1.95 个百分点。
-- known_jun_aug / extended_tweedie_previous_year_recent_weighted：MAE -11.83%；Top20 覆盖 +1.76 个百分点。
-- known_jun_aug / extended_poisson：MAE -2.03%；Top20 覆盖 +1.56 个百分点。
-- known_jun_aug / extended_l2：MAE -2.08%；Top20 覆盖 +0.81 个百分点。
-- known_jun_aug / extended_two_stage：MAE -7.27%；Top20 覆盖 +1.81 个百分点。
-- known_jun_aug / extended_two_stage_previous_year：MAE -11.67%；Top20 覆盖 +2.09 个百分点。
-- rolling_jan_aug / recent_90d：MAE -2.60%；Top20 覆盖 -3.19 个百分点。
-- rolling_jan_aug / base_tweedie：MAE -8.76%；Top20 覆盖 -0.17 个百分点。
-- rolling_jan_aug / extended_tweedie：MAE -10.59%；Top20 覆盖 +1.04 个百分点。
-- rolling_jan_aug / extended_tweedie_lag_calibrated：MAE -11.91%；Top20 覆盖 +1.04 个百分点。
-- rolling_jan_aug / extended_tweedie_history_available：MAE -17.32%；Top20 覆盖 +1.84 个百分点。
-- rolling_jan_aug / extended_tweedie_previous_year：MAE -17.63%；Top20 覆盖 +1.64 个百分点。
-- rolling_jan_aug / extended_tweedie_previous_year_recent_weighted：MAE -17.73%；Top20 覆盖 +1.81 个百分点。
-- rolling_jan_aug / extended_poisson：MAE -3.78%；Top20 覆盖 +1.50 个百分点。
-- rolling_jan_aug / extended_l2：MAE -2.31%；Top20 覆盖 +0.83 个百分点。
-- rolling_jan_aug / extended_two_stage：MAE -9.49%；Top20 覆盖 +1.40 个百分点。
-- rolling_jan_aug / extended_two_stage_previous_year：MAE -16.47%；Top20 覆盖 +1.76 个百分点。
+- rolling_jan_may / recent_ 90d: MAE - 5.40%; Top 20 coverage - 2.62 percentage points.
+- rolling_jan_may / base_tweedie: MAE - 9.95%; Top 20 coverage - 0.77 percentage points.
+- rolling_jan_may/extended_tweedie: MAE - 12.26%; Top 20 coverage + 0.50 percentage points.
+- rolling_jan_may/extended_tweedie_lag_calibrated: MAE - 14.91%; Top 20 coverage + 0.50 percentage points.
+- rolling_jan_may/extended_tweedie_history_available: MAE - 20.72%; Top 20 coverage + 2.15 percentage points.
+- rolling_jan_may/extended_tweedie_previous_year: MAE - 20.21%; Top 20 coverage + 1.42 percentage points.
+- rolling_jan_may/extended_tweedie_previous_year_recent_weighted: MAE - 20.78%; Top 20 coverage + 1.84 percentage points.
+- rolling_jan_may/extended_poisson: MAE - 4.69%; Top 20 coverage + 1.46 percentage points.
+- rolling_jan_may / extended_l 2: MAE - 2.43%; Top 20 coverage + 0.84 percentage points.
+- rolling_jan_may/extended_two_stage: MAE - 10.63%; Top 20 coverage + 1.11 percentage points.
+- rolling_jan_may/extended_two_stage_previous_year: MAE - 18.94%; Top 20 coverage + 1.53 percentage points.
+- known_jun_aug / recent_ 90d: MAE + 2.83%; Top 20 covers - 4.02 percentage points.
+- known_jun_aug/base_tweedie: MAE - 6.45%; Top 20 coverage + 0.71 percentage points.
+- known_jun_aug/extended_tweedie: MAE - 7.33%; Top 20 coverage + 1.82 percentage points.
+- known_jun_aug/extended_tweedie_lag_calibrated: MAE - 6.09%; Top 20 coverage + 1.82 percentage points.
+- known_jun_aug/extended_tweedie_history_available: MAE - 10.72%; Top 20 coverage + 1.39 percentage points.
+- known_jun_aug/extended_tweedie_previous_year: MAE - 12.64%; Top 20 coverage + 1.95 percentage points.
+- known_jun_aug/extended_tweedie_previous_year_recent_weighted: MAE - 11.83%; Top 20 coverage + 1.76 percentage points.
+- known_jun_aug/extended_poisson: MAE - 2.03%; Top 20 coverage + 1.56 percentage points.
+- known_jun_aug / extended_l 2: MAE - 2.08%; Top 20 coverage + 0.81 percentage points.
+- known_jun_aug/extended_two_stage: MAE - 7.27%; Top 20 coverage + 1.81 percentage points.
+- known_jun_aug/extended_two_stage_previous_year: MAE - 11.67%; Top 20 coverage + 2.09 percentage points.
+- rolling_jan_aug/recent_ 90d: MAE - 2.60%; Top 20 coverage - 3.19 percentage points.
+- rolling_jan_aug/base_tweedie: MAE - 8.76%; Top 20 coverage - 0.17 percentage points.
+- rolling_jan_aug/extended_tweedie: MAE - 10.59%; Top 20 coverage + 1.04 percentage points.
+- rolling_jan_aug/extended_tweedie_lag_calibrated: MAE - 11.91%; Top 20 coverage + 1.04 percentage points.
+- rolling_jan_aug/extended_tweedie_history_available: MAE - 17.32%; Top 20 coverage + 1.84 percentage points.
+- rolling_jan_aug/extended_tweedie_previous_year: MAE - 17.63%; Top 20 coverage + 1.64 percentage points.
+- rolling_jan_aug/extended_tweedie_previous_year_recent_weighted: MAE - 17.73%; Top 20 coverage + 1.81 percentage points.
+- rolling_jan_aug/extended_poisson: MAE - 3.78%; Top 20 coverage + 1.50 percentage points.
+- rolling_jan_aug / extended_l 2: MAE - 2.31%; Top 20 coverage + 0.83 percentage points.
+- rolling_jan_aug/extended_two_stage: MAE - 9.49%; Top 20 coverage + 1.40 percentage points.
+- rolling_jan_aug/extended_two_stage_previous_year: MAE - 16.47%; Top 20 coverage + 1.76 percentage points.
 
-逐月结果、每条客户预测、训练截止证明和输入哈希见同目录。这里的结果仅供下一轮设计，不能作为最终独立测试。
+Month-by-month results, per-customer forecasts, training cutoff proofs and input hashes are found in the same directory. The results here are for the next round of design only and cannot be used as final independent testing.

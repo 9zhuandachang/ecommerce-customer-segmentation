@@ -268,12 +268,12 @@ def main() -> None:
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n',
         encoding='utf-8')
     lines = [
-        '# 未来 30 天金额预测区间：开发期检查', '',
-        '固定方案：`interval_protocol.md`。无条件金额采用去年同期直接模型；'
-        '“若购买”金额采用条件中位数。区间只利用当时已结束的过去月份预测残差。',
-        '名义覆盖率 90%，同时比较原金额绝对残差与 `log1p` 金额残差。'
-        '6–8 月此前已查看，以下是开发确认结果而非独立验收。', '',
-        '| 期间 | 目标 | 形式 | 客户组 | 经验覆盖 | 高于上界 | 平均宽度 | 中位宽度 |',
+        '# Future 30 days amount prediction interval: development period check', '',
+        'Fixed scheme: `interval_protocol.md`. Unconditional amounts use the year-ago direct model;'
+        'The "if purchased" amount is the conditional median. The range utilizes only forecast residuals from past months that have ended at that time.',
+        'Nominal coverage 90%, while comparing the original amount absolute residual with the `log1p` amount residual.'
+        '6 – 8 Viewed months ago, the following are development confirmation results rather than independent acceptance.', '',
+        '| Period | Goal | Form | Customer Group | Experience Coverage | Above Upper Bound | Average Width | Median Width |',
         '| --- | --- | --- | --- | ---: | ---: | ---: | ---: |',
     ]
     for row in pooled.itertuples(index=False):
@@ -281,8 +281,8 @@ def main() -> None:
                      f'{row.group} | {row.empirical_coverage:.2%} | '
                      f'{row.above_upper_share:.2%} | {row.mean_width:.2f} | '
                      f'{row.median_width:.2f} |')
-    lines += ['', '## 逐月覆盖率', '',
-              '| 截点 | 目标 | 形式 | 全体覆盖 | 预测前 10% 覆盖 |',
+    lines += ['', '## Month-by-month coverage', '',
+              '| Cutoff | Target | Form | Universal coverage | Pre-prediction 10% coverage |',
               '| --- | --- | --- | ---: | ---: |']
     for date in DATES:
         for target in POINTS:
@@ -298,9 +298,9 @@ def main() -> None:
                 lines.append(f'| {date.date()} | {target} | {method} | '
                              f'{row_all.empirical_coverage:.2%} | '
                              f'{row_top.empirical_coverage:.2%} |')
-    lines += ['', '区间宽度与覆盖率是同一组已查看月份的经验结果。'
-              '客户跨月重复、金额长尾和季节变化意味着 90% 名义值不保证未来覆盖。'
-              '区间不代替原单点金额模型的强化验收，也未接入仪表板。', '']
+    lines += ['', 'Interval width and coverage are empirical results for the same set of months viewed.'
+              'Customer duplication across months, long tail amounts and seasonal variations mean that the 90% notional does not guarantee future coverage.'
+              'The interval does not replace the enhanced acceptance of the original single point amount model, nor is it connected to the dashboard.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote interval report to {OUTPUT}', flush=True)
 

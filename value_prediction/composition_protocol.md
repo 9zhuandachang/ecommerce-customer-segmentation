@@ -1,22 +1,22 @@
-# 购买构成特征：运行前锁定的下一轮实验
+# Purchase constituent features: next round of experiments locked before running
 
-记录于生成或查看本轮构成特征模型结果之前。上一轮购买者双倍权重降低了购买者误差，却明显抬高零消费客户预测；因此本轮只引入**快照前真实交易构成信号**，不再通过给正标签加权来移动全部客户的预测金额。仍遵守 `optimization_protocol.md` 的原强化目标。
+Recorded before generating or viewing the results of this round's constituent feature model. The double weighting of buyers in the previous round reduced the buyer error, but significantly increased the prediction of zero-spending customers; therefore, this round only introduces the **real transactions before the snapshot**, and no longer moves the predicted amount of all customers by weighting the positive labels. Still adheres to the original enhancement goals of `optimization_protocol.md`.
 
-## 输入与唯一候选
+## Input and unique candidate
 
-原始交易清洗后的 `clean_transactions.csv` 有 776,579 条、5,852 名客户，日期为 2009-12-01 至 2011-12-09；`quantity`、`unit_price` 和 `country` 无缺失。按全体清洗行统计，数量至少 12 的行占 31.55%、对应销售额占 65.35%；英国以外交易涉及 518 名客户。这些是字段可用性检查，**没有用未来 30 天标签选择变量**。源文件 SHA-256 为 `94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831`。
+`clean_transactions.csv` after cleaning of the original transaction has 776,579 and 5,852 customers, and the dates are 2009-12-01 to 2011-12-09; `quantity`, `unit_price` and `country` are not missing. According to the statistics of all cleaning banks, banks with at least 12 account for 31.55% and corresponding sales account for 65.35%; transactions outside the UK involve 518 customers. These are field availability checks, **no variable selected with 30 days in the future tag**. The source file SHA- 256 is `94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831`.
 
-在每个客户月快照的 `[t-180d,t)` 输入窗口内，只生成三个特征：
+Within the `[t-180d,t)` input window for each customer month snapshot, only three features are generated:
 
-1. `bulk_spend_share_180d`：`quantity >= 12` 的合格交易行金额之和除以同窗合格总金额。12 件用于区分整箱或批量购买，阈值在看到未来标签前固定。
-2. `median_unit_price_180d`：同窗交易行 `unit_price` 的中位数，按行计算，不以未来订单加权。
-3. `non_uk_180d`：同窗是否出现 `country != "United Kingdom"` 的合格交易行（0/1）。
+1. `bulk_spend_share_180d`: The sum of the qualifying transaction amounts of `quantity >= 12` divided by the total qualifying amount of the classmate. 12 pieces are used to differentiate between full case or bulk purchases, the threshold is fixed before future labels are seen.
+2. `median_unit_price_180d`: The median of classmate trading rows `unit_price`, calculated by row, not weighted by future orders.
+3. `non_uk_180d`: Whether the classmate has a qualified trading line for `country!= "United Kingdom"` ( 0 / 1 ).
 
-原有 `extended_tweedie` 的 20 个特征、LightGBM Tweedie 目标、120 棵树、学习率 0.05、15 个叶、方差幂 1.5、随机种子 42 都不变；只增加上述三项，形成唯一候选 `composition_tweedie`。对照使用同批客户的未修改 `extended_tweedie` 和 `historic_180d`。特征生成要逐截点核对原 180 天金额与清洗交易的分值；若不能一一对上，停止实验。
+ original  `extended_tweedie`  of  20  features, LightGBM Tweedie  Target, 120  tree,  learning rate  0.05, 15  leaves,  variance power  1.5,  random seed  42  Nothing changes;  Only add the above three items,  form the only candidate  `composition_tweedie`. Compare and use the unmodified version of the same batch of customers  `extended_tweedie`  and  `historic_180d`. Feature generation requires checking the original points one by one.  180  Day Amount and Score of Wash Transactions;  If you can't match them one by one,  Stop experiment.
 
-## 评估
+## Evaluation
 
-- 按时间向前评估 2011 年 1–8 月，每折只使用未来 30 天标签已完全结束的更早快照。1–5 月为滚动开发，6–8 月已查看，仅作确认；9–11 月不得用于这轮选特征或参数。
-- 保存每月、期间和客户级预测；报告全体 MAE、购买者 MAE、每月 Top20 实际消费额覆盖、预测总额偏差、Top20 群体偏差、零消费比例、训练标签截止和所有源哈希。
-- 只在 1–5 月判断是否值得带去新的外部固定测试：购买者 MAE 比未修改模型至少降低 5%，全体 MAE 不高于未修改模型的 102%，Top20 覆盖不下降，总额偏差绝对值不扩大。6–8 月只检验开发期脆弱性，绝不改三项特征或门槛。此研发推进条件并非最终验收。
-- 外部数据若没有可比的数量、单价、国家语义，不将不同定义的特征硬映射为同一个模型；必须另行预先锁定可复现的适配与独立时段。原商家仍需未来新月份才能最终验收。
+- Evaluate 2011, January-August forward in time, each fold using only earlier snapshots 30 days in the future where the label has fully ended. The months 1 – 5 are for rolling development, the months 6 – 8 have been viewed for confirmation only; the months 9 – 11 cannot be used for this round of feature or parameter selection.
+- Saves monthly, period and customer level forecasts; reports overall MAE, buyer MAE, monthly Top 20 actual spend coverage, forecast total deviation, Top 20 group deviation, zero spend ratio, training label cutoff and all source hashes.
+- Only in January-May to judge whether it is worth bringing in a new external fixed test: Buyer MAE is at least 5% lower than the unmodified model, overall MAE is not higher than the unmodified model's 102%, Top 20 coverage does not decrease, and the absolute value of the total deviation does not expand. 6 – 8 only tests the vulnerability during the development period and never changes the three characteristics or thresholds. This R&D advancement condition is not final acceptance.
+- If external data does not have comparable quantity, unit price, or country semantics, different defined features should not be hard mapped to the same model; reproducible adaptation and independent time periods must be locked in advance. The original merchant still needs the next new month for final acceptance.

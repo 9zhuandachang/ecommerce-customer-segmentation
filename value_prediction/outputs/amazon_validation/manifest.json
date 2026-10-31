@@ -4,8 +4,8 @@
   "mirror_url": "https://www.kaggle.com/api/v1/datasets/download/dharshinisraghunath/harvard-ecommerce-dataset-for-big-data-analysis",
   "source_zip_sha256": "9ca53a81e59b1d3bad9946b57fd60b067135d0adb217127efa23a900a0f1a441",
   "source_csv_sha256": "6efb098a6e01a9acb6e215402a450f4a848ed1b102ca016f9be6c4f03c585e1e",
-  "protocol_sha256": "f7b1c019944265fd234b4270f0d0d1ee9f70063272977e3e83a31f658eff3c57",
-  "script_sha256": "8892046dc22c13d6eb0d197a72bdaf6e5a4af7a431ef153e2a21932bf04cff24",
+  "protocol_sha256": "82b27de2ef72de860b7b27c41bf45f88a0f80718f321687557cec66d1790092d",
+  "script_sha256": "406a32880e89b83f67326d2767d2ebb3616c9ab1346ae483c8876c9c8bac3d02",
   "source_audit": {
     "source_rows": 1850717,
     "eligible_rows": 1849744,

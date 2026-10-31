@@ -1,8 +1,8 @@
-# 订单笔数 × 单均金额：开发期实验
+# Number of orders × Average order amount: Development period experiment
 
-事前固定的唯一候选是用成熟历史标签分别预测订单数与每笔金额，再相乘得到未来 30 天无条件预计消费额。订单数按唯一发票计，同笔多商品不重复计数。2011 年 9–11 月未用于本实验。
+The only candidate for ex-ante fixation is to use mature historical tags to predict the number of orders and the amount of each transaction separately, and then multiply them to obtain the unconditional estimated consumption amount in the next 30 days. The number of orders is calculated based on a unique invoice, and multiple items in the same order are not counted repeatedly. 2011, September-November were not used in this experiment.
 
-| 期间 | 方法 | 全体 MAE | 购买者 MAE | Top20 消费覆盖 | 总额偏差 | Top20 群体偏差 |
+| period | method | All MAE | Buyer MAE | Top 20 consumption coverage | total deviation | Top 20 Group bias |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | rolling_jan_may | historic_180d | 195.95 | 396.56 | 71.05% | +64.51% | +62.52% |
 | rolling_jan_may | extended_tweedie | 171.92 | 420.92 | 71.55% | +19.91% | +8.93% |
@@ -11,21 +11,21 @@
 | known_jun_aug | extended_tweedie | 188.73 | 440.47 | 73.19% | -7.12% | -12.66% |
 | known_jun_aug | count_times_order_amount | 190.56 | 429.13 | 73.07% | -3.46% | -10.34% |
 
-## 事后拆解：订单数和单均金额
+## Post-disassembly: number of orders and average order amount
 
-| 期间 | 实际订单数 | 预测订单数/实际 | 按实际订单数加权的预测单均金额/实际金额 |
+| period | Actual number of orders | Forecast number of orders/actual | Forecast average order amount/actual amount weighted by actual order number |
 | --- | ---: | ---: | ---: |
 | rolling_jan_may | 4,865 | 133.35% | 104.90% |
 | known_jun_aug | 3,175 | 105.21% | 94.24% |
 
-这一拆解只用于误差诊断。实际未来订单数没有用于生成预测分数。
+This teardown is only used for error diagnosis. Actual future order numbers are not used to generate forecast scores.
 
-## 事前固定的 1–5 月推进条件
+## Fixed in advance January-Mayly advancement conditions
 
-- `buyer_mae_reduction_at_least_5pct`：未满足
-- `overall_mae_increase_at_most_2pct`：未满足
-- `top20_capture_not_lower`：满足
-- `aggregate_bias_abs_not_larger`：未满足
+- `buyer_mae_reduction_at_least_5pct`: Not met
+- `overall_mae_increase_at_most_2pct`: Not met
+- `top20_capture_not_lower`: satisfied
+- `aggregate_bias_abs_not_larger`: Not met
 
-是否值得进入新的外部固定测试：**否**。即使满足，也只能说明值得再检验，不能作为独立验收或系统接入依据。
-客户级开发预测、逐月指标、标签核对、训练截止与文件哈希见同目录。
+Is it worth going into a new external fixation test: **No**. Even if it is satisfied, it can only mean that it is worthy of re-inspection and cannot be used as a basis for independent acceptance or system access.
+Customer-level development forecasts, month-by-month metrics, tag checks, training cutoffs and file hashes are in the same directory.

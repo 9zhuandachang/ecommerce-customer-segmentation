@@ -1,10 +1,10 @@
-# 阶段五扩展：行为特征、时间滚动验证和 LightGBM 调整
+# Phase five expansion: behavioral characteristics, time rolling verification and LightGBM adjustment
 
-原有六组实验及其文件保留。新增 C 组：8 项基础特征 + 4 项截至快照日已知的购买节奏特征，共比较 9 组模型。短于 90 天的记录不计算订单变化，缺失值仅用对应训练部分的中位数填补。
+The original six sets of experiments and their files are retained. Added group C: 8 basic characteristics + 4 known purchasing rhythm characteristics as of the snapshot date, comparing a total of 9 group models. Records shorter than 90 days do not count order changes, and missing values ​​are only filled with the median of the corresponding training part.
 
-在训练期内部以 2011 年 3、4、5 月各做一次滚动验证；每轮清除跨越该月起点的 30 天训练标签，并重新拟合填补、缩放、三群 K-means（B 组）和分类器。LightGBM 在每轮训练期内部再留一个月，比较 15/31 个叶子、最多 500 棵树，连续 30 轮内部验证 AP 不改善时早停；随后用完整的该轮训练部分重训，在外层验证月评分。用三轮外层平均 AP 选叶子数，用所选设置的最佳轮数中位数定最终树数。软投票权重也按三轮平均 AP 选择。这些滚动指标参与选参，不能当作独立测试结果。
+Within the training period, a rolling verification is performed with 2011 years, 3, 4, and 5 months; each round clears the 30 day training labels that span the starting point of the month, and refits the filling, scaling, three groups K-means (Group B) and classifiers. LightGBM is left inside each round of training period for another month, comparing 15 / 31 leaves, up to 500 trees, continuous 30 rounds of internal verification, stopping early when AP does not improve; then retraining with the complete training part of the round, and validating the monthly score in the outer layer. Use the outer average of three rounds AP to select the number of leaves, and use the median of the best number of rounds for the selected setting to determine the final tree number. Soft voting weights are also selected based on the three-round average AP. These rolling indicators participate in the selection of parameters and cannot be regarded as independent test results.
 
-| 特征组 | 模型 | 滚动 AP 均值 | 官方验证 AP | 官方 Precision@20% |
+| feature group | model | Rolling AP mean | Official verification AP | Official Precision@ 20% |
 | --- | --- | ---: | ---: | ---: |
 | A_base_8 | LR | 0.5354 | 0.5799 | 0.5874 |
 | A_base_8 | GBDT | 0.5394 | 0.5946 | 0.6027 |
@@ -17,14 +17,14 @@
 | C_base_8_plus_4_behavior | SoftVote | 0.5496 | 0.5933 | 0.6033 |
 | baseline | rfm | 0.4720 | 0.5105 | 0.5579 |
 
-滚动验证选定的 LightGBM 参数与软投票权重：
+Rolling validation of selected LightGBM parameters with soft voting weights:
 
-| 特征组 | 叶子数 | 树数 | LR 权重 |
+| feature group | number of leaves | Number of trees | LR weight |
 | --- | ---: | ---: | ---: |
 | A_base_8 | 15 | 64 | 0.50 |
 | B_base_8_plus_3_distances | 15 | 47 | 0.50 |
 | C_base_8_plus_4_behavior | 15 | 57 | 0.50 |
 
-原六组中验证 AP 最高的是 A_base_8 / SoftVote：0.5916。扩展实验当前最高的是 A_base_8 / GBDT：0.5946，差值 +0.0030。C 组最高 AP 为 0.5940，未超过扩展实验的最高值。这些都是验证期结果，最终测试尚未进行。
+Among the original six groups, the highest verified AP is A_base_ 8 / SoftVote: 0.5916. The current highest value in the extended experiment is A_base_ 8 / GBDT: 0.5946, difference + 0.0030. The highest AP in group C is 0.5940, which does not exceed the highest value in the extended experiment. These are validation period results and final testing has not yet been conducted.
 
-官方验证期为 2011 年 6—8 月，只在滚动验证选定配置后评估。9 月以后的测试期未用于调参或计算本报告指标。逐月结果见 `monthly_validation.csv`，每折与候选参数见 `rolling_folds.csv`、`lightgbm_tuning.csv`、`weight_candidates.csv`，逐条评分见 `validation_predictions.csv`。若新特征或调整后的模型没有改善，应以结果为准。
+The official validation period is 2011, and 6 — 8 months, and is only evaluated after rolling verification of selected configurations. The test period after 9 months was not used for parameter adjustment or calculation of indicators in this report. See `monthly_validation.csv` for month-by-month results, `rolling_folds.csv`, `lightgbm_tuning.csv`, and `weight_candidates.csv` for each fold and candidate parameters, and `validation_predictions.csv` for item-by-item ratings. If there is no improvement with new features or adjusted models, the results should prevail.

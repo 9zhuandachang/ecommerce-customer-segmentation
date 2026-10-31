@@ -1,23 +1,29 @@
-﻿# 电商客户分析
+# E-commerce Customer Analytics
 
-基于 UCI Online Retail II 购买记录，完成客户分群、未来30天复购评分、消费潜力排序，以及购买习惯画像与商品推荐。用户上传购买明细、选择分析日期，系统生成四项分析，支持筛选和导出名单。
+Customer Insights uses UCI Online Retail II purchase records to segment customers, score their likelihood of buying again within 30 days, rank spending potential, and generate purchase-habit profiles and product recommendations. Upload purchase history and select an analysis date to view, filter, and export all four analyses.
 
-先阅读[项目学习指南](docs/项目学习指南.md)，也可下载[HTML阅读版](docs/项目学习指南.html)在浏览器打开。字段和操作见[上传数据使用说明](docs/上传数据使用说明.md)。
+Start with the [Project Learning Guide](docs/project_learning_guide.md), or download the [HTML reading edition](docs/project_learning_guide.html) and open it in a browser. See the [Upload Guide](docs/upload_guide.md) for input fields and instructions.
 
-## 当前使用的方案
+## Workflow diagram
 
-| 功能 | 当前方案 | 页面提供什么 |
+![Customer Insights workflow](docs/images/project_workflow_en.png)
+
+[Open full-size image](docs/images/project_workflow_en.png) | [Editable SVG](docs/images/project_workflow_en.svg)
+
+## Current models and outputs
+
+| Function | Current approach | What the page provides |
 | --- | --- | --- |
-| 客户分群 | K-means，4群 | 群体分布、购买特点、群内客户名单。 |
-| 未来30天复购 | 14项历史特征＋XGBoost | 复购倾向评分、客户优先顺序。 |
-| 高消费潜力 | 20项历史特征＋两步LightGBM | 消费潜力排名、前20%关注名单。 |
-| 画像与商品推荐 | D完整组34项特征＋LightGBM分类 | 购买习惯画像、每位客户10件推荐商品。 |
+| Customer segmentation | K-means, 4 clusters | Segment sizes, purchase characteristics, and customer lists. |
+| Repurchase within 30 days | 14 historical features + XGBoost | Repurchase scores and customer priorities. |
+| Spending potential | 20 historical features + two-stage LightGBM | Customer ranks and a top-20% priority list. |
+| Profiles and product recommendations | Full feature group D, 34 features + LightGBM classifier | Purchase-habit profiles and 10 recommended products per customer. |
 
-商品推荐默认采用 **D完整组＋LightGBM分类**：综合商品购买记录、客户画像与EASE商品关联，为候选商品逐件打分，再选出Top10。个人重复购买保留为离线实验对照，各方法比较见学习指南和对应报告。
+The default recommender is **group D + LightGBM classification**. It combines product purchase history, customer profiles, and EASE product-association signals to score candidate products and select the top ten. Personal repeat purchase remains an offline comparison method; results are explained in the learning guide and experiment reports.
 
-## 快速启动
+## Quick start
 
-已在 Python 3.11 环境验证。保存的模型依赖训练时的库版本，请使用 `requirements.txt`。数据和较大产物通过 Git LFS 保存，克隆后需要取得实际文件内容。
+Verified with Python 3.11. Saved models require compatible training-library versions; install the dependencies in `requirements.txt`. Data and large artifacts use Git LFS, so download their actual contents after cloning.
 
 ```powershell
 git clone https://github.com/9zhuandachang/ecommerce-customer-segmentation.git
@@ -28,91 +34,87 @@ python -m pip install -r requirements.txt
 python -m streamlit run app/dashboard.py
 ```
 
-服务启动后，浏览器打开 [http://localhost:8501](http://localhost:8501)。已在项目根目录时，只需执行上面最后一条启动命令。
+Open [http://localhost:8501](http://localhost:8501). If you are already in the project root, use the final command above to start the app.
 
-1. 在侧栏“数据导入”上传 `data/demo/2011-12-01/purchase_history.csv`。
-2. 分析日期选择 **2011-12-01**，点击“生成分析”。
-3. 在四个分析页面查看、筛选并导出结果。
+1. Open **Data import** and upload `data/demo/2011-12-01/purchase_history.csv`.
+2. Set **Analysis date** to **2011-12-01** and click **Generate analysis**.
+3. Open the four analysis pages to view, filter, and export results.
 
-系统支持 **2011-09-01至2011-12-01之间任意一天，包含首尾**。演示明细包含759,615条真实合格交易，最晚为2011-11-30；选择12月1日会生成3,444位客户的快照，前20%消费潜力客户为689位。系统按照分析日期提取此前的购买记录，调用保存好的模型。
+Any date from **2011-09-01 through 2011-12-01, inclusive**, is supported. The demo contains 759,615 real eligible transaction lines, ending on 2011-11-30. An analysis date of December 1 produces snapshots for 3,444 customers, including 689 customers in the top 20% for spending potential. The system extracts purchases before the selected date and applies the saved models.
 
-客户总数在标题旁展示，匹配和显示数量位于表格上方；消费中位数位于群体对比区。推荐页的客户列表可按近180天购买次数降序排列；从10项购买习惯指标中，将有实际数值的内容展示在摘要卡和“画像详情”中。
+The total customer count appears beside the title; matched and displayed counts appear above each table. Median spending appears in the segment comparison. On the recommendation page, customers can be sorted by purchases in the last 180 days. Available values from ten purchase-habit indicators appear in summary cards and **Profile details**.
 
-更换明细或日期时，返回“数据导入”重新生成分析。新分析成功前会保留原结果。已有旧规则分析的会话会提示重新上传并生成，以应用新的推荐模型。代码更新后若出现旧模块导入错误，在运行服务的终端按 `Ctrl+C`，再执行启动命令；样式更新可按 `Ctrl+F5` 刷新页面。
+To change the file or date, return to **Data import** and generate a new analysis. Existing results remain available until the new analysis succeeds. Sessions using the previous rule-based recommender prompt users to regenerate results with the current model. If a code update causes a stale-module import error, press `Ctrl+C` in the server terminal and restart the app. Refresh with `Ctrl+F5` after a style update.
 
-## 项目目录
+## Repository structure
 
-| 位置 | 用途 |
+| Location | Purpose |
 | --- | --- |
-| `app/dashboard.py` | 唯一业务页面入口。 |
-| `app/upload_inference.py` | 校验上传明细、生成客户特征、调用四项分析。 |
-| `app/business_views.py`、`app/dashboard.css` | 业务表格、导出字段和页面样式。 |
-| `app/*_data.py` | 当前及历史实验结果的读取与核对适配器。 |
-| `data/raw/` | 两份原始年度CSV。 |
-| `data/processed/customer_snapshot_pipeline/` | 合格交易、排除记录、审计、54,040条客户月快照及时间划分。 |
-| `data/demo/2011-12-01/` | 真实上传示例、来源记录及演示压缩包。 |
-| `src/`、`build_customer_snapshots.py` | 共用清洗、特征与基础模型构建代码，数据流水线入口。 |
-| `stage4/`、`stage5/`、`stage6/` | 分群对比、复购对比及模型集成。 |
-| `value_prediction/` | 消费潜力排序与金额相关实验。 |
-| `recommendation/` | 推荐算法、购买画像、商品级打分比较。 |
-| `tests/` | 数据窗口、模型复现、名单与页面回归检查。 |
-| `docs/` | 学习指南、业务口径、任务流程和数据说明。 |
+| `app/dashboard.py` | Main entry point for the business interface. |
+| `app/upload_inference.py` | Validates uploads, builds customer features, and runs the four analyses. |
+| `app/business_views.py`, `app/dashboard.css` | Business tables, export fields, and page styling. |
+| `app/*_data.py` | Loaders and verification adapters for current and earlier experiment results. |
+| `data/raw/` | Two original annual CSV files. |
+| `data/processed/customer_snapshot_pipeline/` | Eligible and excluded transactions, audits, 54,040 monthly customer snapshots, and temporal splits. |
+| `data/demo/2011-12-01/` | Real upload example, provenance manifest, and demo archive. |
+| `src/`, `build_customer_snapshots.py` | Shared cleaning, feature, and base-model code; data-pipeline entry point. |
+| `stage4/`, `stage5/`, `stage6/` | Segmentation comparison, repurchase comparison, and model integration. |
+| `value_prediction/` | Spending-potential ranking and amount-prediction experiments. |
+| `recommendation/` | Recommendation methods, purchase profiles, and item-level model comparisons. |
+| `tests/` | Regression checks for data windows, model reproduction, lists, and pages. |
+| `docs/` | Learning guide, business definitions, workflow, and upload instructions. |
 
-## 数据与模型重建入口
+## Rebuilding data and models
 
-仓库已包含可运行的结果，查看页面可直接使用。需要重做实验时，在项目根目录按顺序执行相关入口。
+Saved results are included, so you can open the app directly. To repeat an experiment, run the relevant entry points in order from the project root.
 
 ```powershell
-# 清洗、客户月快照和审计
+# Clean transactions, build monthly snapshots, and produce audits.
 python -B build_customer_snapshots.py data/raw/online_retail_II_2009-2010.csv data/raw/online_retail_II_2010-2011.csv
 
-# 三种分群算法、2—6群比较，选择K-means四群
+# Compare three clustering methods with 2-6 clusters; select four-cluster K-means.
 python -B -m stage4.compare_segmentation compare
 python -B -m stage4.compare_segmentation select --algorithm kmeans --k 4
 
-# 四类复购模型、三组特征比较，然后集成分群与复购模型
+# Compare four repurchase models across three feature groups, then integrate the selected models.
 python -B -m stage5.compare_repurchase
 python -B -m stage6.integrate_reanalysis
 
-# 消费额标签、20项历史特征、消费潜力排序比较
+# Build spending labels and 20 historical features; compare spending-potential ranking methods.
 python -B -m value_prediction.labels
 python -B -m value_prediction.temporal_features
 python -B -m value_prediction.ranking_comparison
 
-# 推荐算法、画像混合和商品级打分比较
+# Compare recommenders, profile-based hybrids, and item-level scoring models.
 python -B -m recommendation.experiment
 python -B -m recommendation.profile_experiment
 python -B -m recommendation.item_experiment
 
-# 重新生成真实上传示例
+# Rebuild the real upload example.
 python -B -m app.prepare_upload_demo
 ```
 
-各实验保存了来源哈希和冻结配置。部分入口发现已有结果时会进行完整性核对；参数及时间窗口见对应方案文件。
+Experiments retain source hashes and frozen configurations. Some entry points verify existing artifacts instead of overwriting them. See the corresponding protocols for parameters and time windows.
 
-## 结果与比较报告
+## Results and comparison reports
 
-| 内容 | 报告或模型位置 |
+| Topic | Report or model |
 | --- | --- |
-| 分群算法与群数比较 | [分群方案](stage4/segmentation_comparison_protocol.md)、`stage4/outputs/segmentation_comparison/` |
-| 复购模型对比 | [复购方案](stage5/repurchase_comparison_protocol.md)、`stage5/outputs/repurchase_comparison/` |
-| 当前分群与复购模型集成 | [统一回放报告](stage6/outputs/reanalysis_v2/report.md)、`stage6/outputs/reanalysis_v2/model/integrated_bundle.joblib` |
-| 消费潜力排序对比 | [排序报告](value_prediction/outputs/ranking_comparison_v1/report.md)、`value_prediction/outputs/ranking_comparison_v1/ranking_bundle.joblib` |
-| 商品推荐算法对比 | [推荐报告](recommendation/outputs/v1/report.md)、`recommendation/outputs/v1/selected_model.joblib` |
-| 画像混合与商品级模型对比 | [画像比较](recommendation/outputs/profile_v2/report.md)、[商品级比较](recommendation/outputs/item_v3_1/report.md) |
+| Clustering methods and cluster counts | [Segmentation protocol](stage4/segmentation_comparison_protocol.md), `stage4/outputs/segmentation_comparison/` |
+| Repurchase models | [Repurchase protocol](stage5/repurchase_comparison_protocol.md), `stage5/outputs/repurchase_comparison/` |
+| Integrated segmentation and repurchase models | [Integrated replay report](stage6/outputs/reanalysis_v2/report.md), `stage6/outputs/reanalysis_v2/model/integrated_bundle.joblib` |
+| Spending-potential ranking | [Ranking report](value_prediction/outputs/ranking_comparison_v1/report.md), `value_prediction/outputs/ranking_comparison_v1/ranking_bundle.joblib` |
+| Recommendation algorithms | [Recommendation report](recommendation/outputs/v1/report.md), `recommendation/outputs/v1/selected_model.joblib` |
+| Profile hybrids and item-level models | [Profile comparison](recommendation/outputs/profile_v2/report.md), [Item-level comparison](recommendation/outputs/item_v3_1/report.md) |
 
-训练快照为2010年6月—2011年5月，验证为2011年6—8月，测试期复核为2011年9—11月。按所选方案计算，复购AP为0.6201、前20%名单精确率66.22%；消费潜力名单月均消费覆盖率70.23%；默认D完整组推荐NDCG@10为0.3001、Recall@10为17.79%、Hit@10为76.93%。具体统计单位、计算方法和月份口径见学习指南。
+Training snapshots cover June 2010-May 2011; validation covers June-August 2011; test-period review covers September-November 2011. The selected repurchase model achieves AP 0.6201 and Precision@20% 66.22%. The spending-potential list captures a monthly average of 70.23% of actual spending. The default group-D recommender achieves NDCG@10 0.3001, Recall@10 17.79%, and Hit@10 76.93%. The learning guide explains the calculation units and aggregation.
 
-## 项目流程图
-
-流程图：[中文版](docs/images/project_workflow_v3.png) · [English](docs/images/project_workflow_en.png)。可编辑SVG与图片保存在同一目录。
-
-## 验证与仓库整理
+## Validation and retained experiments
 
 ```powershell
 python -B -m unittest discover -s tests -v
 ```
 
-已清理早期独立原型入口及其模型和缓存、退出导航的旧页面、重复演示快照、旧流程图和空占位文件。当前数据、模型、结果报告及其校验记录保留。
+Earlier standalone prototype entry points, their models and caches, retired pages, duplicate demo snapshots, old workflow diagrams, and empty placeholders have been removed. Current data, models, result reports, and verification records are retained.
 
-旧三群、早期复购、金额预测和推荐迭代仍保留在对应模块及 `outputs/` 中；它们用于实验对照、复现和现有测试。`src/modelling.py` 仍被这些实验引用。各阶段共用的数据处理代码继续位于 `src/data_cleaning.py` 与 `src/features.py`。
+Earlier three-cluster segmentation, repurchase, amount-prediction, and recommendation iterations remain in their modules and `outputs/` directories for comparison, reproducibility, and existing tests. These experiments still use `src/modelling.py`. Shared data processing remains in `src/data_cleaning.py` and `src/features.py`.

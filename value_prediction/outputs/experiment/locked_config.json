@@ -19,7 +19,7 @@
   "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
   "labels_sha256": "b7da0c476c6071649eb7d169428f974bd22bacd93ce8d077a6a7af1783427c71",
   "label_manifest_sha256": "45301bab4989ac8cc7bbca868cc61c977196942b4acfe1650ab0440b670c6be6",
-  "script_sha256": "e7e7cd08c32f3bfe47a92265b53018f567ab80ea23e9b709499b9117df9103d9",
+  "script_sha256": "5f931a7e1e924c64dfbd6d3e6712414ca9253067075a16ab823474e55c5c6a86",
   "test_dates_previously_examined_for_repurchase": true,
   "test_spend_labels_used_for_selection": false,
   "training_only_scale_factor": 1.0425209763596135,

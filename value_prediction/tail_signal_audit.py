@@ -272,11 +272,11 @@ def make_report(monthly: pd.DataFrame, periods: pd.DataFrame,
                 signals: pd.DataFrame, hurdle: pd.DataFrame,
                 predicted_tail: pd.DataFrame) -> str:
     lines = [
-        '# 高额未来消费的截点前信号：事后审计', '',
-        '事先口径见 `tail_signal_protocol.md`。高额组由真实未来消费定义，'
-        '只能用于诊断；所有排名分数和特征本身均为截点前可得。'
-        '所有月份此前已查看，不是独立验收。', '',
-        '| 期间 | 购买快照 | 实际前 1% 人数 | 该组实际消费份额 | 模型预测/该组实际 | 该组进入预测 Top20 | 历史 180 天金额中位百分位 | 未来/旧月均中位倍数 |',
+        '# Pre-cutoff signals of high future consumption: post-event audit', '',
+        'See `tail_signal_protocol.md` for the caliber in advance. The high-value group is defined by real future consumption,'
+        'For diagnostic purposes only; all ranking scores and features themselves are available before cutoff.'
+        'All months have been viewed previously and are not independently accepted.', '',
+        '| Period | Purchase snapshot | Actual number of people before 1% | Actual consumption share of this group | Model prediction/actual of this group | This group enters prediction Top 20 | Historical 180 day amount median percentile | Future/old monthly average median multiple |',
         '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
     ]
     for row in periods.itertuples(index=False):
@@ -286,10 +286,10 @@ def make_report(monthly: pd.DataFrame, periods: pd.DataFrame,
                      f'{row.tail_in_predicted_top20:.2%} | '
                      f'{row.tail_historic_180d_percentile_median:.1%} | '
                      f'{row.tail_future_over_historic_median:.2f}× |')
-    lines += ['', '历史金额百分位在同月全部 eligible 客户中计算。'
-              '“未来/旧月均”中的未来结果只用于事后波动审计，不能作为预测时的输入。',
-              '', '## 截点前特征：高额组与其他实际购买者', '',
-              '| 期间 | 特征 | 高额组 | 其他购买者 |',
+    lines += ['', 'Historical amount percentiles are calculated across all eligible customers in the same month.'
+              'The future results in "Future/Old Monthly Average" are only used for post-event fluctuation audit and cannot be used as input for forecasting.',
+              '', '## Pre-cutoff characteristics: high-value group and other actual buyers', '',
+              '| Period | Features | High Roller Group | Other Buyers |',
               '| --- | --- | ---: | ---: |']
     display = ['monetary_value_180d', 'max_invoice_value_180d',
                'monetary_value_90d', 'invoice_frequency_180d',
@@ -307,9 +307,9 @@ def make_report(monthly: pd.DataFrame, periods: pd.DataFrame,
             else:
                 shown = (f'{high:.2f}', f'{other:.2f}')
             lines.append(f'| {period} | {feature} | {shown[0]} | {shown[1]} |')
-    lines += ['', '## 两阶段金额分解（首轮结果后的解释性补充）', '',
-              '仅 1–8 月有已保存的两阶段样本外预测；以下均按事后实际高额组计算。', '',
-              '| 期间 | 实际高额组人数 | 平均购买概率 | 假定会买时的金额预测/实际 | 概率×金额预测/实际 | 直接模型预测/实际 |',
+    lines += ['', '## Two-stage amount decomposition (explanatory supplement after the first round results)', '',
+              'Only months 1 – 8 have saved two-stage out-of-sample forecasts; the following are calculated based on the actual high-value group after the fact.', '',
+              '| Period | Actual number of people in the high-roller group | Average purchase probability | Amount forecast/actual when assumed to buy | Probability × amount forecast/actual | Direct model forecast/actual |',
               '| --- | ---: | ---: | ---: | ---: | ---: |']
     for row in hurdle.itertuples(index=False):
         lines.append(f'| {row.period} | {row.actual_tail_count} | '
@@ -317,22 +317,22 @@ def make_report(monthly: pd.DataFrame, periods: pd.DataFrame,
                      f'{row.conditional_mean_to_actual:.2%} | '
                      f'{row.two_stage_expected_to_actual:.2%} | '
                      f'{row.direct_tweedie_to_actual:.2%} |')
-    lines += ['', '“假定会买时”的金额预测仍来自截点前模型，'
-              '这里仅用真实结果选事后审计组。条件金额也显著偏低时，'
-              '低估不能只归因于购买概率折减；但按实际极值选组本身也会造成向下的选择偏差。',
-              '', '## 按预测分数事先选出的前 1% 客户', '',
-              '| 期间 | 名单客户月 | 命中实际极高消费组 | 名单预测金额/实际金额 | 名单实际消费份额 |',
+    lines += ['', 'The "assumed to buy" amount forecast still comes from the pre-cutoff model.'
+              'Here only the real results are used to select the post-audit group. When the conditional amount is also significantly lower,'
+              'Underestimation cannot be attributed solely to discounted purchase probabilities; but group selection by actual extreme values itself can also cause a downward selection bias.',
+              '', '## Top 1% customers selected in advance based on predicted scores', '',
+              '| Period | List customer month | Hit the actual high consumption group | List forecast amount/actual amount | List actual consumption share |',
               '| --- | ---: | ---: | ---: | ---: |']
     for row in predicted_tail.itertuples(index=False):
         lines.append(f'| {row.period} | {row.predicted_top1pct_count} | '
                      f'{row.actual_tail_recall:.2%} | '
                      f'{row.predicted_to_actual:.2%} | '
                      f'{row.actual_spend_share:.2%} |')
-    lines += ['', '这个名单只依据截点前的预测分数选择，'
-              '因此它的预测/实际金额比更适合检查高分客户的校准；逐月数据见 `predicted_tail_monthly.csv`。', '',
-              '逐月高额组人数、波动和历史最大订单百分位见 `monthly_tail_metrics.csv`。'
-              '所有特征的分组汇总见 `feature_signals.csv`。'
-              '这些差异不能证明某特征能因果解释未来高额购买，也不能据此在已看过月份调参。', '']
+    lines += ['', 'This list is selected based solely on predicted scores before the cutoff.'
+              'Its forecast/actual amount ratio is therefore more suitable for checking the calibration of high-scoring clients; see `predicted_tail_monthly.csv` for month-to-month data.', '',
+              'See `monthly_tail_metrics.csv` for the number of people in high-value groups month by month, fluctuations, and the percentile of historical largest orders.'
+              'See `feature_signals.csv` for a grouped summary of all features.'
+              'These differences cannot prove that a certain feature can causally explain future high-value purchases, nor can they be used to adjust parameters in the months that have been seen.', '']
     return '\n'.join(lines)
 
 

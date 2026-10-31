@@ -1,11 +1,11 @@
-# 高价值客户名单稳定性与历史活跃度误差审计
+# High-value customer list stability and historical activity error audit
 
-规则事先记录于 `ranking_audit_protocol.md`。这是已查看月份的诊断，非新的独立验收；不重新训练或选择模型。
-共 33,456 条独立客户月快照，期间 2011-01 至 2011-11。
+The rules are recorded in `ranking_audit_protocol.md` in advance. This is a diagnostic for the month viewed, not a new independent acceptance; no model retraining or selection is required.
+A total of 33,456 unique customer monthly snapshots, ranging from 2011 - 01 to 2011 - 11.
 
-## 相邻月共同客户的 Top20 名单
+## Top 20 list of mutual customers in adjacent months
 
-| 新月份期间 | 方法 | 月对 | 共同客户数范围 | 名单留存均值 | Jaccard 均值 | 新月名单消费覆盖均值 | 上月排名名单在新月的消费覆盖均值 |
+| new month period | method | moon pair | Range of number of common customers | List retention average | Jaccard mean | Crescent list consumption coverage average | Average consumption coverage of last month's ranking list in the new month |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | rolling_jan_may | historic_180d | 4 | 2,856–3,241 | 88.79% | 79.92% | 70.96% | 71.58% |
 | rolling_jan_may | extended_tweedie | 4 | 2,856–3,241 | 82.14% | 69.75% | 71.51% | 70.80% |
@@ -17,22 +17,22 @@
 | viewed_sep_nov | extended_tweedie | 2 | 2,563–2,753 | 85.81% | 75.15% | 68.61% | 68.23% |
 | viewed_sep_nov | extended_tweedie_previous_year | 2 | 2,563–2,753 | 83.33% | 71.44% | 70.20% | 68.61% |
 
-月对逐项数据见 `list_stability.csv`。共同客户名单是控制客户流入流出的诊断口径；上月排名也在事后限定的共同客户内重排，不是线上旧名单回放。
+For monthly data, see `list_stability.csv`. The list of common customers is a diagnostic tool for controlling the inflow and outflow of customers; the rankings of last month are also rearranged within the mutual customers limited after the event, and are not a replay of the old list online.
 
-## 快照时已知的最近购买间隔
+## The most recent purchase interval known at the time of snapshot
 
-| 期间 | 最近购买间隔 | 客户月 | 未来购买快照 | 20 特征模型 MAE 相对基线 | 去年同期模型 MAE 相对基线 | 20 特征模型购买者 MAE 相对基线 |
+| period | Recent purchase interval | customer months | Snapshot of future purchases | 20 feature model MAE relative baseline | Model MAE for the same period last year relative to the baseline | 20 feature model buyer MAE relative to baseline |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| known_jun_aug | 0-30 天 | 2,958 | 1,134 | +5.29% | +9.85% | -3.69% |
-| known_jun_aug | 31-90 天 | 2,984 | 757 | +7.56% | +12.65% | -3.78% |
-| known_jun_aug | 91-180 天 | 2,204 | 286 | +13.71% | +21.97% | +1.21% |
-| rolling_jan_may | 0-30 天 | 4,167 | 1,513 | +12.01% | +14.77% | -3.61% |
-| rolling_jan_may | 31-90 天 | 6,002 | 1,208 | +11.90% | +19.15% | -14.05% |
-| rolling_jan_may | 91-180 天 | 6,266 | 693 | +13.29% | +32.47% | -2.05% |
-| viewed_sep_nov | 0-30 天 | 3,530 | 1,503 | +3.35% | +4.75% | -1.82% |
-| viewed_sep_nov | 31-90 天 | 2,988 | 1,027 | +2.89% | +4.98% | -0.81% |
-| viewed_sep_nov | 91-180 天 | 2,357 | 495 | +9.24% | +12.63% | +2.59% |
+| known_jun_aug | 0 - 30 days | 2,958 | 1,134 | +5.29% | +9.85% | -3.69% |
+| known_jun_aug | 31 - 90 days | 2,984 | 757 | +7.56% | +12.65% | -3.78% |
+| known_jun_aug | 91 - 180 days | 2,204 | 286 | +13.71% | +21.97% | +1.21% |
+| rolling_jan_may | 0 - 30 days | 4,167 | 1,513 | +12.01% | +14.77% | -3.61% |
+| rolling_jan_may | 31 - 90 days | 6,002 | 1,208 | +11.90% | +19.15% | -14.05% |
+| rolling_jan_may | 91 - 180 days | 6,266 | 693 | +13.29% | +32.47% | -2.05% |
+| viewed_sep_nov | 0 - 30 days | 3,530 | 1,503 | +3.35% | +4.75% | -1.82% |
+| viewed_sep_nov | 31 - 90 days | 2,988 | 1,027 | +2.89% | +4.98% | -0.81% |
+| viewed_sep_nov | 91 - 180 days | 2,357 | 495 | +9.24% | +12.63% | +2.59% |
 
-正值表示误差降低，负值表示误差增加。完整的 MAE、购买者 MAE、组内按月 Top20 覆盖和预测总额偏差见 `recency_period_metrics.csv` 与 `recency_monthly_metrics.csv`。
+Positive values indicate a decrease in error, and negative values indicate an increase in error. The complete MAE, buyer MAE, monthly Top 20 coverage and forecast total deviation within the group are shown in `recency_period_metrics.csv` and `recency_monthly_metrics.csv`.
 
-稳定性、分组优势和名单消费覆盖均不证明个人金额准确，也不替代原商家未来新月份的多指标验收。
+Stability, grouping advantages and list consumption coverage do not prove the accuracy of individual amounts, nor do they replace the original merchant's multi-index acceptance in new months in the future.

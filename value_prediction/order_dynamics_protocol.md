@@ -1,15 +1,15 @@
-# 购买后金额：订单金额变化特征的运行前方案
+# Post-purchase amount: pre-run plan for order amount change characteristics
 
-记录于生成或查看本候选结果之前。目的：检验客户过去订单金额的波动与最近三单金额，能否改善“未来 30 天确实购买时会花多少”的估计。原无条件消费额强化目标不变，本实验只是其中购买后金额部分的研发。
+Recorded before this candidate result is generated or viewed. Purpose: To test whether fluctuations in the customer's past order amounts and the amounts of the last three orders can improve the estimate of "how much it will cost when purchasing in 30 days in the future." The original unconditional consumption amount strengthening goal remains unchanged, and this experiment only researches and develops the post-purchase amount part.
 
-## 特征和模型
+## Features and models
 
-- 原有 8 项快照特征与 12 项严格截点前的金额历史特征保持不变，只加三个截点前 180 天特征：最近最多三笔合格发票的平均金额、发票金额的总体标准差除以平均金额、最近最多三笔均值除以全部发票均值。只有一笔发票时波动为 0、比值为 1；同一发票多商品先合并，不将商品行当多笔订单。
-- 每个截点对客户历史只取 `[t-180d, t)`；使用原清洗交易，逐分核对所有发票金额与原快照的半年消费额。未来 `[t, t+30d)` 金额仅作为训练已成熟截点的标签或当前评价，绝不进入特征。
-- 固定复用原条件 L1 中位数 LightGBM：120 棵树、学习率 0.05、15 叶、种子 42。只在已成熟且未来金额大于零的训练快照拟合，不改采样权重或其它参数。
+- The original 8 item snapshot features and the 12 item's amount historical features before the strict cutoff remain unchanged, only three 180 days before the cutoff features are added: the average amount of the most recent three qualifying invoices, the overall standard deviation of the invoice amount divided by the average amount, and the average of the most recent three invoices divided by the average of all invoices. When there is only one invoice, the fluctuation is 0 and the ratio is 1; multiple products on the same invoice are merged first, and the product lines are not treated as multiple orders.
+- Only `[t-180d, t)` is taken from the customer history at each cutoff point; the original cleaning transaction is used to check all invoice amounts and the half-year consumption amount of the original snapshot point by point. In the future, the `[t, t+30d)` amount will only be used as a label or current evaluation of the mature cut-off point of training, and will never enter the characteristics.
+- Fixed reuse original condition L 1 median LightGBM: 120 tree, learning rate 0.05, 15 leaf, seed 42. Only fit on training snapshots that are mature and have future amounts greater than zero, without changing sampling weights or other parameters.
 
-## 时间切分与判断
+## Time segmentation and judgment
 
-- 2011 年 1–5 月向前开发；2011 年 6–8 月此前已查看，仅作确认。2011 年 9–11 月完全不参与本候选。对照为同批客户的原条件 L1 中位数、历史 180 天每笔订单均价、历史半年金额除以 6。
-- 逐月及两段合并报告购买者 MAE、购买者金额偏差、购买者数；同时展示特征完整性、训练标签截止和源哈希。预测时不得使用客户是否将在未来购买；购买者筛选只用于评价。
-- 研发推进条件在看结果前固定：1–5 月购买者 MAE 相对原条件 L1 至少下降 5%；5 个开发月中至少 4 个月不差于原条件 L1；合并购买者金额偏差绝对值不扩大。6–8 月只做方向核对，不能据此挑特征或改阈值。即使满足，仍不能代替无条件模型的其它指标和新数据独立验收。
+- 2011, January-May forward development; 2011, June-August previously viewed, for confirmation only. 2011, September-November are not included in this candidate at all. The comparison is the original condition L 1 median of the same batch of customers, the historical average price of each order on 180 days, and the historical half-year amount divided by 6.
+- Report buyers MAE, buyer amount deviation, and number of buyers on a monthly and two-segment basis; also display feature completeness, training label cutoff, and source hash. Whether a customer will purchase in the future may not be used in forecasting; buyer screening is for evaluation purposes only.
+- The R&D promotion conditions are fixed before looking at the results: January-Mayly buyers MAE will decrease by at least 5% relative to the original condition L 1; at least 4 months out of the 5 development months will not be worse than the original condition L 1; the absolute value of the deviation of the combined buyer amount will not expand. 6 – 8 only performs direction checking, and cannot select features or change thresholds based on this. Even if it is satisfied, it still cannot replace the independent acceptance of other indicators and new data of the unconditional model.

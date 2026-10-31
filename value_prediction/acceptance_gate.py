@@ -192,24 +192,24 @@ def main() -> None:
     }
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    lines = ['# 未来 30 天消费额统一验收复核', '',
-             '按原强化标准，用现有逐月结果重新计算所有指标。'
-             '这些来源均已用于开发、查看或属于其他商家；本表不产生新的独立测试。', '',
-             '| 数据组 | MAE 改善 | 购买者 MAE 改善 | Top20 覆盖提升 | 总额偏差 | Top20 群体偏差 | 同时不退步月份 | 技术门槛 | 原商家独立验收 |',
+    lines = ['# Unified acceptance review of consumption amount for 30 days in the future', '',
+             'All indicators are recalculated using existing month-to-month results according to the original enhanced standards.'
+             'These sources have been used to develop, view or belong to other merchants; this list does not generate new independent tests.', '',
+             '| Data group | MAE improvement | Buyer MAE improvement | Top 20 coverage improvement | Total deviation | Top 20 group deviation | Month without regression | Technical threshold | Independent acceptance by the original merchant |',
              '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |']
     for row in scorecard.itertuples(index=False):
         mae_gain = 100 * (1 - row.candidate_mae / row.baseline_mae)
         buyer_gain = 100 * (1 - row.candidate_buyer_mae / row.baseline_buyer_mae)
-        group_bias = ('缺失' if pd.isna(row.candidate_top20_group_bias)
+        group_bias = ('Missing' if pd.isna(row.candidate_top20_group_bias)
                       else f'{row.candidate_top20_group_bias:+.2%}')
         lines.append(f'| {row.case} | {mae_gain:+.2f}% | {buyer_gain:+.2f}% | '
-                     f'{row.top20_capture_gain_pp:+.2f} 个百分点 | '
+                     f'{row.top20_capture_gain_pp:+.2f} percentage points |'
                      f'{row.candidate_aggregate_bias:+.2%} | {group_bias} | '
                      f'{row.joint_stable_months}/{row.month_count} | '
-                     f'{"满足" if row.technical_passed else "未全满足"} | '
-                     f'{"是" if row.final_accepted else "否"} |')
-    lines += ['', '技术门槛逐项结果、来源清单及文件哈希见 `scorecard.csv` 与 `manifest.json`。'
-              '缺失的 Top20 群体金额偏差不能当作零；其他商家的好结果不能代替原商家新月份。', '']
+                     f'{"satisfy" if row.technical_passed else "not fully satisfied"} |'
+                     f'{"Yes" if row.final_accepted else "No"} |')
+    lines += ['', 'See `scorecard.csv` and `manifest.json` for technical threshold itemized results, source lists, and file hashes.'
+              'The missing Top 20 group amount deviation cannot be treated as zero; good results from other merchants cannot replace the original merchant\'s new month.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote strengthened acceptance review to {OUTPUT}', flush=True)
 

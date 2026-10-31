@@ -290,31 +290,31 @@ def evaluate() -> None:
     val = validation.loc[validation.kind.eq('sigmoid')].iloc[0]
     calibration_gain = raw['brier'] - final['brier']
     lines = [
-        '# 阶段六：冻结模型与独立测试结果', '',
-        f'验证期（2011 年 6–8 月）按 AP 选定 {bundle["feature_set"]} / {bundle["model_name"]}。'
-        f'基础分类器仅在训练期拟合；验证期用于 sigmoid 校准及固定 F1 分类阈值 '
-        f'{bundle["threshold"]:.6f}。测试期为 2011 年 9–11 月，未参与上述选择。'
-        '测试前已写入带哈希的 locked_config.json 和可加载模型。', '',
-        '| 指标 | 验证期 | 独立测试期 | 测试期 RFM |',
+        '# Phase 6: Freezing model and independent test results', '',
+        f'The verification period ( 2011 years 6 – 8 months) is selected by AP {bundle["feature_set"]} / {bundle["model_name"]}.'
+        f'The basic classifier is only fit during the training period; the validation period is used for sigmoid calibration and fixed F 1 classification threshold'
+        f'{bundle["threshold"]:.6f}. The test period is 2011 years and 9 – 11 months, and the above selection has not been participated.'
+        'A hashed locked_config.json and loadable model were written before testing.', '',
+        '| Metrics | Validation period | Independent testing period | Testing period RFM |',
         '| --- | ---: | ---: | ---: |',
         f'| AP | {val.average_precision:.4f} | {final["average_precision"]:.4f} | {comparison.iloc[1].average_precision:.4f} |',
         f'| ROC-AUC | {val.roc_auc:.4f} | {final["roc_auc"]:.4f} | {comparison.iloc[1].roc_auc:.4f} |',
         f'| Top 20% Precision | {val.precision_at_20pct:.2%} | {final["precision_at_20pct"]:.2%} | {comparison.iloc[1].precision_at_20pct:.2%} |',
         f'| Top 20% Recall | {val.recall_at_20pct:.2%} | {final["recall_at_20pct"]:.2%} | {comparison.iloc[1].recall_at_20pct:.2%} |',
         f'| Top 20% Lift | {val.lift_at_20pct:.3f} | {final["lift_at_20pct"]:.3f} | {comparison.iloc[1].lift_at_20pct:.3f} |',
-        '', f'测试期 {len(test):,} 条客户月快照，正例 {int(y.sum()):,} 条（{y.mean():.2%}）。'
-        f'每月分别选 ceil(当月客户数 × 20%)，共 {final["top20_count"]:,} 个名额，'
-        f'命中 {final["top20_hits"]:,} 条；RFM 命中 {int(comparison.iloc[1].top20_hits):,} 条。'
-        '同一客户跨月可能出现多次，统计单位是客户月快照。', '',
-        f'固定阈值下：Precision {final["precision"]:.4f}，Recall {final["recall"]:.4f}，'
-        f'F1 {final["f1"]:.4f}；混淆矩阵 TN={final["tn"]}, FP={final["fp"]}, '
-        f'FN={final["fn"]}, TP={final["tp"]}。Top 20% 名单独立于该阈值。', '',
-        f'测试 Brier：原始评分 {raw["brier"]:.4f}，sigmoid 后 {final["brier"]:.4f}，'
-        f'差值（原始减校准）{calibration_gain:+.4f}。分箱可靠性见 test_calibration.csv。'
-        '目前将输出称为模型评分；它表示历史数据上的复购风险排序，'
-        '不代表营销活动的因果增量或收入提升。', '',
-        '逐月、分群和逐条结果分别见 monthly_test.csv、cluster_test.csv、test_predictions.csv。'
-        '独立测试结果只用于报告，不回头修改本次模型或阈值。', ''
+        '', f'There are {len(test):,} customer monthly snapshots during the test period, and {int(y.sum()):,} ( {y.mean():.2%} ) as a regular example.'
+        f'Select ceil (number of customers in the current month × 20% ) each month, with a total of {final["top20_count"]:,} quotas.'
+        f'{final["top20_hits"]:,} hits; RFM hits {int(comparison.iloc[1].top20_hits):,}.'
+        'The same customer may appear multiple times across months, and the statistical unit is the monthly snapshot of the customer.', '',
+        f'Under fixed threshold: Precision {final["precision"]:.4f}, Recall {final["recall"]:.4f},'
+        f'F 1 {final["f1"]:.4f}; confusion matrix TN= {final["tn"]}, FP= {final["fp"]},'
+        f'FN= {final["fn"]}, TP= {final["tp"]}. The Top 20% list is independent of this threshold.', '',
+        f'Test Brier: original score {raw["brier"]:.4f}, sigmoid post {final["brier"]:.4f},'
+        f'Difference (original minus calibrated) {calibration_gain:+.4f}. For binning reliability, see test_calibration.csv.'
+        'The output is currently called the model score; it represents the repurchase risk ranking on historical data,'
+        'Not intended to represent causal incremental or revenue lift from marketing campaigns.', '',
+        'The monthly, clustered and item-by-item results are shown in monthly_test.csv, cluster_test.csv, and test_predictions.csv respectively.'
+        'The independent test results are only used for reporting, and the model or thresholds will not be modified later.', ''
     ]
     (OUTPUT / 'stage6_report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'Test AP={final["average_precision"]:.4f}; RFM={comparison.iloc[1].average_precision:.4f}; '

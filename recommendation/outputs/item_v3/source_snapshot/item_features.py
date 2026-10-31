@@ -23,7 +23,7 @@ ALL_FEATURES = BASE + PROFILE + INTERACTIONS + SIGNAL + ['repeat_x_ease']
 FEATURE_SETS = {'A': BASE, 'B': BASE + PROFILE + INTERACTIONS,
                 'C': BASE + SIGNAL, 'D': ALL_FEATURES}
 FEATURE_INDEX = {key: np.array([ALL_FEATURES.index(name) for name in values]) for key, values in FEATURE_SETS.items()}
-GROUP_NAMES = {'A': 'A基础', 'B': 'B基础＋画像', 'C': 'C基础＋EASE', 'D': 'D完整'}
+GROUP_NAMES = {'A': 'A basic', 'B': 'BBasics+Image', 'C': 'C Basics + EASE', 'D': 'Dcomplete'}
 
 
 def item_context(tx: pd.DataFrame, snapshots: pd.DataFrame, cutoff: pd.Timestamp, ease: dict) -> dict:

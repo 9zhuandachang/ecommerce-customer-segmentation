@@ -12,26 +12,26 @@
   "feature_set": "base_8_plus_trend_and_rhythm",
   "segment_candidate": "kmeans_k4",
   "segment_names": {
-    "0": "群 0｜近期低客单",
-    "1": "群 1｜较久未购",
-    "2": "群 2｜近期高频",
-    "3": "群 3｜近期高客单"
+    "0": "Group 0 | Recent low order value",
+    "1": "Group 1 | Long inactive",
+    "2": "Group 2 | Recent frequent buyers",
+    "3": "Group 3 | Recent high order value"
   },
   "score_kind": "uncalibrated ranking score",
   "source_hashes": {
     "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
     "transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
     "segment_model": "da6c1018ac46d54f53a9801c8de3ce0664087b7bc245add681c18386d1228cd1",
-    "segment_decision": "8c960ad2a7742dac0c484631ac333fe9f79c42af91d8b315dcf983dde2cd43f3",
+    "segment_decision": "aebd78041108899bd4793dd013bc9cb51671df8b8689da6eda8789af4c2f1b7d",
     "segment_assignments": "57be9eab9b0ec9cb964d87c55f23fa97bb1f1c4887cd6c7d7c6767fab7b5f314",
     "repurchase_model": "62898c04032024ffe7f31ec6526d0b9fad983b772043eb4533cd179572732400",
-    "repurchase_manifest": "3aea74df0c82e3a14828eebfb9a392e9163aa1db52858f2f9109fc7855f5e2d2",
+    "repurchase_manifest": "9852a7fbfe1129fdbe155a1dbffbe5f64cac0082618a166f39697d22a09f90fa",
     "repurchase_validation_predictions": "ea5ee43233f9187b284750991aa17a378105a827e97b27ec33efbcfaaa233784",
-    "integration_script": "49af59edfe85cba3a53cef3b164fd5adb48f64102e12a9ef6af6e6fc24d0129a"
+    "integration_script": "ba9533eda90a5e11b6e11ebfdcc53f936fd02dadf9db5635bd89cd74ab2f8971"
   },
   "output_hashes": {
-    "model": "b14dcfc593078dd8be162f9afbeb07d77c8d8e967065fd7b522ef99bbac2a5e4",
-    "test_predictions": "41ee085ad1856452e15a81aa2bf34f52640872a3a8e80a5c49e3d6943e8bbd77",
+    "model": "0dd4463fe3f6ae4b4255de7545d4b7585496bca4ae22a17d5501a03e3ec41f90",
+    "test_predictions": "5e325b35995cd9c483ee7a688b61b853b3c33d14bc2978037c4150227408a21e",
     "test_comparison": "1092573ec16493a4a397d1c3e64d95a65979393e16cb476523bb767860f04cda",
     "monthly_comparison": "2f24ea5f3040d7b1af7c1140fbf149a265db5514f74778ac35a36d51c8625066"
   },

@@ -1,57 +1,57 @@
-# 高消费潜力排序：统一比较结果
+# Spending-potential sorting: unified comparison results
 
-**最终采用：两步LightGBM。** 只按6–8月验证结果选型，9–11月为锁定后的复核结果。
+**Final adoption: two-stage LightGBM.** Only based on the verification results of June-August, the September-November are the review results after locking.
 
-目标：每月挑选20%客户，覆盖更多后续30天合格消费额。所有学习模型共用20项已知购买特征，每类8组参数、5个向前开发折。
+Goal: Select 20% customers every month and cover more subsequent 30 days of qualified consumption. All learning models share 20 known purchase features, 8 sets of parameters for each category, and 5 forward development folds.
 
-| 方法 | 验证：月均覆盖 | 验证：金额加总覆盖 | 复核：月均覆盖 | 复核：金额加总覆盖 |
+| method | Verification: average monthly coverage | Verification: Amount sum coverage | Review: average monthly coverage | Review: Total amount coverage |
 |---|---:|---:|---:|---:|
-| 过去180天消费排序 | 71.37% | 71.38% | 67.45% | 67.28% |
-| 过去90天消费排序 | 67.39% | 67.36% | 64.56% | 64.30% |
-| 过去30天消费排序 | 56.14% | 56.11% | 55.95% | 55.70% |
+| Consumption sorting in the past 180 days | 71.37% | 71.38% | 67.45% | 67.28% |
+| Consumption sorting in the past 90 days | 67.39% | 67.36% | 64.56% | 64.30% |
+| Consumption sorting in the past 30 days | 56.14% | 56.11% | 55.95% | 55.70% |
 | LightGBM Tweedie | 73.01% | 73.06% | 70.23% | 70.01% |
 | XGBoost Tweedie | 72.80% | 72.80% | 70.45% | 70.25% |
-| 两步LightGBM | 73.28% | 73.31% | 70.23% | 70.04% |
+| Two steps LightGBM | 73.28% | 73.31% | 70.23% | 70.04% |
 
-## 为什么选它
+## Why choose it?
 
-- 最强规则：过去180天消费排序；最强学习方案：两步LightGBM。
-- 最强学习方案验证期月均覆盖相对最强规则：+1.91个百分点。
-- 固定条件：平均提升≥1个百分点、至少2/3个月不退步、最差月落后≤1个百分点，配对客户重抽样区间下界>0。
-- 条件结果：`{"mean_gain_at_least_1pp": true, "at_least_two_months_nonworse": true, "worst_month_loss_at_most_1pp": true, "customer_interval_lower_positive": true}`。
-- 四项满足，采用验证期胜出的学习方案。
+- The strongest rule: consumption ranking in the past 180 days; the strongest learning solution: two-stage LightGBM.
+- The monthly average coverage of the strongest learning solution during the validation period is + 1.91 percentage points relative to the strongest rules.
+- Fixed conditions: average improvement ≥ 1 percentage points, no regression for at least 2 / 3 months, worst month lag ≤ 1 percentage points, lower bound of paired customer resampling interval > 0.
+- Condition result: `{"mean_gain_at_least_1pp": true, "at_least_two_months_nonworse": true, "worst_month_loss_at_most_1pp": true, "customer_interval_lower_positive": true}`.
+- If the four items are met, the learning plan that wins during the validation period will be adopted.
 
-## 最终参数与公平比较
+## Final parameters and fair comparison
 
-所有模型均不使用测试标签拟合。验证模型只训练到2011年5月，最终模型只训练到2011年8月；后者固定评分9、10、11月，中途不更新。
+All models are fitted without test labels. The verification model is only trained until 2011, and 5 months, and the final model is only trained until 2011, and 8 months; the latter has fixed scores of 9, 10, and 11 months and is not updated midway.
 
-| 学习方案 | 开发选定配置 | 开发月均覆盖 |
+| Study plan | Develop selected configuration | Average monthly development coverage |
 |---|---|---:|
-| LightGBM Tweedie | 120棵回归树，15叶，conservative | 72.18% |
-| XGBoost Tweedie | 120棵回归树，15叶，standard | 70.99% |
-| 两步LightGBM | 120棵回归树，15叶，conservative | 72.09% |
+| LightGBM Tweedie | 120 regression tree, 15 leaves, conservative | 72.18% |
+| XGBoost Tweedie | 120 regression tree, 15 leaves, standard | 70.99% |
+| Two steps LightGBM | 120 regression tree, 15 leaves, conservative | 72.09% |
 
-学习率均为0.05、种子42；Tweedie方差幂1.5。两步模型分类树数为回归树数的2/3，用购买概率乘购买后的Gamma金额均值排序。全部具体参数见locked_plan.json及locked_selection.json。
+The learning rate is 0.05, seed 42; Tweedie variance power 1.5. The number of classification trees of the two-step model is 2 / 3, the number of regression trees, and the purchase probability is multiplied by the mean value of the Gamma amount after purchase. For all specific parameters, see locked_plan.json and locked_selection.json.
 
-## 逐月名单效果
+## Monthly list effect
 
-| 月份 | 用途 | 客户数 | 20%名额 | 最终方法覆盖 | 最强规则覆盖 | 差值 |
+| month | Purpose | Number of customers | 20% quota | final method override | Strongest rule coverage | Difference |
 |---|---|---:|---:|---:|---:|---:|
-| 2011-06 | 验证 | 2,658 | 532 | 72.76% | 70.37% | +2.39个百分点 |
-| 2011-07 | 验证 | 2,722 | 545 | 72.33% | 71.16% | +1.17个百分点 |
-| 2011-08 | 验证 | 2,766 | 554 | 74.73% | 72.57% | +2.16个百分点 |
-| 2011-09 | 复核 | 2,768 | 554 | 71.53% | 68.60% | +2.93个百分点 |
-| 2011-10 | 复核 | 2,919 | 584 | 71.43% | 68.48% | +2.95个百分点 |
-| 2011-11 | 复核 | 3,188 | 638 | 67.73% | 65.29% | +2.45个百分点 |
+| 2011-06 | Verify | 2,658 | 532 | 72.76% | 70.37% | + 2.39 percentage points |
+| 2011-07 | Verify | 2,722 | 545 | 72.33% | 71.16% | + 1.17 percentage points |
+| 2011-08 | Verify | 2,766 | 554 | 74.73% | 72.57% | + 2.16 percentage points |
+| 2011-09 | Review | 2,768 | 554 | 71.53% | 68.60% | + 2.93 percentage points |
+| 2011-10 | Review | 2,919 | 584 | 71.43% | 68.48% | + 2.95 percentage points |
+| 2011-11 | Review | 3,188 | 638 | 67.73% | 65.29% | + 2.45 percentage points |
 
-## 稳健性与使用
+## Robustness and usage
 
-验证期500次客户成组配对重抽样：最强学习方案对最强规则的月均提升为+1.91个百分点，95%客户抽样区间[+0.48, +2.85]个百分点。这是选型后的内部诊断，不包含月份变化带来的不确定性。另两个种子的逐月结果见seed_monthly.csv。
+During the validation period, 500 times of customer group pairing resampling: the monthly average improvement of the strongest learning scheme on the strongest rule is + 1.91 percentage points, and the 95% customer sampling interval is [+ 0.48, + 2.85 ] percentage points. This is an internal diagnosis after selection and does not include the uncertainty caused by monthly changes. See seed_monthly.csv for the monthly results of the other two seeds.
 
-此前这些月份的金额结果已经用于研究，本轮不能提供新独立测试。模型比较和20%名单效用与个人金额预测准确度是不同指标；名单百分位只表示当月相对名次。
+Amount results from these previous months have been used in the study and new independent testing is not available for this round. Model comparison and 20% list utility and personal amount prediction accuracy are different indicators; the list percentile only represents the relative ranking of the month.
 
-![逐月比较](comparison.png)
+![Month-by-Month Comparison](comparison.png)
 
-复现：`python -B -m value_prediction.ranking_comparison`；打开：`python -m streamlit run app/dashboard.py` → High-value customers。
+Recurrence: `python -B -m value_prediction.ranking_comparison`; Open: `python -m streamlit run app/dashboard.py` → High-value customers.
 
-comparison.csv为总体对比，monthly_comparison.csv为逐月对比，tuning_comparison.csv保留全部24组参数；validation_predictions.csv/review_predictions.csv保留内部逐条评分与真实答案，customer_priority.csv为可导出的安全名单，不含未来答案或个人预计金额。
+comparison.csv is the overall comparison, monthly_comparison.csv is the month-by-month comparison, tuning_comparison.csv retains all 24 group parameters; validation_predictions.csv/review_predictions.csv retains internal item-by-item ratings and real answers, customer_priority.csv is the exportable safe list, excluding future answers or personal estimated amounts.

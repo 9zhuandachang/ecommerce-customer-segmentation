@@ -6,15 +6,15 @@
     "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
   },
   "code_hashes": {
-    "item_protocol.md": "f89f52275af76637e3cea186fa16859829e375de640bef2bdbb950b2a4762c28",
-    "item_features.py": "5e6a7183d8b366a80b6ddde47edb783767abd1f733440fff77dcb0fa5a87a022",
-    "item_models.py": "f6ad4015708540eed9216d5994ad79dbb58f184a6f27f9ad2aec2c034fb75983",
-    "item_experiment.py": "1bc4abcd6df9db125a858908b3bd1de2b979a6a2e9241dd44a2d0ed766f9eb51",
+    "item_protocol.md": "e34ee66133d2c3ce3e97c15fb9e6952a228f031b9882ecf8b68feccd441212ad",
+    "item_features.py": "bdd0b014f76067fe668f10c05fb5a6fa6ac906962159a2aa4c17ae6ec596f76c",
+    "item_models.py": "c70217ed8fd5523ec8354c4d668092de62f14d07a18f307d806e8b32bd8a895e",
+    "item_experiment.py": "cdac6cac3679bf6872aff8a8333e161d9b6b3533fba51ee91afb88fb921df536",
     "data.py": "d959a9249e6e379672cdb4471e2f1836f24e0a309631c034e02fa91381e24966",
-    "models.py": "784416c7c3fe9d01e6ee98ad81048c41c39f017e3b194749b321ba5119ea6573",
+    "models.py": "2931a2e1e9f9627e3fa1d27d51f8009eb7dd8faf6ba259bad30fe5da97a7af76",
     "metrics.py": "e80d61f13f70be1b9c165b67a8a32bfcca61fcb7da5f53818eb2a23d46e13154",
-    "profiles.py": "facf963e09f80d64422915597f8a3fa4667b5174795249a6a4a4eed0c92ea0b5",
-    "hybrid.py": "eeee5c56098c987ad57716fe4a9e1bbaa311d08f0dbe403f644ed35345292bcf"
+    "profiles.py": "322ed4c02fcaf73a95c6cc3e1a2cb9d2df918d8f4555a78960356f008c754b4d",
+    "hybrid.py": "9e7d6017a8455c80acd6a21a9473ebbe4988b09963bb7a8c5de1812e176eda52"
   },
   "features": {
     "A": [
@@ -199,7 +199,7 @@
       }
     ]
   },
-  "v2_manifest_sha256": "1855b414125cb602c7a70cd109ddfe4627612b5010a3dd0ca9b9e667b768cc61",
+  "v2_manifest_sha256": "08e91dfcf3a05f4b8c4d7f051742d52e7bb50d3a55f7ec8dee3e950d620341b5",
   "versions": {
     "python": "3.11.9",
     "numpy": "2.4.6",

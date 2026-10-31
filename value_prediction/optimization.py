@@ -238,24 +238,24 @@ def main() -> None:
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     baseline = totals.loc[totals.method.eq('historic_180d')].set_index('period')
-    lines = ['# 消费额预测开发期向前验证', '',
-             '本报告只使用 2011 年 1–8 月开发期，9–11 月测试行未参与训练或评估。',
-             '每月重新训练时，仅使用未来 30 天标签窗口已经结束的更早客户快照。',
-             '1–5 月用于滚动开发比较；6–8 月是此前已看过的开发确认期。', '',
-             '| 期间 | 方法 | MAE | 购买者 MAE | Top20 消费额覆盖 | 总额偏差 | Top20 群体偏差 |',
+    lines = ['# Consumption forecast development period forward verification', '',
+             'This report only uses the 2011 year 1 – 8 month development period, and the 9 – 11 month test line does not participate in training or evaluation.',
+             'When retraining each month, only older customer snapshots for which the label window has ended 30 days in the future are used.',
+             'The 1 – 5 months are for rolling development comparisons; the 6 – 8 months are previously viewed development confirmation periods.', '',
+             '| Period | Method | MAE | Buyer MAE | Top 20 Spending Coverage | Total Deviation | Top 20 Group Deviation |',
              '| --- | --- | ---: | ---: | ---: | ---: | ---: |']
     for row in totals.itertuples(index=False):
         lines.append(f'| {row.period} | {row.method} | {row.mae:.2f} | '
                      f'{row.positive_mae:.2f} | {row.top20_spend_capture:.2%} | '
                      f'{row.aggregate_bias:+.2%} | {row.top20_group_bias:+.2%} |')
-    lines += ['', '与同期间历史金额基线相比：', '']
+    lines += ['', 'Compared to the historical amount baseline for the same period:', '']
     for row in totals.loc[totals.method.ne('historic_180d')].itertuples(index=False):
         b = baseline.loc[row.period]
         lines.append(f'- {row.period} / {row.method}：MAE '
-                     f'{row.mae / b.mae - 1:+.2%}；Top20 覆盖 '
-                     f'{(row.top20_spend_capture - b.top20_spend_capture) * 100:+.2f} 个百分点。')
-    lines += ['', '逐月结果、每条客户预测、训练截止证明和输入哈希见同目录。'
-              '这里的结果仅供下一轮设计，不能作为最终独立测试。', '']
+                     f'{row.mae / b.mae - 1:+.2%}; Top 20 coverage'
+                     f'{(row.top20_spend_capture - b.top20_spend_capture) * 100:+.2f} percentage points.')
+    lines += ['', 'Month-by-month results, per-customer forecasts, training cutoff proofs and input hashes are found in the same directory.'
+              'The results here are for the next round of design only and cannot be used as final independent testing.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote development-only comparison to {OUTPUT}', flush=True)
 

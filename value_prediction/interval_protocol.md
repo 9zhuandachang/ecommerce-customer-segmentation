@@ -1,23 +1,23 @@
-# 未来 30 天金额区间：开发期时序检验预案
+# Future 30 day amount range: Development period timing inspection plan
 
-记录：2026-10-23，在查看本区间实验的覆盖率前固定。目的为量化单点金额预测的不确定性；原金额误差、购买者误差、Top20、偏差、跨月和独立验证目标全部保留，不用区间覆盖率替代。
+Record: 2026-10-23, fixed before viewing the coverage of the experiment in this interval. The purpose is to quantify the uncertainty of single-point amount prediction; the original amount error, buyer error, Top 20, deviation, cross-month and independent verification targets are all retained and are not replaced by interval coverage.
 
-## 输入与边界
+## Input and boundaries
 
-- 使用原项目已经保存的按月向前样本外预测：无条件金额取 `extended_tweedie_previous_year`；“若发生购买”的条件金额取 `median_if_purchase_prior_year`。二者只由截点前特征产生。客户与金额标签必须按 `snapshot_date, customer_id` 一对一对账，校验预测文件哈希。
-- 2011 年 1 月只提供已结束后的历史残差；从 2 月到 8 月逐月生成区间。对目标截点 `t`，历史只取此前最近最多三个满足 `snapshot_date+30d <= t` 的截点。历史截点的预测必须是当时的样本外预测。当前 30 天标签绝不能参与当前区间构造。
-- 条件金额校准历史只用那些过去实际发生购买的客户，最低 100 条；无条件金额历史最低 500 条。当前条件金额区间对所有客户可生成，经验覆盖率只在实际发生购买者上计算；未来购买状态不是预测输入。
+- Use the monthly forward out-of-sample forecast that has been saved by the original project: the unconditional amount is `extended_tweedie_previous_year`; the conditional amount "if a purchase occurs" is `median_if_purchase_prior_year`. Both are generated only by features before the cutoff point. Customer and amount tags must be reconciled one-to-one according to `snapshot_date, customer_id`, and the prediction file hash must be verified.
+- Only the historical residuals after the end of 2011, and 1 month are provided; intervals are generated month by month from 2 month to 8 month. For the target intercept point `t`, the history only takes the most recent three intercept points that satisfy `snapshot_date+30d <= t`. Forecasts at historical cutoffs must be out-of-sample forecasts at that time. The current 30 day tag must not participate in the current interval construction.
+- The conditional amount calibration history only uses those customers who actually purchased in the past, with a minimum of 100; the unconditional amount history has a minimum of 500. The current conditional amount range can be generated for all customers, and the experience coverage is only calculated on actual purchasers; future purchase status is not a prediction input.
 
-## 固定区间形式
+## Fixed interval form
 
-名义覆盖率为 90%。对历史绝对残差取有限样本顺序统计量 `k = ceil((n+1)×0.90)`（从小到大，第 `k` 个），区间为 `[max(0, 预测−q), 预测+q]`。同时固定一项适应金额尺度的对照：先在 `log1p(金额)` 空间求同样的绝对残差分位数，再把 `log1p(预测) ± q` 经 `expm1` 还原，负下限截为 0。若 `k>n`，该目标截点不报告有限区间；不能临时改变覆盖率或校准窗口。
+The nominal coverage is 90%. Take the finite sample order statistic `k = ceil((n+1)×0.90)` (from small to large, `k` ) for the historical absolute residuals, and the interval is `[max(0, Forecast−q), Forecast+q]`. At the same time, a comparison adapted to the amount scale is fixed: first find the same absolute residual quantile in the `log1p(Amount)` space, and then restore `log1p(Forecast) ± q` through `expm1`, and the negative lower limit is truncated to 0. If `k>n`, no finite interval is reported for this target intercept point; coverage or calibration windows cannot be temporarily changed.
 
-## 审计指标
+## Audit indicators
 
-- 逐月、2–5 月、已查看的 6–8 月分别报告区间经验覆盖率、平均和中位宽度、未来实际金额高于上界的比例。
-- 按当前单点预测金额排序预先标记前 10% 客户，分别报告高额组覆盖率与宽度。条件区间的覆盖率只在该组实际购买者中检查。
-- 报告每月使用的成熟截点、历史残差条数、分位值、输入文件与脚本哈希、客户级区间及标签完整性。客户跨月重复和时间漂移会破坏交换性假设，所以名义 90% 不构成未来月份的保证。9–11 月已看过，不参加本次构建或选择。
+- Month by month, 2 – 5 months, and viewed June-August, the range experience coverage, average and median width, and the proportion of future actual amounts above the upper bound are reported respectively.
+- Pre-marked top 10% customers sorted by current single-point forecast amount, reporting high-value group coverage and width separately. The coverage of the condition interval is only checked among this group of actual buyers.
+- Reports monthly usage of mature cutoff points, historical residuals, quantile values, input file and script hashes, client-level intervals and label completeness. Customer duplication across months and time drift would undermine the commutability assumption, so the notional 90% does not constitute a guarantee for future months. September-November have been viewed and are not participating in this build or selection.
 
-## 分组区间的追加开发比较
+## Additional development comparison of grouping intervals
 
-首轮结果出来后发现全体约 90% 的绝对金额区间在预测前 10% 客户中覆盖明显不足。为检查分组校准是否有用，追加一项固定比较：每个历史截点和当前截点都仅按当时无条件金额或条件金额的预测值，把客户分为前 10% 与其余 90%；对最近最多三个已成熟截点的每组残差分别按上述同一有限样本公式求 90% 分位数。分别对原金额绝对残差和 `log1p` 残差应用，记为 `absolute_grouped` 与 `log1p_grouped`。条件金额历史仍只用实际发生购买的过去客户；若历史某组不足 100 条，则退回当期同目标、同残差形式的全体校准分位数，并记录回退。当前分组不用未来购买状态或金额。和首轮方案并列保存覆盖率与宽度；6–8 月已看过，因此这一追加比较不能称为独立验证或用于降低原验收要求。
+After the first round of results came out, it was found that the absolute amount range of approximately 90% was obviously insufficiently covered among the pre-prediction 10% customers. In order to check whether the group calibration is useful, a fixed comparison is added: each historical cutoff point and the current cutoff point are divided into the former 10% and the remaining 90% based only on the predicted value of the unconditional amount or conditional amount at that time; for each group of residuals of the most recent three mature cutoff points, the 90% quantile is calculated according to the same limited sample formula mentioned above. The absolute residuals of the original amount and the residuals of `log1p` are applied respectively, recorded as `absolute_grouped` and `log1p_grouped`. The conditional amount history still only uses past customers who actually made purchases; if a certain group of history contains less than 100 records, all calibrated quantiles with the same target and the same residual form for the current period will be returned, and the rollback will be recorded. The current grouping does not use future purchase status or amount. Coverage and width are saved side by side with the first-round proposal; 6 – 8 has been viewed for months, so this additional comparison cannot be called independent verification or used to reduce the original acceptance requirements.

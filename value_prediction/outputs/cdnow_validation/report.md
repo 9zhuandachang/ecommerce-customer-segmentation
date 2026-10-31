@@ -1,12 +1,12 @@
-# CDNOW 跨商家消费额预测检验
+# CDNOW cross-merchant consumption prediction test
 
-按 `cdnow_protocol.md` 事先固定的规则，使用完整的真实交易来源。原始文件仅放系统临时目录，仓库仅留聚合结果。
-金额为美元，客户只来自 1997 年第一季度首次购买者；商品 ID 不可用，商品多样性固定为 1。此结果不能代替原商家的新月份独立验收。
+Use complete real transaction sources according to `cdnow_protocol.md` 's pre-fixed rules. The original files are only placed in the system temporary directory, and only the aggregation results are retained in the warehouse.
+Amounts are in USD, customers are only from first-time buyers in the first quarter of year 1997; item IDs are not available, item diversity is fixed at 1. This result cannot replace the original merchant's independent acceptance in the new month.
 
-源交易 69,659 行、客户 23,570 人；排除零金额交易 80 行后，合格客户 23,502 人，客户月快照 109,629 条。零金额行金额之和为 0，交易金额逐分核对通过。
-最后三个月可行性（每月 ≥1,000 快照、≥100 未来购买者）：满足。
+The source transaction line is 69,659, and the customer is 23,570; after excluding the zero-amount transaction line 80, there are 23,502 qualified customers, and the customer monthly snapshot is 109,629. The sum of the amounts of zero-amount lines is 0, and the transaction amount is verified and passed point by point.
+Last three month viability (≥ 1,000 snapshots, ≥ 100 future buyers per month): Satisfied.
 
-| 截点 | 分区 | 方法 | 客户数 | 购买者 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 | Top20 群体偏差 |
+| cutoff point | Partition | method | Number of customers | buyer | MAE | Buyer MAE | Top 20 coverage | total deviation | Top 20 Group bias |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | 1997-10-01 | development | historic_180d | 7,249 | 1,318 | 16.28 | 34.40 | 54.73% | +51.31% | +67.74% |
 | 1997-10-01 | development | recent_90d | 7,249 | 1,318 | 15.27 | 36.98 | 53.07% | +35.68% | +85.80% |
@@ -45,18 +45,18 @@
 | 1998-06-01 | locked_test | extended_tweedie | 5,529 | 1,089 | 13.79 | 40.16 | 58.58% | -13.35% | -12.24% |
 | 1998-06-01 | locked_test | extended_tweedie_lag_calibrated | 5,529 | 1,089 | 13.87 | 39.92 | 58.58% | -11.39% | -10.25% |
 
-## 最后三个月合并
+## Last three months combined
 
-| 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 | Top20 群体偏差 |
+| method | MAE | Buyer MAE | Top 20 coverage | total deviation | Top 20 Group bias |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | historic_180d | 16.22 | 33.86 | 56.09% | +54.97% | +66.12% |
 | recent_90d | 15.76 | 35.27 | 53.75% | +47.98% | +91.53% |
 | extended_tweedie | 13.54 | 36.20 | 58.81% | +7.64% | +5.90% |
 | extended_tweedie_lag_calibrated | 13.79 | 35.90 | 58.81% | +12.38% | +10.53% |
 
-## 事先固定的强化目标
+## Fixed strengthening goals in advance
 
-- `extended_tweedie`：未全部满足。mae_10pct_better=是；buyer_mae_5pct_better=否；top20_capture_3pp_higher=否；aggregate_bias_within_5pct=否；top20_group_bias_within_10pct=是；all_months_mae_not_worse=是；all_months_top20_not_worse=是
-- `extended_tweedie_lag_calibrated`：未全部满足。mae_10pct_better=是；buyer_mae_5pct_better=否；top20_capture_3pp_higher=否；aggregate_bias_within_5pct=否；top20_group_bias_within_10pct=否；all_months_mae_not_worse=是；all_months_top20_not_worse=是
+- `extended_tweedie`: Not all are satisfied. mae_ 10 pct_better=yes; buyer_mae_ 5 pct_better=no; top 20 _capture_ 3 pp_higher=no; aggregate_bias_within_ 5 pct=no; top 20 _group_bias_within_ 10 pct=Yes; all_months_mae_not_worse=Yes; all_months_top 20 _not_worse=Yes
+- `extended_tweedie_lag_calibrated`: Not all are satisfied. mae_ 10 pct_better=yes; buyer_mae_ 5 pct_better=no; top 20 _capture_ 3 pp_higher=no; aggregate_bias_within_ 5 pct=no; top 20 _group_bias_within_ 10 pct=no;all_months_mae_not_worse=yes;all_months_top 20 _not_worse=yes
 
-各月训练标签截止、原始金额核对及来源哈希见同目录文件。任何跨商家通过都只属于方法可迁移性证据，不构成原商家金额模型上线许可。
+The monthly training label cutoff, original amount verification and source hash can be found in the same directory file. Any cross-merchant approval is only evidence of method portability and does not constitute permission to go online with the original merchant's amount model.

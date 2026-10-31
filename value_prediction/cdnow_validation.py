@@ -252,14 +252,14 @@ def main() -> None:
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     lines = [
-        '# CDNOW 跨商家消费额预测检验', '',
-        '按 `cdnow_protocol.md` 事先固定的规则，使用完整的真实交易来源。原始文件仅放系统临时目录，仓库仅留聚合结果。',
-        '金额为美元，客户只来自 1997 年第一季度首次购买者；商品 ID 不可用，商品多样性固定为 1。此结果不能代替原商家的新月份独立验收。', '',
-        f'源交易 {audit["source_rows"]:,} 行、客户 {audit["source_customers"]:,} 人；'
-        f'排除零金额交易 {audit["excluded_zero_amount_rows"]} 行后，合格客户 {audit["eligible_customers"]:,} 人，'
-        f'客户月快照 {len(snapshot):,} 条。零金额行金额之和为 0，交易金额逐分核对通过。',
-        f'最后三个月可行性（每月 ≥1,000 快照、≥100 未来购买者）：{"满足" if feasible else "不满足"}。', '',
-        '| 截点 | 分区 | 方法 | 客户数 | 购买者 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 | Top20 群体偏差 |',
+        '# CDNOW cross-merchant consumption prediction test', '',
+        'Use complete real transaction sources according to `cdnow_protocol.md` \'s pre-fixed rules. The original files are only placed in the system temporary directory, and only the aggregation results are retained in the warehouse.',
+        'Amounts are in USD, customers are only from first-time buyers in the first quarter of year 1997; item IDs are not available, item diversity is fixed at 1. This result cannot replace the original merchant\'s independent acceptance in the new month.', '',
+        f'Source transaction bank {audit["source_rows"]:,}, customer {audit["source_customers"]:,} people;'
+        f'After excluding zero-amount transactions {audit["excluded_zero_amount_rows"]}, there are {audit["eligible_customers"]:,} qualified customers.'
+        f'Customer monthly snapshot {len(snapshot):,} items. The sum of the amounts of zero-amount lines is 0, and the transaction amount is verified and passed point by point.',
+        f'Last three months viability (monthly ≥ 1,000 snapshots, ≥ 100 future buyers): {"satisfy" if feasible else "dissatisfied"}.', '',
+        '| Cutoff | Partition | Method | Number of Customers | Buyers | MAE | Buyers MAE | Top 20 Coverage | Total Deviation | Top 20 Group Deviation |',
         '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
     ]
     for row in monthly.itertuples(index=False):
@@ -267,21 +267,21 @@ def main() -> None:
                      f'{row.snapshot_count:,} | {row.buyer_count:,} | {row.mae:.2f} | '
                      f'{row.positive_mae:.2f} | {row.top20_spend_capture:.2%} | '
                      f'{row.aggregate_bias:+.2%} | {row.top20_group_bias:+.2%} |')
-    lines += ['', '## 最后三个月合并', '',
-              '| 方法 | MAE | 购买者 MAE | Top20 覆盖 | 总额偏差 | Top20 群体偏差 |',
+    lines += ['', '## Last three months combined', '',
+              '| Method | MAE | Buyers MAE | Top 20 Coverage | Total Bias | Top 20 Group Bias |',
               '| --- | ---: | ---: | ---: | ---: | ---: |']
     for row in pooled.itertuples(index=False):
         lines.append(f'| {row.method} | {row.mae:.2f} | {row.positive_mae:.2f} | '
                      f'{row.top20_spend_capture:.2%} | {row.aggregate_bias:+.2%} | '
                      f'{row.top20_group_bias:+.2%} |')
     if decision is not None:
-        lines += ['', '## 事先固定的强化目标', '']
+        lines += ['', '## Fixed strengthening goals in advance', '']
         for method, item in decision.items():
-            lines.append(f'- `{method}`：{"全部满足" if item["all_passed"] else "未全部满足"}。'
-                         + '；'.join(f'{name}={"是" if passed else "否"}'
+            lines.append(f'- `{method}`: {"Satisfy all" if item["all_passed"] else "Not all satisfied"}.'
+                         + '；'.join(f'{name} = {"Yes" if passed else "No"}'
                                     for name, passed in item['criteria'].items()))
-    lines += ['', '各月训练标签截止、原始金额核对及来源哈希见同目录文件。'
-              '任何跨商家通过都只属于方法可迁移性证据，不构成原商家金额模型上线许可。', '']
+    lines += ['', 'The monthly training label cutoff, original amount verification and source hash can be found in the same directory file.'
+              'Any cross-merchant approval is only evidence of method portability and does not constitute permission to go online with the original merchant\'s amount model.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote CDNOW aggregate results to {OUTPUT}', flush=True)
 

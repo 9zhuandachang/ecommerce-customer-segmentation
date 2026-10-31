@@ -142,22 +142,22 @@ def main() -> None:
     }
     (OUTPUT / 'manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    lines = ['# 订单金额变化特征：客户抽样不确定性', '',
-             '同一客户跨月的购买记录一起重抽样，两个模型使用相同的样本。'
-             '区间只描述固定已查看月份的客户构成波动，不包含未来月份差异。', '',
-             '| 期间 | 指标 | 点估计 | 95% 客户抽样区间 | 客户数 |',
+    lines = ['#Characteristics of order amount changes: customer sampling uncertainty', '',
+             'The purchase records of the same customer across months are resampled together, and the two models use the same sample.'
+             'The range only describes fluctuations in customer composition for a fixed viewed month and does not include differences in future months.', '',
+             '| Period | Metric | Point Estimate | 95% Customer Sampling Range | Number of Customers |',
              '| --- | --- | ---: | ---: | ---: |']
     for row in result.itertuples(index=False):
         if row.metric == 'buyer_mae_reduction':
-            name, scale, suffix = '购买者 MAE 降幅', 100, '%'
+            name, scale, suffix = 'Buyer MAE Decrease', 100, '%'
         else:
-            name, scale, suffix = '绝对金额偏差变化', 1, ' 个百分点'
+            name, scale, suffix = 'Absolute amount deviation change', 1, 'percentage points'
         lines.append(f'| {row.period} | {name} | {row.point * scale:+.2f}{suffix} | '
                      f'[{row.lower_95 * scale:+.2f}{suffix}, '
                      f'{row.upper_95 * scale:+.2f}{suffix}] | '
                      f'{row.buyer_customer_count:,} |')
-    lines += ['', '正的“绝对金额偏差变化”表示新特征使金额偏差更大。'
-              '本区间不代替事前 5% 改善门槛、跨月稳定性或独立验收。', '']
+    lines += ['', 'A positive "Change in Absolute Amount Bias" indicates that the new feature makes the amount more biased.'
+              'This range does not replace prior 5% improvement thresholds, cross-month stability, or independent acceptance.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote order dynamics uncertainty to {OUTPUT}', flush=True)
 

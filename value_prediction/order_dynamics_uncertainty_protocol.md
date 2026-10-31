@@ -1,7 +1,7 @@
-# 订单金额变化特征：客户抽样不确定性方案
+#Characteristics of order amount changes: customer sampling uncertainty scheme
 
-在读取本区间结果前固定。此处只复核已完成的 `order_dynamics_experiment`，不训练新模型、不选择参数，也不修改原研发推进条件或消费额强化标准。
+Fixed before reading the results of this interval. Here we only review the completed `order_dynamics_experiment`. We do not train new models, select parameters, or modify the original R&D promotion conditions or consumption enhancement standards.
 
-- 分别对 2011 年 1–5 月开发期和已查看的 6–8 月确认期，取同一客户月快照的未来实际购买者及原条件 L1、新增订单金额特征 L1 的两个金额预测。核对键、标签、源脚本、协议和逐客户预测哈希；9–11 月不参与。
-- 对每段的实际购买者，以客户 ID 为组有放回重抽样；同一客户若跨月出现，所有月份一起抽中。固定种子 42、500 次，两个模型共用每次抽到的客户。计算购买者 MAE 相对降幅 `1 - 新模型 MAE / 原模型 MAE`，以及两模型购买者总额偏差绝对值之差（新减旧，百分点）。报告点估计和 2.5%/97.5% 百分位区间。
-- 此区间只描述已经查看的固定月份中客户构成的不确定性，不估计未来月份变化、不构成独立测试。原开发期的至少 5% 购买者 MAE 改善、四个月不退步、偏差不扩大三项条件保持原样；不能因本区间调整门槛。
+- For the 2011, January-Mayly development period and the viewed June-Augustly confirmation period, take two amount predictions of the future actual purchaser and the original condition L 1 and the new order amount characteristic L 1 of the same customer monthly snapshot. Check keys, tags, source scripts, protocols, and per-client predictive hashes; September-November are not participating.
+- For the actual buyers of each segment, customer ID is used as a group to resample with replacement; if the same customer appears across months, all months will be selected together. The seeds are fixed 42 and 500 times, and the two models share the customers drawn each time. Calculate the relative decrease of buyers MAE `1 - new model MAE / original model MAE` and the difference in the absolute value of the total deviation of buyers between the two models (new minus old, percentage points). Report point estimates and 2.5% / 97.5% percentile intervals.
+- This range only describes the uncertainty of customer composition in the fixed month that has been viewed. It does not estimate changes in future months and does not constitute an independent test. The three conditions of at least 5% purchasers MAE in the original development period, no regression for four months, and no expansion of deviations remain the same; the threshold cannot be adjusted due to this range.

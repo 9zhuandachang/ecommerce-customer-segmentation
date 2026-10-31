@@ -1,56 +1,56 @@
-# 购买习惯画像与商品推荐：比较结果
+# Purchasing Habits Profiles and Product Recommendations: Comparison Results
 
-默认方案：**纯个人补货**。
+Default plan: **Purely personal replenishment**.
 
-画像由截点前180天订单统计；机器学习预测的是“如果随后30天有下一单，其中老商品占多少”，不是复购概率。推荐权重通过开发期的排名效果确定，不直接等同于比例预测。
+The profile is based on the statistics of orders 180 days before the cut-off point; what machine learning predicts is "if there is an order 30 days later, how much of it will be old products", not the probability of repurchase. The recommendation weight is determined by the ranking effect during the development period and is not directly equivalent to proportional prediction.
 
-画像价值门槛是否满足：**False**。
+Whether the profile value threshold is met: **False**.
 
-| 方案 | 验证NDCG@10 | 验证Recall@10 | 验证未买Recall | 复核NDCG@10 | 复核Recall@10 | 复核未买Recall |
+| Plan | Verify NDCG@10 | Verify Recall@10 | Verify not buying Recall | Review NDCG@10 | Review Recall@10 | Reviewed but not bought Recall |
 |---|---:|---:|---:|---:|---:|---:|
-| 热门商品 | 0.1270 | 6.64% | 3.53% | 0.0862 | 3.65% | 1.76% |
-| 纯个人补货 | 0.3226 | 20.01% | 0.17% | 0.2863 | 17.17% | 0.14% |
-| 纯ItemKNN | 0.2015 | 11.65% | 4.91% | 0.1619 | 8.61% | 3.21% |
-| 纯ALS | 0.2526 | 14.87% | 3.34% | 0.2124 | 11.37% | 2.47% |
-| 纯EASE | 0.2779 | 16.81% | 2.28% | 0.2418 | 13.91% | 1.74% |
-| 固定混合＋ItemKNN | 0.3226 | 20.01% | 0.17% | 0.2863 | 17.17% | 0.14% |
-| 画像混合＋ItemKNN | 0.3227 | 20.02% | 0.21% | 0.2861 | 17.15% | 0.18% |
-| 固定混合＋ALS | 0.3226 | 20.01% | 0.17% | 0.2863 | 17.17% | 0.14% |
-| 画像混合＋ALS | 0.3226 | 20.01% | 0.19% | 0.2860 | 17.13% | 0.17% |
-| 固定混合＋EASE | 0.3226 | 20.01% | 0.17% | 0.2863 | 17.17% | 0.14% |
-| 画像混合＋EASE | 0.3228 | 20.04% | 0.22% | 0.2861 | 17.13% | 0.15% |
+| Popular products | 0.1270 | 6.64% | 3.53% | 0.0862 | 3.65% | 1.76% |
+| Purely personal replenishment | 0.3226 | 20.01% | 0.17% | 0.2863 | 17.17% | 0.14% |
+| Pure ItemKNN | 0.2015 | 11.65% | 4.91% | 0.1619 | 8.61% | 3.21% |
+| Pure ALS | 0.2526 | 14.87% | 3.34% | 0.2124 | 11.37% | 2.47% |
+| Pure EASE | 0.2779 | 16.81% | 2.28% | 0.2418 | 13.91% | 1.74% |
+| Fixed Mix + ItemKNN | 0.3226 | 20.01% | 0.17% | 0.2863 | 17.17% | 0.14% |
+| Image Mix + ItemKNN | 0.3227 | 20.02% | 0.21% | 0.2861 | 17.15% | 0.18% |
+| Fixed Mix + ALS | 0.3226 | 20.01% | 0.17% | 0.2863 | 17.17% | 0.14% |
+| Image Mix + ALS | 0.3226 | 20.01% | 0.19% | 0.2860 | 17.13% | 0.17% |
+| Fixed Mix + EASE | 0.3226 | 20.01% | 0.17% | 0.2863 | 17.17% | 0.14% |
+| Image Mix + EASE | 0.3228 | 20.04% | 0.22% | 0.2861 | 17.13% | 0.15% |
 
-每月先在有下一单客户中计算，再对月份等权平均。每人均推荐10件；未买指截点前180天没买过，未知商品保留答案分母。各纯算法仍可推荐老商品；混合中老/未买两路互斥。
+Each month, it is first calculated among customers with next orders, and then the monthly equal-weighted average is calculated. Each person recommends 10 items; unpurchased refers to those who have not purchased 180 days before the cutoff, and unknown products retain the denominator of the answer. Each pure algorithm can still recommend old products; the mixed old/unbought two ways are mutually exclusive.
 
-## 画像增益与最终选择
+## Profile Gain and Final Selection
 
-- 最强固定混合：固定混合＋ItemKNN。最强画像混合：画像混合＋EASE。
-- 画像相对固定：{"ndcg_gain": 0.0001811941659189964, "recall_gain": 0.0003081408259041907, "nonworse_months": 3, "passes": false}。
-- 画像相对纯补货：{"ndcg_gain": 0.0001811941659189964, "recall_gain": 0.0003081408259041907, "nonworse_months": 3, "passes": false}。
-- 画像相对纯补货的未买商品Recall提升：+0.05%。
-- 配对客户抽样区间：`{"ndcg_10": {"point": 0.00018119416591900678, "lower_95": -9.797117305425186e-05, "upper_95": 0.0005035872506525017}, "recall_10": {"point": 0.00030814082590421973, "lower_95": -2.8927049719750072e-05, "upper_95": 0.0007411682942854684}}`。
-区间为选型后的内部诊断；不承诺新月份收益。画像方案须同时超过固定混合和纯补货，不能仅因增加了模型而称为改进。最终参数见locked_selection.json。
+- The strongest fixed mix: fixed mix + ItemKNN. The strongest image blending: Image blending + EASE.
+- The profile is relatively fixed: {"ndcg_gain": 0.0001811941659189964, "recall_gain": 0.0003081408259041907, "nonworse_months": 3, "passes": false}.
+- The profile is relatively pure replenishment: {"ndcg_gain": 0.0001811941659189964, "recall_gain": 0.0003081408259041907, "nonworse_months": 3, "passes": false}.
+- The image of the unbought product Recall is improved compared to pure replenishment: + 0.05%.
+- Paired customer sampling interval: `{"ndcg_10": {"point": 0.00018119416591900678, "lower_95": -9.797117305425186e-05, "upper_95": 0.0005035872506525017}, "recall_10": {"point": 0.00030814082590421973, "lower_95": -2.8927049719750072e-05, "upper_95": 0.0007411682942854684}}`.
+The range is internal diagnosis after selection; no new monthly income is promised. The profile solution must be more than a fixed mix and a pure replenishment at the same time, and cannot be called an improvement just because the model is added. See locked_selection.json for final parameters.
 
-## 条件重复比例预测
+## Conditional repetition ratio prediction
 
-开发期选中的方法：小型LightGBM，参数`{"id": "lgbm_15_120_150", "family": "lightgbm", "leaves": 15, "trees": 120, "minimum": 150}`。
+The method selected during the development period: small LightGBM, parameter `{"id": "lgbm_15_120_150", "family": "lightgbm", "leaves": 15, "trees": 120, "minimum": 150}`.
 
-| 方法 | 验证MAE | 验证RMSE | 验证平均偏差 | 复核MAE |
+| method | Verify MAE | Verify RMSE | Verify average deviation | Review MAE |
 |---|---:|---:|---:|---:|
-| 历史重复比例 | 0.2526 | 0.3131 | -0.0752 | 0.2542 |
-| 岭回归 | 0.2220 | 0.2723 | +0.0166 | 0.2353 |
-| 小型LightGBM | 0.2188 | 0.2682 | +0.0224 | 0.2354 |
+| Historical repeat-product share | 0.2526 | 0.3131 | -0.0752 | 0.2542 |
+| Ridge regression | 0.2220 | 0.2723 | +0.0166 | 0.2353 |
+| Small LightGBM | 0.2188 | 0.2682 | +0.0224 | 0.2354 |
 
-MAE=预测比例与实际比例绝对差的平均值，例如0.15表示平均相差15个百分点。首次订单没有此前参照，不记为尝新；无可比较记录时使用拟合期答案均值。近期变化至少需要4笔可比较订单，其余留缺失。记录数量和缺失状态均进入审计。
+MAE = the average absolute difference between the predicted proportion and the actual proportion, for example, 0.15 means the average difference is 15 percentage points. The first order has no previous reference and is not recorded as a new one; when there is no comparable record, the mean answer value during the fitting period is used. Recent changes require at least 4 comparable orders, the rest are missing. Both the record quantity and missing status are entered into audit.
 
-## 时间、公平比较与打开
+## Time, fair comparison and opening
 
-1–5月向前开发：每折拟合只使用截至该折已完整观察30天的答案；6–8月验证确定默认。模型和选择在计算9–11月混合推荐结果前锁定。9–11月答案此前已用于v1，属于复核，不是新的独立测试。阶段内全局模型与目录冻结，客户历史只更新到该月截点。
+January-May forward development: Each fold fit only uses answers that have been fully observed 30 days as of that fold; June-August validation determines the default. Models and selections are locked before calculating the September-Novemberly mixed recommendation results. 9 – 11 Monthly answers have been used previously for v 1 and are a review, not a new independent test. The global model and catalog are frozen during the stage, and customer history is only updated to the cut-off point of the month.
 
-固定混合每算法11组，画像混合每算法33组，均报告完整开发结果。画像组表现见validation_groups.csv/test_groups.csv；安全名单与离线答案分文件保存。
+Fixed mixing per algorithm 11 group, profile mixing per algorithm 33 group, both report complete development results. See validation_groups.csv/test_groups.csv for profile group performance; the safe list and offline answers are saved in separate files.
 
 `python -B -m recommendation.profile_experiment`
 
-`python -m streamlit run app/dashboard.py` → **Product recommendations** → 选择画像推荐版本。
+`python -m streamlit run app/dashboard.py` → **Product recommendations** → Select the profile recommended version.
 
-全部18月画像行数54,040；运行约80秒。模型、目录和CSV均有哈希核对。
+All 18 Number of monthly profile lines 54,040; run for about 80 seconds. Models, directories, and CSV all have hash checks.

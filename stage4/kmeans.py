@@ -1,14 +1,13 @@
-"""阶段四：训练期 K-means 分群、中心距离及 RFM 排序基线。
+"""Phase 4: Training period K-means clustering, center distance and RFM sorting baseline.
 
-从项目根目录运行：python stage4/kmeans.py；自检：python stage4/kmeans.py --check
-输出：stage4/outputs/stage4/，报告、data、figures、model 和运行记录。
-仅训练期拟合；测试期只导出分群、距离和排序，
-不读取测试标签计算指标，以便阶段六保留一次最终评估。
-加载：bundle = joblib.load('stage4/outputs/stage4/model/segmentation_bundle.joblib')
-距离：bundle['pipeline'].transform(frame[bundle['features']])
-分群：bundle['pipeline'].predict(frame[bundle['features']])
-滚动验证时必须在各折训练部分重新运行拟合，不可复用本次全训练期模型。
-"""
+Run from the project root directory: python stage 4 /kmeans.py; self-check: python stage 4 /kmeans.py --check
+Output: stage 4 /outputs/stage 4 /, reports, data, figures, models and running records.
+Only the training period is fitted; the test period only exports clustering, distance and ranking.
+Metrics are calculated without reading test tags so that stage six retains a final evaluation.
+Loading: bundle = joblib.load('stage 4 /outputs/stage 4 /model/segmentation_bundle.joblib')
+Distance: bundle['pipeline'].transform(frame[bundle['features']])
+Grouping: bundle['pipeline'].predict(frame[bundle['features']])
+During rolling verification, the fitting must be re-run in each fold training part, and the model of this full training period cannot be reused."""
 
 from __future__ import annotations
 
@@ -61,7 +60,7 @@ def save_csv(frame: pd.DataFrame, path: Path) -> None:
 
 
 def load_snapshots(path: Path) -> tuple[pd.DataFrame, dict]:
-    """沿用上游划分，验证样本唯一性、时间顺序和跨分区标签窗口。"""
+    """Follow upstream partitioning to verify sample uniqueness, chronological order, and cross-partition label windows."""
     data = pd.read_csv(path, dtype={'customer_id': 'string'})
     required = set(KEYS + FEATURES + ['use_for_modeling', LABEL])
     missing = required - set(data.columns)
@@ -90,7 +89,7 @@ def load_snapshots(path: Path) -> tuple[pd.DataFrame, dict]:
         raise ValueError('Recency outside the 180-day observation window')
     if (data['invoice_frequency_180d'] < 1).any():
         raise ValueError('Eligible customers must have at least one invoice')
-    # 标签只作为训练/验证排序评估的结果使用，不进入聚类或预处理。
+    # Labels are only used as a result of training/validation ranking evaluation and do not enter clustering or preprocessing.
     if not data[LABEL].isin([0, 1]).all():
         raise ValueError('Expected binary repurchase_30d')
     for earlier, later in zip(SPLITS, SPLITS[1:]):
@@ -134,7 +133,7 @@ def make_pipeline(k: int, log_columns: list[str], seed: int) -> Pipeline:
 
 
 def profile(data: pd.DataFrame, labels: np.ndarray, k: int) -> pd.DataFrame:
-    """客户数是各群去重人数；快照数用于聚类规模，跨月客户数不可相加。"""
+    """The number of customers is the number of duplicates in each group; the number of snapshots is used for clustering scale, and the number of customers across months cannot be added."""
     frame = data.assign(cluster=labels)
     groups = frame.groupby('cluster', sort=True)
     result = groups.agg(
@@ -145,27 +144,27 @@ def profile(data: pd.DataFrame, labels: np.ndarray, k: int) -> pd.DataFrame:
     for col in FEATURES:
         result[col + '_mean'] = groups[col].mean()
         result[col + '_median'] = groups[col].median()
-    # 不使用复购标签命名或选 k。
+    # Name without repurchase tag or select k.
     result.insert(0, 'k', k)
     return result.reset_index()
 
 
 def name_clusters(profiles: pd.DataFrame) -> dict[int, str]:
-    """模型拟合并形成画像后，按群间中位数排名给出可核对的描述名。"""
+    """After the model is fitted and the profile is formed, a verifiable descriptive name is given based on the median ranking among the groups."""
     result = {}
     ranks = profiles.set_index('cluster')[[col + '_median' for col in RFM]].rank(pct=True)
     for cluster, row in ranks.iterrows():
-        recency = ('近期' if row.iloc[0] <= 1 / 3 else
-                   '中等购买间隔' if row.iloc[0] <= 2 / 3 else '较久未购')
-        frequency = '高频' if row.iloc[1] > 0.5 else '低频'
-        monetary = ('低消费' if row.iloc[2] <= 1 / 3 else
-                    '中等消费' if row.iloc[2] <= 2 / 3 else '高消费')
+        recency = ('Recently' if row.iloc[0] <= 1 / 3 else
+                   'medium buying interval' if row.iloc[0] <= 2 / 3 else 'Long inactive')
+        frequency = 'high frequency' if row.iloc[1] > 0.5 else 'low frequency'
+        monetary = ('low consumption' if row.iloc[2] <= 1 / 3 else
+                    'medium consumption' if row.iloc[2] <= 2 / 3 else 'high consumption')
         result[int(cluster)] = f'C{cluster} {recency}/{frequency}/{monetary}'
     return result
 
 
 def fit_rfm(train: pd.DataFrame) -> dict:
-    """五档 RFM：切点仅用训练期分位数；相同数值永远同档。"""
+    """Fifth gear RFM: The cut point only uses the training period quantile; the same value will always be in the same gear."""
     return {
         'cutpoints': {col: train[col].quantile([.2, .4, .6, .8]).tolist() for col in RFM},
         'missing_medians': {col: float(train[col].median()) for col in RFM},
@@ -180,7 +179,7 @@ def baseline_scores(data: pd.DataFrame, config: dict) -> pd.DataFrame:
         bins = np.searchsorted(config['cutpoints'][col], values, side='left')
         out[prefix + '_score'] = 5 - bins if prefix == 'r' else 1 + bins
     out['rfm_score'] = out[['r_score', 'f_score', 'm_score']].sum(axis=1)
-    # 名单在每个日期的合格客户内排序，相同分数按 customer_id 文本升序稳定破同分。
+    # The list is sorted within eligible customers for each date, with identical scores in ascending order by the customer_id text.
     for name in ['rfm']:
         ordered = out.sort_values(
             ['snapshot_date', name + '_score', 'customer_id'],
@@ -194,7 +193,7 @@ def baseline_scores(data: pd.DataFrame, config: dict) -> pd.DataFrame:
 
 
 def evaluate_baselines(scores: pd.DataFrame, labels: np.ndarray) -> pd.DataFrame:
-    """只在 train / validation 计算；Top20 名额按日期分别 ceil(0.2*n)。"""
+    """Only calculated in train / validation; Top 20 quotas are ceil( 0.2 *n) by date."""
     frame = scores.copy()
     frame[LABEL] = labels
     rows = []
@@ -232,7 +231,7 @@ def main() -> None:
     parser.add_argument('--output', type=Path, default=Path(__file__).parent / 'outputs' / 'stage4')
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--silhouette-sample-size', type=int, default=4000)
-    parser.add_argument('--check', action='store_true', help='检查已生成结果，不重新训练')
+    parser.add_argument('--check', action='store_true', help='Check generated results without retraining')
     args = parser.parse_args()
     if args.check:
         run_self_checks(args.input, args.output.resolve())
@@ -254,7 +253,7 @@ def main() -> None:
     sample = np.random.default_rng(args.seed).choice(
         len(train), size=min(args.silhouette_sample_size, len(train)), replace=False)
     comparisons, all_profiles, pipelines = [], [], {}
-    # 单线程使本机运算稳定，并避免 Windows K-means 的 MKL/OpenMP 过度并行问题。
+    # Single threading makes native operations stable and avoids excessive parallelism issues with MKL/OpenMP on Windows K-means.
     with threadpool_limits(limits=1):
         for k in range(3, 7):
             pipeline = make_pipeline(k, log_columns, args.seed)
@@ -308,7 +307,7 @@ def main() -> None:
             'selected_k': selected, 'cluster_names': names,
             'distance_columns': distance_columns, 'rfm_config': rfm_config, 'seed': args.seed,
         }
-        # 防止未来数据改变训练统计量；同一训练集单独/整批推理应完全一致。
+        # Prevent future data from changing training statistics; individual/batch inference on the same training set should be exactly the same.
         train_mask = data['split'].eq('train').to_numpy()
         np.testing.assert_allclose(pipeline.transform(train[FEATURES]), distances[train_mask], atol=1e-12)
         np.testing.assert_array_equal(np.argmin(distances, axis=1), labels)
@@ -332,7 +331,7 @@ def main() -> None:
         'log1p': [c in log_columns for c in FEATURES],
         'train_imputer_median': pipeline.named_steps['imputer'].statistics_,
     })
-    # ColumnTransformer 将 log 列放在前面，记录缩放统计时需恢复原始列序。
+    # ColumnTransformer puts the log column in front, and the original column order needs to be restored when recording scaling statistics.
     transformed_order = log_columns + [c for c in FEATURES if c not in log_columns]
     scaler = pipeline.named_steps['scaler']
     mean_by_feature = dict(zip(transformed_order, scaler.mean_))
@@ -345,7 +344,7 @@ def main() -> None:
                        else str(args.input.resolve())),
         'source_urls': [
             'https://github.com/9zhuandachang/ecommerce-customer-segmentation/blob/main/data/processed/customer_snapshot_pipeline/customer_snapshots.csv',
-            'https://github.com/9zhuandachang/ecommerce-customer-segmentation/blob/main/docs/项目任务流程与验收清单.md',
+            'https://github.com/9zhuandachang/ecommerce-customer-segmentation/blob/main/docs/project_workflow_and_acceptance_checklist.md',
         ],
         'input_sha256': hashlib.sha256(args.input.read_bytes()).hexdigest(),
         'script_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -389,7 +388,7 @@ DESCRIPTIVE_FEATURES = EXTRA_FEATURES + [
 
 
 def derive_features(data: pd.DataFrame) -> pd.DataFrame:
-    """所有输入截至快照日已知；没有完整90天可见历史时不判断节奏变化。"""
+    """All inputs are known as of the snapshot date; no cadence changes are judged without the full 90 days of visible history."""
     frame = data.copy()
     frame['has_90d_history'] = (frame.customer_history_days >= 90).astype(int)
     previous60 = frame.invoice_count_90d - frame.invoice_count_30d
@@ -399,7 +398,7 @@ def derive_features(data: pd.DataFrame) -> pd.DataFrame:
         frame.invoice_count_30d - previous60 / 2
     ).where(frame.has_90d_history.eq(1))
     frame['recent90_order_share'] = frame.invoice_count_90d / frame.invoice_frequency_180d
-    # 首次可见购买距今天数，不是注册时长；最短按30天防止短历史被放大。
+    # The number of days since the first visible purchase, not the registration duration; press 30 days at the minimum to prevent the short history from being amplified.
     observed_days = frame.customer_history_days.clip(lower=30, upper=180)
     frame['history_adjusted_monthly_orders'] = frame.invoice_frequency_180d / observed_days * 30
     frame['recently_observed_30d'] = (frame.customer_history_days <= 30).astype(int)
@@ -428,7 +427,7 @@ def behavior_profile(frame, labels, k, split, base_features):
     for feature in base_features + DESCRIPTIVE_FEATURES:
         result[feature + '_median'] = grouped[feature].median()
         result[feature + '_mean'] = grouped[feature].mean()
-    # 这里只接收训练/验证，未来标签只作分群后的描述；不参与分群或命名。
+    # Only training/verification is accepted here, and future labels will only be used for description after grouping; they will not participate in grouping or naming.
     result['observed_repurchase_rate'] = grouped['repurchase_30d'].mean()
     result.insert(0, 'split', split)
     result.insert(0, 'k', k)
@@ -436,7 +435,7 @@ def behavior_profile(frame, labels, k, split, base_features):
 
 
 def feature_experiments(data, pipelines, base_features, sample, seed):
-    """同一批训练样本比较新表示；额外在原8维空间评估避免跨空间误比。"""
+    """Compare new representations of the same batch of training samples; additionally evaluate in the original 8 dimensional space to avoid cross-space mismatches."""
     train = data.loc[data.split.eq('train')]
     columns = base_features + EXTRA_FEATURES
     log_cols = train[columns].skew().abs().loc[lambda s: s > 1].index.tolist()
@@ -482,7 +481,7 @@ def feature_experiments(data, pipelines, base_features, sample, seed):
 
 
 def collect_insights(data, pipelines, selected, sample, seed):
-    """中间计算保存在内存，仅将有用途的最终结果交给统一导出函数。"""
+    """Intermediate calculations are kept in memory and only useful final results are given to the unified export function."""
     frame = derive_features(data)
     profiles = []
     with threadpool_limits(limits=1):
@@ -525,13 +524,13 @@ def collect_insights(data, pipelines, selected, sample, seed):
 
 
 def json_records(frame):
-    """日期转换为 ISO 格式，缺失值转换为 JSON null。"""
+    """Dates are converted to ISO format and missing values are converted to JSON null."""
     return json.loads(frame.to_json(orient='records', date_format='iso'))
 
 
 def export_results(output, data, comparison, metrics, cluster_features, rankings,
                    split_profiles, partitions, preprocessing, bundle, results, names, manifest):
-    """统一导出：四张表、一份证据记录、一个模型包和一份运行记录。"""
+    """Unified export: four tables, an evidence record, a model package and a running record."""
     customer = data[KEYS + FEATURES].merge(cluster_features, on=KEYS, validate='one_to_one')
     customer = customer.merge(rankings, on=KEYS, validate='one_to_one')
     customer = customer.merge(results['frame'][KEYS + DESCRIPTIVE_FEATURES],
@@ -571,7 +570,7 @@ def export_results(output, data, comparison, metrics, cluster_features, rankings
     save_csv(metrics, output / 'data/baseline_metrics.csv')
 
     evidence = {
-        'description': '报告中的同日消费份额、购买节奏子组和按月复购对照；不含测试标签评估。',
+        'description': 'Same-day consumption share, purchase rhythm subgroups, and monthly repurchase comparisons in the report; do not include test label evaluations.',
         'latest_training_snapshot': json_records(results['snapshot']),
         'behavior_subgroups': json_records(results['slices']),
         'monthly_repurchase': json_records(results['monthly']),
@@ -624,25 +623,25 @@ def verify_report_links(output):
 
 
 def render_business_report(output, data, comparison, metrics, selected, results, manifest):
-    """下方报告模板由数据生成，确保重跑不会恢复旧的术语堆叠版本。"""
+    """The report template below is generated from the data, ensuring that reruns do not revert to old term stack versions."""
     profiles = results['profiles']
     train_profiles = profiles.loc[(profiles.k == selected) & profiles.split.eq('train')].copy()
-    # 报告按近期到久未购买排列，群编号保留便于对照原始导出。
+    # The report is arranged by recent to long-term purchases, and the group number is retained for easy comparison with the original export.
     train_profiles = train_profiles.sort_values('recency_days_median')
     ids = train_profiles.cluster.astype(int).tolist()
     if selected == 3:
-        names = dict(zip(ids, ['常来常买型', '低频购买型', '长时间未购型']))
+        names = dict(zip(ids, ['Frequent buyers', 'Infrequent buyers', 'Long inactive']))
     else:
-        names = {int(row.cluster): f'第{int(row.cluster) + 1}组（间隔{row.recency_days_median:.0f}天）'
+        names = {int(row.cluster): f'Group {int(row.cluster) + 1} ( {row.recency_days_median:.0f} days apart)'
                  for row in train_profiles.itertuples()}
-    # 保存命名依据，名称用于本报告，不改变已输出的中心编号。
+    # Save the naming basis and use the name for this report without changing the exported center number.
     make_story_figures(output, train_profiles, results['profiles'], names, selected, results['snapshot'])
     p = train_profiles.set_index('cluster')
     validation = profiles.loc[(profiles.k == selected) & profiles.split.eq('validation')].set_index('cluster')
     high, middle, quiet = ids[0], ids[len(ids) // 2], ids[-1]
     hi, mid, low = p.loc[high], p.loc[middle], p.loc[quiet]
     latest = results['snapshot'].set_index('cluster')
-    latest_date = results['snapshot'].snapshot_date.iloc[0].strftime('%Y年%m月%d日')
+    latest_date = results['snapshot'].snapshot_date.iloc[0].strftime('%Y year %m month %d day')
     k4 = profiles.loc[profiles.k.eq(4) & profiles.split.eq('train')].copy()
     k5 = profiles.loc[profiles.k.eq(5) & profiles.split.eq('train')].copy()
     k6 = profiles.loc[profiles.k.eq(6) & profiles.split.eq('train')].copy()
@@ -665,10 +664,10 @@ def render_business_report(output, data, comparison, metrics, selected, results,
         _, a, b = min(pair_candidates, key=lambda value: value[0])
         a, b = sorted([a, b], key=lambda r: r['recency_days_median'])
         pair_text = (
-            f"六群方案还发现一对值得对比的群体：两群半年都买了约 **{a['invoice_frequency_180d_median']:.0f}次**，"
-            f"金额也接近（**{a['monetary_value_180d_median']:,.0f} / {b['monetary_value_180d_median']:,.0f}**），"
-            f"但距上次购买分别为 **{a['recency_days_median']:.0f}天 / {b['recency_days_median']:.0f}天**。"
-            '它们过去的消费规模相似，当前所处的购买阶段却不同。这是只按消费总额分层容易忽略的差别。'
+            f"The six-group plan also found a pair of groups worthy of comparison: both groups bought about **{a['invoice_frequency_180d_median']:.0f} times** in half a year,"
+            f"The amount is also close to (**{a['monetary_value_180d_median']:,.0f} / {b['monetary_value_180d_median']:,.0f}**),"
+            f"However, it is **{a['recency_days_median']:.0f} days / {b['recency_days_median']:.0f} days** since the last purchase."
+            'Their consumption scale in the past was similar, but their current purchasing stages are different. This is a difference that is easily overlooked when stratified only by total consumption.'
         )
     slices = results['slices']
     def slice_row(cluster, feature, flag):
@@ -691,188 +690,188 @@ def render_business_report(output, data, comparison, metrics, selected, results,
         row = p.loc[cluster]
         group_rows.append([
             f'{names[cluster]}（C{cluster}）', f'{row.snapshot_share:.1%}',
-            f'{row.recency_days_median:.0f}天', f'{row.invoice_frequency_180d_median:.0f}次',
+            f'{row.recency_days_median:.0f} days', f'{row.invoice_frequency_180d_median:.0f} times',
             f'{row.monetary_value_180d_median:,.0f}',
         ])
     comparison_details = {
-        3: '建立总体轮廓：常来常买、低频购买、长时间未购。',
-        4: f'出现“高单笔、低频”群：典型单笔{big_ticket.average_order_value_180d_median:.0f}，半年买{big_ticket.invoice_frequency_180d_median:.0f}次，距上次购买{big_ticket.recency_days_median:.0f}天。',
-        5: f'识别一批低消费、购买商品种类少的客户：半年金额{cheapest5.monetary_value_180d_median:.0f}，商品种类{cheapest5.product_diversity_180d_median:.0f}种。',
-        6: f'高频客户继续细分：最频繁一群半年买{biggest6.invoice_frequency_180d_median:.0f}次，占{biggest6.snapshot_share:.1%}；也分开了消费接近、近期活跃不同的群体。',
+        3: 'Establish a general outline: frequent purchases, low-frequency purchases, and no purchases for a long time.',
+        4: f'A "high single transaction, low frequency" group appears: a typical single transaction is {big_ticket.average_order_value_180d_median:.0f}, purchased {big_ticket.invoice_frequency_180d_median:.0f} times in half a year, and {big_ticket.recency_days_median:.0f} days since the last purchase.',
+        5: f'Identify a group of customers with low consumption and few types of goods purchased: half-year amount {cheapest5.monetary_value_180d_median:.0f}, type of goods {cheapest5.product_diversity_180d_median:.0f}.',
+        6: f'High-frequency customers continue to be segmented: the most frequent group buys {biggest6.invoice_frequency_180d_median:.0f} times in half a year, accounting for {biggest6.snapshot_share:.1%}; groups with similar consumption and different recent activities are also separated.',
     }
-    comparison_rows = [[f'{int(r.k)}群', f'{r.silhouette_train:.4f}', f'{r.min_cluster_share:.1%}',
+    comparison_rows = [[f'{int(r.k)} group', f'{r.silhouette_train:.4f}', f'{r.min_cluster_share:.1%}',
                         comparison_details[int(r.k)]] for r in comparison.itertuples()]
     k4_rows = []
-    for title, row in [('频繁购买型', frequent), ('高单笔、低频型', big_ticket),
-                       ('低频、可见历史较短型', light4), ('长时间未购型', quiet4)]:
+    for title, row in [('Frequent purchase type', frequent), ('High single pen, low frequency type', big_ticket),
+                       ('Low frequency, short visible history', light4), ('Long inactive', quiet4)]:
         k4_rows.append([f'{title}（C{int(row.cluster)}）', f'{row.snapshot_share:.1%}',
-                        f'{row.recency_days_median:.0f}天', f'{row.invoice_frequency_180d_median:.0f}次',
+                        f'{row.recency_days_median:.0f} days', f'{row.invoice_frequency_180d_median:.0f} times',
                         f'{row.average_order_value_180d_median:,.0f}'])
     followup_rows = [[names[c], f'{p.loc[c, "observed_repurchase_rate"]:.1%}',
                      f'{validation.loc[c, "observed_repurchase_rate"]:.1%}'] for c in ids]
     monthly = results['monthly'].loc[results['monthly'].split.eq('validation')]
     ranges = monthly.groupby('cluster').observed_repurchase_rate.agg(['min', 'max'])
     lines = [
-        '# 客户分群：谁在常买，谁只是偶尔来，谁已经很久没买？', '',
-        '> 本报告要回答的是客户之间有哪些值得关注的差别，以及这些差别能给后续分析带来什么。', '',
-        '## 先看最值得讲的三个发现', '',
-        f'1. **常买的人不一定每笔都特别贵。** 常来常买群的半年购买次数约是低频群的 '
-        f'{hi.invoice_frequency_180d_median / mid.invoice_frequency_180d_median:.1f}倍，'
-        f'但典型单笔金额仅约 {hi.average_order_value_180d_median / mid.average_order_value_180d_median:.1f}倍。购买频次是两群之间很突出的差别。',
-        f'2. **单笔花得多，近期也未必活跃。** 分成四群时，有一群典型单笔金额为 '
-        f'{big_ticket.average_order_value_180d_median:,.0f}，高于最频繁购买群的 '
-        f'{frequent.average_order_value_180d_median:,.0f}；但距上次购买分别为 '
-        f'{big_ticket.recency_days_median:.0f}天和{frequent.recency_days_median:.0f}天。',
-        '3. **最近买得多，不等于下个月一定继续买。** 新增的“购买节奏变化”特征发现了一个反直觉现象，后文给出具体对照。', '',
-        '阅读口径：一个客户每个月记一条记录，称为“客户月记录”。同一个人可能在不同月份属于不同群体。'
-        '除特别说明外，画像使用训练期（2010年6月—2011年5月）记录；“典型值”指中位数，也就是排序后居中的数。金额沿用原始 CSV 的单位。', '',
-        '## 1. 分成三群，分别是什么样的人？', '',
-        '**k 就是想分成几群。k=3 表示分成三群；C0、C1、C2 只是编号，没有高低顺序。**', '',
-        md_table(['群体', '记录占比', '距上次购买', '半年购买次数', '半年消费金额'], group_rows), '',
-        '![三类客户的购买行为对比](figures/customer_group_story.png)', '',
-        f'### {names[high]}：核心特点是常买，买的商品也更多', '',
-        f'这群人典型的半年购买次数为 **{hi.invoice_frequency_180d_median:.0f}次**，'
-        f'购买过 **{hi.product_diversity_180d_median:.0f}种商品**；低频群分别为 '
-        f'{mid.invoice_frequency_180d_median:.0f}次、{mid.product_diversity_180d_median:.0f}种。'
-        f'典型单笔金额为 **{hi.average_order_value_180d_median:,.0f}**，低频群为 **{mid.average_order_value_180d_median:,.0f}**。'
-        '这更像一群持续购买、接触商品较广的客户。单笔金额是每位客户平均订单金额的中位数，不能把几个中位数直接相乘。', '',
-        f'再看一个不重复计算客户的例子：**{latest_date}**，这群只有 '
-        f'**{int(latest.loc[high, "customers"]):,}人**，占当日客户 **{latest.loc[high, "customer_share"]:.1%}**，'
-        f'却占这些客户过去180天消费金额的 **{latest.loc[high, "spend_share"]:.1%}**。'
-        '这个比例说明维护其购买连续性值得关注；它是该日客户范围内的消费份额。', '',
-        f'### {names[middle]}：人数多，尚未形成频繁购买习惯', '',
-        f'这群占全部记录 **{mid.snapshot_share:.1%}**，其中 **{mid.one_invoice_180d_mean:.1%}** '
-        f'在过去半年只买过一次；**{mid.recently_observed_30d_mean:.1%}** 的首次可见购买在最近30天内。'
-        '因此，这一群同时包含最近才出现在数据中的客户，以及买得不频繁的老客户。', '',
-        '**可以继续追问：** 对只有一次购买记录的人，哪些历史行为与第二次购买相关？'
-        '“首次可见购买”是数据里的第一次购买记录，不能直接当作真实注册时间。', '',
-        f'### {names[quiet]}：主要区别是沉默时间长', '',
-        f'这群距上次购买典型已有 **{low.recency_days_median:.0f}天**，'
-        f'**{low.inactive_90d_mean:.1%}** 的记录在过去90天没有购买。'
-        f'但其典型单笔金额 **{low.average_order_value_180d_median:,.0f}**，'
-        f'与低频群的 **{mid.average_order_value_180d_median:,.0f}** 接近。'
-        '用“长时间未购买”描述它，比只贴“低价值”标签更准确。', '',
-        '**可以继续追问：** 长时间未购的人是否存在不同的补货周期？现有快照没有完整订单间隔和商品类别，暂时只能提出这个待验证问题。', '',
-        '## 2. 为什么还要看四群、五群、六群？', '',
-        '多分几群，是把画像看得更细。它会重新划分全部客户，所以四群方案不等于简单地把三群中的某一群劈开。', '',
-        '表里的“分离程度”对应轮廓系数：越高，表示同群客户更相似、不同群体更容易分开。它不是准确率。', '',
-        md_table(['方案', '分离程度', '最小群占比', '比总览多看到了什么'], comparison_rows), '',
-        f'**当前主模型沿用 {selected} 群。** 三群与四群得分只差 '
+        '#Customer segmentation: Who buys frequently, who only comes occasionally, and who hasn\'t bought for a long time?', '',
+        '> What this report wants to answer is what are the differences between customers that deserve attention, and what these differences can bring to subsequent analysis.', '',
+        '## Let\'s look at the three most noteworthy discoveries first.', '',
+        f'1. **People who buy often may not necessarily be particularly expensive every time.** The number of purchases in half a year for the Frequent Visitors and Frequent Buyers group is about the same as that of the Low Frequency Buyers group.'
+        f'{hi.invoice_frequency_180d_median / mid.invoice_frequency_180d_median:.1f} times,'
+        f'But the typical single transaction amount is only about {hi.average_order_value_180d_median / mid.average_order_value_180d_median:.1f} times. Frequency of purchase is a very prominent difference between the two groups.',
+        f'2. **A single transaction costs a lot, and it may not be active in the near future.** When divided into four groups, the typical single transaction amount of one group is'
+        f'{big_ticket.average_order_value_180d_median:,.0f}, higher than the most frequently purchased group'
+        f'{frequent.average_order_value_180d_median:,.0f}; but the time since the last purchase was'
+        f'{big_ticket.recency_days_median:.0f} days and {frequent.recency_days_median:.0f} days.',
+        '3. **Just because I have bought a lot recently does not mean I will definitely continue to buy next month.** The newly added "Purchase Rhythm Change" feature discovered a counter-intuitive phenomenon, and specific comparisons are given later.', '',
+        'Reading caliber: A customer records one record every month, which is called "Customer Monthly Record". The same person may belong to different groups in different months.'
+        'Unless otherwise specified, the profiles are recorded using the training period ( 2010 year 6 month - 2011 year 5 month); the "typical value" refers to the median, which is the number in the middle after sorting. The amount follows the original unit of CSV.', '',
+        '## 1. Divided into three groups, what kind of people are they?', '',
+        '**k Just want to divide into several groups. k= 3 means divided into three groups; C 0, C 1, C 2 are just numbers, there is no order of priority.**', '',
+        md_table(['group', 'Record proportion', 'since last purchase', 'Number of purchases in half a year', 'Half-year consumption amount'], group_rows), '',
+        '![Comparison of purchasing behavior of three types of customers ](figures/customer_group_story.png)', '',
+        f'### {names[high]}: The core feature is to buy frequently and buy more products.', '',
+        f'The typical number of purchases for this group of people in half a year is **{hi.invoice_frequency_180d_median:.0f} times**,'
+        f'Purchased **{hi.product_diversity_180d_median:.0f} products**; the low-frequency groups are'
+        f'{mid.invoice_frequency_180d_median:.0f} times, {mid.product_diversity_180d_median:.0f} kinds.'
+        f'The typical single amount is **{hi.average_order_value_180d_median:,.0f}**, and the low-frequency group is **{mid.average_order_value_180d_median:,.0f}**.'
+        'This is more like a group of customers who continue to buy and have a wide range of products. The single amount is the median of the average order amount per customer, and several medians cannot be directly multiplied.', '',
+        f'Let\'s look at another example of not counting customers twice: **{latest_date}**, this group only'
+        f'**{int(latest.loc[high, "customers"]):,} people**, accounted for the customers of the day **{latest.loc[high, "customer_share"]:.1%}**,'
+        f'However, it accounts for **{latest.loc[high, "spend_share"]:.1%}** of the spending amount of these customers in the past 180 days.'
+        'This ratio indicates that maintaining the continuity of their purchases is a concern; it is the share of consumption within the customer range for that day.', '',
+        f'### {names[middle]}: There are many people and they have not yet formed the habit of frequent purchases.', '',
+        f'This group accounts for all records **{mid.snapshot_share:.1%}**, among which **{mid.one_invoice_180d_mean:.1%}**'
+        f'Only purchased once in the past six months; first visible purchase of **{mid.recently_observed_30d_mean:.1%}** was within the last 30 days.'
+        'Therefore, this group includes both customers who have recently appeared in the data, as well as older customers who do not buy frequently.', '',
+        '**You can continue to ask:** For people who only have one purchase record, what historical behaviors are related to the second purchase?'
+        '"First visible purchase" is the first purchase record in the data and cannot be directly regarded as the actual registration time.', '',
+        f'### {names[quiet]}: The main difference is the long silence time', '',
+        f'It has been **{low.recency_days_median:.0f} days** since the last time this group purchased a typical product,'
+        f'The record for **{low.inactive_90d_mean:.1%}** had no purchases in the past 90 days.'
+        f'But its typical single amount is **{low.average_order_value_180d_median:,.0f}**,'
+        f'Close to **{mid.average_order_value_180d_median:,.0f}** of the low frequency group.'
+        'Describing it as "not purchased for a long time" is more accurate than just labeling it "low value".', '',
+        '**You can continue to ask:** Are there different replenishment cycles for people who have not purchased for a long time? The existing snapshot does not have the complete order interval and product category, so we can only raise this pending verification issue for the time being.', '',
+        '## 2. Why should we watch the fourth, fifth and sixth groups?', '',
+        'Divide into more groups to see the profile more closely. It will reclassify all customers, so the four-group solution does not mean simply splitting one of the three groups.', '',
+        'The "degree of separation" in the table corresponds to the silhouette coefficient: the higher it is, the more similar the same group of customers are and the easier it is for different groups to separate. It\'s not accuracy.', '',
+        md_table(['Plan', 'degree of separation', 'Minimum group proportion', 'What did you see more than the overview?'], comparison_rows), '',
+        f'**The current main model follows the {selected} group.** The only difference between the scores of the third group and the fourth group is'
         f'{abs(float(comparison.loc[comparison.k.eq(3), "silhouette_train"].iloc[0]) - float(comparison.loc[comparison.k.eq(4), "silhouette_train"].iloc[0])):.4f}，'
-        '所以不能说三群明显胜出。三群适合讲总体结构；四群提供了有价值的业务细节，值得在展示中保留。五群、六群可作为更细的观察视角，分离程度并未持续改善。', '',
-        '### 四群方案中，值得单独讲的“高单笔、低频”群', '',
-        md_table(['四群方案中的群体', '记录占比', '距上次购买', '半年购买次数', '典型单笔金额'], k4_rows), '',
-        f'“高单笔、低频型”占 **{big_ticket.snapshot_share:.1%}**，典型半年消费金额为 '
-        f'**{big_ticket.monetary_value_180d_median:,.0f}**。这提示我们：消费金额高可以来自“买得频繁”，也可以来自“每笔买得较多”。'
-        '两类客户是否适合相同的维护节奏，需要进一步研究。', '',
+        'So it cannot be said that the three groups clearly win. Three groups are suitable for talking about the overall structure; four groups provide valuable business details that are worth retaining in the display. The five and six groups can be used as a more detailed observation perspective, and the degree of separation has not continued to improve.', '',
+        '### Among the four group solutions, the "high single transaction, low frequency" group deserves to be discussed separately.', '',
+        md_table(['Groups in the four-group scheme', 'Record proportion', 'since last purchase', 'Number of purchases in half a year', 'Typical single transaction amount'], k4_rows), '',
+        f'"High single transaction, low frequency type" accounts for **{big_ticket.snapshot_share:.1%}**, and the typical half-year consumption amount is'
+        f'**{big_ticket.monetary_value_180d_median:,.0f}**. This reminds us: high consumption amount can come from "buying frequently" or "buying more each time".'
+        'Whether the two types of customers are suitable for the same maintenance rhythm requires further research.', '',
         pair_text, '',
-        '## 3. 新挖掘了哪些特征？', '',
-        '原来的特征告诉我们“买了多少”。这次补充“最近有没有改变、在有限历史里买得有多频繁”。'
-        '这些特征由现有字段计算，属于新的表达方式；真实订单间隔、品类偏好、退货偏好仍需要交易明细。', '',
-        md_table(['新增特征', '通俗含义与算法', '怎么理解'], [
-            ['购买节奏变化', '最近30天购买次数 − 再往前60天的月均购买次数',
-             '例如最近30天买3次、前60天共买2次，变化为 +2。只给已有至少90天可见历史的人计算。'],
-            ['近期购买占比', '最近90天购买次数 ÷ 最近180天购买次数',
-             '接近1：半年内的购买集中在较近一段；为0：最近90天没有买。短历史客户天然可能偏高。'],
-            ['按可见历史折算的月购次数', '半年购买次数 ÷ 可见历史天数 × 30；天数限定30—180天',
-             '同样买2次，出现了两个月与出现了半年，购买频率应区别看待。'],
-            ['历史是否足够长', '是否已有至少90天可见购买历史',
-             '提示节奏变化是否有足够观察时间，避免把缺少历史当成没有购买。'],
+        '## 3. What features were newly discovered?', '',
+        'The original features tell us "how much was bought". This time I added "Have there been any changes recently, and how often have I purchased it in the limited history?"'
+        'These features are calculated from existing fields and are new expressions; real order intervals, category preferences, and return preferences still require transaction details.', '',
+        md_table(['New features', 'Popular meaning and algorithm', 'How to understand'], [
+            ['Changes in buying pace', 'The number of purchases in the last 30 days − the average number of purchases per month in the previous 60 days',
+             'For example, in the last 30 days, 3 times were purchased, and in the previous 60 days, a total of 2 times were purchased, and the change is + 2. Only calculated for people who have at least 90 days of visible history.'],
+            ['Proportion of recent purchases', 'Number of purchases in the last 90 days ÷ Number of purchases in the last 180 days',
+             'Close to 1: purchases within half a year are concentrated in the recent period; for 0: no purchases were made in the last 90 days. Customers with short history may naturally have higher prices.'],
+            ['Number of monthly purchases converted based on visible history', 'Number of purchases in half a year ÷ Number of visible historical days × 30; limited number of days 30 — 180 days',
+             'For the same purchase 2 times, the purchase frequency should be treated differently if it occurs for two months and for half a year.'],
+            ['Is history long enough?', 'Is there at least 90 days of visible purchase history?',
+             'Prompt whether there is enough observation time for changes in rhythm to avoid taking the lack of history as no purchase.'],
         ]), '',
-        '另外增加了两个便于找人的标记：**近期加速**＝节奏变化至少增加1次/月；'
-        '**重复购买后暂时中断**＝已有90天可见历史、过去90天买过至少2次，但最近30天没有买。', '',
-        '### 新特征真的让分群更好吗？实际试了一遍', '',
-        f'将上述4项加入原有8项后，再比较3—6群。新增特征方案选择了 **{int(selected_experiment.k)}群**。'
-        f'它单独识别出一个占 **{short_history.snapshot_share:.1%}** 的群体，'
-        f'首次可见购买距今典型只有 **{short_history.customer_history_days_median:.0f}天**，'
-        f'其中 **{1 - short_history.has_90d_history_mean:.1%}** 的可见历史不足90天。'
-        '说明新增特征让模型更强调“客户处在什么观察阶段”。', '',
-        f'用新增后的12项特征衡量，新方案得分 **{selected_experiment.new_space_silhouette:.4f}**。'
-        '但衡量的“尺子”变了，不能直接拿这个数与原来的得分比较。'
-        f'重新用原来8项特征衡量同为 {selected} 群的新分法，得分为 **{new_same_space:.4f}**，'
-        f'原方案为 **{base_score:.4f}**。'
-        '因此，现阶段的收获是找到了新的观察维度，还没有证据说明应该用新方案替换原模型。', '',
-        '## 4. 这些特点换一段时间还成立吗？', '',
-        '用原模型给2011年6—8月的客户分群，再看他们之后30天实际有没有再次购买。以下结果只用于事后检查画像，未来购买记录没有参与分群。', '',
-        md_table(['群体', '训练期实际复购比例', '验证期实际复购比例'], followup_rows), '',
-        '![各群体在下一段时间的实际复购对照](figures/cluster_followup_story.png)', '',
-        f'常来常买群在三个验证月份的复购比例为 **{ranges.loc[high, "min"]:.1%}—{ranges.loc[high, "max"]:.1%}**，'
-        f'长时间未购群为 **{ranges.loc[quiet, "min"]:.1%}—{ranges.loc[quiet, "max"]:.1%}**。'
-        '这种差异在三个验证月份都存在，说明画像有后续行为上的对应。也说明“很久没买”不等于以后再也不会买。', '',
-        '### 一个反直觉发现：近期加速，不一定持续加速', '',
+        'In addition, two markers have been added to facilitate finding people: **Recent acceleration** = rhythm changes have increased by at least 1 times/month;'
+        '**Temporarily suspended after repeated purchases** = There is a visible history of 90 days, and purchases have been made at least 2 times in the past 90 days, but no purchases have been made in the last 30 days.', '',
+        '### Do new features really make clustering better? Actually tried it', '',
+        f'After adding the above 4 item to the original 8 item, compare the 3 — 6 group. The new feature scheme selected **{int(selected_experiment.k)} group**.'
+        f'It singles out a group that accounts for **{short_history.snapshot_share:.1%}**,'
+        f'First visible purchase is typically only **{short_history.customer_history_days_median:.0f} days** away,'
+        f'Of which **{1 - short_history.has_90d_history_mean:.1%}** has less than 90 days of visible history.'
+        'Explain that the new features allow the model to emphasize "what observation stage the customer is in".', '',
+        f'Measured by the newly added 12 features, the new solution scores **{selected_experiment.new_space_silhouette:.4f}**.'
+        'But the "ruler" of measurement has changed, and this number cannot be directly compared with the original score.'
+        f'Reuse the original 8 features to measure the new classification method for the same {selected} group, and the score is **{new_same_space:.4f}**,'
+        f'The original plan is **{base_score:.4f}**.'
+        'Therefore, the gain at this stage is that a new observation dimension has been found, and there is no evidence that the original model should be replaced with a new solution.', '',
+        '## 4. Will these characteristics still hold true over time?', '',
+        'Use the original model to group customers from 2011 years to 6 to 8 months, and then see if they actually purchase again after 30 days. The following results are only used for post-mortem inspection, and future purchase records will not be included in the grouping.', '',
+        md_table(['group', 'Actual repurchase ratio during training period', 'Actual repurchase ratio during verification period'], followup_rows), '',
+        '![Actual repurchase comparison of each group in the next period of time ](figures/cluster_followup_story.png)', '',
+        f'The repurchase ratio of frequent visitors and frequent buyers in the three verification months is **{ranges.loc[high, "min"]:.1%} — {ranges.loc[high, "max"]:.1%}**,'
+        f'The group that has not purchased for a long time is **{ranges.loc[quiet, "min"]:.1%} — {ranges.loc[quiet, "max"]:.1%}**.'
+        'This difference exists in the three verification months, indicating that the profiles have subsequent behavioral correspondence. It also shows that "I haven\'t bought it for a long time" does not mean that I will never buy it again.', '',
+        '### A counter-intuitive discovery: recent acceleration may not necessarily continue to accelerate', '',
     ]
     if all(row is not None for row in acceleration):
         yes, no = acceleration
         lines += [
-            f'在 **{names[high]}** 内，只比较可见历史满90天的记录：', '',
-            md_table(['验证期子组', '客户月记录数', '之后30天实际复购比例'], [
-                ['最近购买次数明显增加', f'{int(yes.snapshot_count):,}', f'{yes.observed_repurchase_rate:.1%}'],
-                ['没有达到上述增加幅度', f'{int(no.snapshot_count):,}', f'{no.observed_repurchase_rate:.1%}'],
+            f'Within **{names[high]}**, only records with visible history that are 90 days old are compared:', '',
+            md_table(['Validation period subgroup', 'Number of customer records per month', 'Actual repurchase ratio after 30 days'], [
+                ['The number of recent purchases has increased significantly', f'{int(yes.snapshot_count):,}', f'{yes.observed_repurchase_rate:.1%}'],
+                ['did not reach the above-mentioned increase rate', f'{int(no.snapshot_count):,}', f'{no.observed_repurchase_rate:.1%}'],
             ]), '',
-            '这个结果提醒我们：购买有节奏，最近的集中购买未必会持续到下个月。'
-            '是否与集中补货、季节性或客户构成有关，当前数据还不能确认。可以把“购买节奏变化”交给阶段五模型检验，而不能直接写成“越活跃越容易复购”。', '',
+            'This result reminds us: there is a rhythm to buying, and the recent concentrated buying may not continue into the next month.'
+            'Whether it is related to concentrated replenishment, seasonality or customer composition, the current data cannot be confirmed. "Changes in purchasing rhythm" can be submitted to the stage five model for testing, but cannot be written directly as "the more active you are, the easier it is to repurchase".', '',
         ]
     if all(row is not None for row in pausing):
         yes, no = pausing
         lines += [
-            '### 另一个细节：暂时没买的人，也可能仍有购买基础', '',
-            f'在 **{names[middle]}** 中，“重复购买后暂时中断”的记录有 '
-            f'**{int(yes.snapshot_count):,}条**，验证期之后30天复购比例为 **{yes.observed_repurchase_rate:.1%}**；'
-            f'同群其余可见历史满90天的记录为 **{no.observed_repurchase_rate:.1%}**（{int(no.snapshot_count):,}条）。', '',
-            '这个标记同时包含“过去买过不止一次”和“最近暂停”，所以较高复购率可能来自既有的购买基础。'
-            '它适合用来区分客户状态，尚不能据此把“暂停”解释为复购的原因。', '',
+            '### Another detail: People who haven\'t bought yet may still have the basis to buy.', '',
+            f'In **{names[middle]}**, the record of "Temporary interruption after repeated purchase" is'
+            f'**{int(yes.snapshot_count):,} items**, the repurchase ratio of 30 days after the verification period is **{yes.observed_repurchase_rate:.1%}**;'
+            f'The remaining visible records in the same group that have a history of 90 days are **{no.observed_repurchase_rate:.1%}** ( {int(no.snapshot_count):,} records).', '',
+            'This tag includes both "purchased more than once in the past" and "recently paused," so the higher repurchase rate may come from an existing purchase base.'
+            'It is suitable for distinguishing customer status, but it cannot be used to interpret "pause" as the reason for repurchase.', '',
         ]
     lines += [
-        '以上属于探索性观察。同一客户可贡献多个月份记录，不能当作独立样本做普通显著性检验；'
-        '这里的“突出特点”指可观察的差异，没有声称统计显著或营销措施有效。测试期仍留给最终评估。', '',
-        '## 5. 简单排序给后续预测模型定了什么参照？', '',
-        '假设每个月只能查看20%的客户：RFM 同时看“最近买没买、买过几次、花了多少”，作为后续预测模型的简单排序参照。', '',
-        md_table(['排序方法', '验证期共选出的记录', '其中之后30天再次购买', '名单内复购比例'], [
-            ['近期、次数和金额（RFM）', f'{int(rfm.top20_count):,}', f'{int(rfm.top20_hits):,}', f'{rfm.precision_at_20pct:.1%}'],
+        'The above are exploratory observations. The same customer can contribute multiple monthly records and cannot be used as an independent sample for ordinary significance testing;'
+        '"Salient features" here refer to observable differences without claims of statistical significance or effectiveness of marketing measures. The testing period is still left for final evaluation.', '',
+        '## 5. What reference does simple sorting set for subsequent prediction models?', '',
+        'Assume that you can only view 20% customers every month: RFM At the same time, look at "whether you bought recently, how many times you bought, and how much you spent" as a simple sorting reference for subsequent prediction models.', '',
+        md_table(['Sorting method', 'A total of records selected during the verification period', 'which will be purchased again after 30 days', 'Repurchase ratio within the list'], [
+            ['Recent, times and amount ( RFM )', f'{int(rfm.top20_count):,}', f'{int(rfm.top20_hits):,}', f'{rfm.precision_at_20pct:.1%}'],
         ]), '',
-        '后续复杂模型应该与这个简单办法比较，确认增加复杂度是否值得。这里是历史名单的回看，不代表营销活动带来了这些购买。', '',
-        '## 6. 汇报时可以怎么说？', '',
-        '> 我们先用三群抓住总体结构：常来常买、低频购买和长时间未购。'
-        '然后把分群细化，发现高消费既可能来自高频购买，也可能来自较高的单笔金额；消费相似的人，近期活跃程度也可能不同。'
-        '进一步构造购买节奏和可见历史特征后，发现近期加速不一定延续到下个月。'
-        '因此，客户分群的价值是把这些差别说清楚，为后续复购预测提出可检验的问题。', '',
-        '## 数据文件与复现', '',
-        f'- 全部合格快照 **{len(data):,}条**；训练期用于发现分群，验证期用于后续行为对照。',
-        '- 在项目根目录运行 `python stage4/kmeans.py` 重新生成分析与报告；运行 `python stage4/kmeans.py --check` 检查已有结果。',
-        '- `data/` 放结果表，`figures/` 放正文引用的两张图，`model/` 放可加载模型。', '',
-        md_table(['文件', '内容与用途'], [
-            ['[客户结果总表](data/customer_results.csv)', '每个客户每月一行：原始特征、新特征、分群、中心距离、两种排序和前20%标记。'],
-            ['[群体画像汇总](data/cluster_profiles.csv)', '原始与新增特征方案的各群体画像；按 feature_set、k、split 筛选。'],
-            ['[分群方案比较](data/model_comparison.csv)', '原始8项和新增后12项特征的 k=3—6 比较，合计8个方案。'],
-            ['[排序基线表现](data/baseline_metrics.csv)', '训练、验证期的逐月与汇总排序表现。'],
-            ['[行为发现的依据](data/behavior_evidence.json)', '同日消费份额、购买节奏子组、按月复购对照，合在一份记录中。'],
-            ['[模型包](model/segmentation_bundle.joblib)', '主模型、RFM切点、新特征探索模型，共用一个文件。'],
-            ['[运行记录](run_manifest.json)', '输入哈希、版本、配置、日期划分和预处理统计。'],
+        'Subsequent complex models should be compared with this simple approach to determine whether the added complexity is worth it. This is a look back at the historical list and does not mean that marketing campaigns resulted in these purchases.', '',
+        '## 6. What can you say when reporting?', '',
+        '> We first use three groups to capture the overall structure: frequent buyers, low-frequency buyers, and long-term non-buyers.'
+        'Then we refine the grouping and find that high consumption may come from high-frequency purchases or higher single amounts; people with similar consumption may have different levels of recent activity.'
+        'After further constructing the buying rhythm and visible historical characteristics, it is found that the recent acceleration does not necessarily extend into the next month.'
+        'Therefore, the value of customer segmentation is to clarify these differences and raise testable questions for subsequent repurchase predictions.', '',
+        '## Data files and reproduction', '',
+        f'- All qualified snapshots **{len(data):,}**; the training period is used to discover groupings, and the verification period is used for subsequent behavioral control.',
+        '- Run `python stage4/kmeans.py` in the project root directory to regenerate analysis and reports; run `python stage4/kmeans.py --check` to check existing results.',
+        '- `data/` holds the result table, `figures/` holds the two pictures quoted in the text, and `model/` holds the loadable model.', '',
+        md_table(['File', 'Content and purpose'], [
+            ['[Customer results summary table ](data/customer_results.csv)', 'One row per customer per month: original features, new features, clustering, center distance, two sortings, and top 20% tags.'],
+            ['[Group profile summary ](data/cluster_profiles.csv)', 'Profiles of each group in the original and newly added feature schemes; filter by feature_set, k, split.'],
+            ['[Comparison of grouping schemes ](data/model_comparison.csv)', 'Comparison of k= 3 — 6 features of the original 8 term and the newly added 12 term, totaling 8 solutions.'],
+            ['[Sort Baseline Performance ](data/baseline_metrics.csv)', 'Month-by-month and summary sorting performance during training and validation periods.'],
+            ['[Basis for behavioral discovery ](data/behavior_evidence.json)', 'Same-day consumption share, purchase rhythm subgroups, and monthly repurchase comparisons are combined into one record.'],
+            ['[Model package ](model/segmentation_bundle.joblib)', 'The main model, RFM cut point, and new feature exploration model share one file.'],
+            ['[Run record ](run_manifest.json)', 'Enter hashes, versions, configurations, date partitioning, and preprocessing statistics.'],
         ]), '',
-        '画像表中，`feature_set=original_8` 是原始方案，`enhanced_12` 是新特征探索方案；'
-        '`is_main_model=True` 是正文使用的主模型。`split` 区分训练、验证和测试；'
-        '`snapshot_count` 是客户月记录数，`snapshot_share` 是占比，`_median` 是中位数，`_mean` 是均值。'
-        '测试期的实际复购比例留空。', '',
-        '<details>', '<summary>方法与模型使用说明（点击展开）</summary>', '',
-        '**训练边界。** 沿用上游时间划分，填补、变换和缩放只在训练期拟合；客户ID、日期和未来标签不作分群输入。'
-        '原始交易与最后一期观察是否完整，仍需阶段二、三的交易明细佐证。', '',
-        f'**分群方法。** 原始8项特征以训练期中位数填补，偏度大于1的列做 log1p，再统一尺度。'
-        f'四个 k 使用同一批 {manifest["silhouette_sample_size"]:,} 条训练记录比较分离程度；'
-        f'随机种子 {manifest["seed"]}，每个方案尝试20次初始中心。先要求最小群占比达到5%，再选择分离程度最高的方案。'
-        '新特征方案允许购买节奏变化为负数，使用保留正负号的对数变换，独立拟合。', '',
-        '**排序口径。** 最近购买时间分数为距上次购买天数的相反数。RFM按训练期五分位切点计分，'
-        'R反向、F/M正向，各1—5分后相加；相同值同档。每个日期分别取前20%（人数向上取整），'
-        '同分按客户ID文本升序。汇总名单表现采用逐月入选记录的合计；分数是排序依据。', '',
-        '**加载模型。** 在项目根目录运行：', '',
+        'In the profile table, `feature_set=original_8` is the original plan, and `enhanced_12` is the new feature exploration plan;'
+        '`is_main_model=True` is the main model used in the main text. `split` differentiates between training, validation and testing;'
+        '`snapshot_count` is the number of monthly customer records, `snapshot_share` is the proportion, `_median` is the median, and `_mean` is the mean.'
+        'The actual repurchase ratio during the test period is left blank.', '',
+        '<details>', '<summary>Instructions for using methods and models (click to expand)</summary>', '',
+        '**Training boundaries.** Following the upstream time division, filling, transformation and scaling are only fitted during the training period; customer ID, date and future labels are not entered for grouping.'
+        'Whether the original transaction and the last period of observation are complete still need to be corroborated by the transaction details of stages two and three.', '',
+        f'**Group method.** The original 8 feature is filled with the median of the training period, and the column with a skewness greater than 1 is log 1 p, and then the scale is unified.'
+        f'Four k use the same batch of {manifest["silhouette_sample_size"]:,} training records to compare the degree of separation;'
+        f'Random seed {manifest["seed"]}, try 20 initial center for each solution. First, the minimum group proportion is required to reach 5%, and then the solution with the highest degree of separation is selected.'
+        'The new feature scheme allows purchase rhythm changes to be negative, using a logarithmic transformation that preserves the sign, and is fitted independently.', '',
+        '**Sort caliber.** The recent purchase score is the inverse of the number of days since last purchase. RFM is scored according to the quintile cut-off point during the training period.'
+        'R reverse, F/M forward, each 1 - 5 is divided and then added together; the same value is in the same gear. Each date is rounded up to the nearest 20% (the number of people is rounded up),'
+        'Sort by customer ID text in ascending order. The summary list performance is based on the total of the selected records month by month; the score is the basis for sorting.', '',
+        '**Load model.** Run in the project root directory:', '',
         '```python', 'import joblib',
         "bundle = joblib.load('stage4/outputs/stage4/model/segmentation_bundle.joblib')",
         "X = snapshots[bundle['features']]",
         "clusters = bundle['pipeline'].predict(X)",
         "distances = bundle['pipeline'].transform(X)",
-        "# 探索模型位于 bundle['exploratory']，输入先用 stage4.kmeans.derive_features 生成。", '```', '',
-        '主模型中心距离位于统一尺度后的特征空间，可供阶段五使用；滚动验证应在各折训练期重新拟合。'
-        '模型包中的探索模型使用 stage4.transforms 中可导入的变换函数。'
-        '依赖版本记录在 run_manifest.json。', '',
+        "# The exploration model is located in bundle['exploratory'], and the input is first generated using stage 4.kmeans.derive_features.", '```', '',
+        'The center distance of the main model is located in the feature space after unified scale, which can be used in stage five; rolling verification should be refitted during each fold training period.'
+        'The exploration models in the model package use the importable transformation functions in stage 4.transforms.'
+        'Dependency versions are recorded in run_manifest.json.', '',
         '</details>', '',
     ]
     (output / 'stage4_report.md').write_text('\n'.join(lines), encoding='utf-8')
@@ -891,7 +890,7 @@ def make_story_figures(output, profiles, all_profiles, names, selected, snapshot
         fig, axes = plt.subplots(1, 3, figsize=(12.4, 4.2), layout='constrained')
         for ax, col, title, unit in zip(axes,
                 ['recency_days_median', 'invoice_frequency_180d_median', 'monetary_value_180d_median'],
-                ['多久没买了？', '半年买了几次？', '半年花了多少？'], ['天', '次', '金额单位']):
+                ['Days since last purchase', '180-day order count', '180-day spending'], ['Days', 'Orders', 'GBP']):
             vals = profiles[col].to_numpy()
             ax.barh(labels, vals, color=colors[:len(ids)])
             ax.invert_yaxis()
@@ -900,7 +899,7 @@ def make_story_figures(output, profiles, all_profiles, names, selected, snapshot
             ax.set_xlim(0, vals.max() * 1.3)
             for i, value in enumerate(vals):
                 ax.text(value + vals.max() * .025, i, f'{value:,.0f}', va='center')
-        fig.suptitle('三类客户，最直观的区别' if selected == 3 else '各群体的典型购买行为', fontsize=17)
+        fig.suptitle('Purchase patterns across three segments' if selected == 3 else 'Typical buying behavior of each group', fontsize=17)
         fig.savefig(output / 'figures' / 'customer_group_story.png', dpi=170, facecolor='white')
         plt.close(fig)
         validation = all_profiles.loc[(all_profiles.k == selected) & all_profiles.split.eq('validation')].set_index('cluster')
@@ -908,13 +907,13 @@ def make_story_figures(output, profiles, all_profiles, names, selected, snapshot
         x = np.arange(len(ids))
         train = profiles.set_index('cluster').loc[ids, 'observed_repurchase_rate'] * 100
         valid = validation.loc[ids, 'observed_repurchase_rate'] * 100
-        for shift, values, label, color in [(-.18, train, '训练期', '#93BCD0'), (.18, valid, '验证期', '#227C9D')]:
+        for shift, values, label, color in [(-.18, train, 'Training', '#93BCD0'), (.18, valid, 'Validation', '#227C9D')]:
             bars = ax.bar(x + shift, values, .34, label=label, color=color)
             ax.bar_label(bars, labels=[f'{v:.1f}%' for v in values], padding=4)
         ax.set_xticks(x, labels)
-        ax.set_ylabel('未来30天实际再次购买的比例（%）')
+        ax.set_ylabel('Repurchase within 30 days (%)')
         ax.set_ylim(0, max(train.max(), valid.max()) * 1.28)
-        ax.set_title('换一段时间，群体之间的差异仍然存在', fontsize=16, pad=15)
+        ax.set_title('Segment patterns in training and validation', fontsize=16, pad=15)
         ax.legend(frameon=False)
         fig.savefig(output / 'figures' / 'cluster_followup_story.png', dpi=170, facecolor='white')
         plt.close(fig)
@@ -990,7 +989,7 @@ def run_self_checks(source: Path, output: Path) -> None:
             for name in ['rfm']:
                 counts = scores.groupby('snapshot_date')[name + '_top20'].sum()
                 self.assertEqual(counts.tolist(), [1, 1])
-            # 输入行顺序不能改变同一客户的分数、名次或入选状态。
+            # Entering row order cannot change the score, ranking, or selection status of the same customer.
             shuffled = baseline_scores(fixture.sample(frac=1, random_state=7), config)
             pd.testing.assert_frame_equal(scores.sort_index(), shuffled.sort_index())
 

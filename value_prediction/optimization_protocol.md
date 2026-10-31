@@ -1,77 +1,77 @@
-# 未来 30 天消费额预测强化实验方案
+# Future 30 day consumption prediction enhanced experimental plan
 
-记录日期：2026-10-23。本文件先于本轮新特征模型比较写入。原实验及输出保留，不以本轮结果覆盖。
+Record date: 2026-10-23. This file is written before this round of new feature model comparison. The original experiment and output are retained and will not be overwritten by the results of this round.
 
-## 数据边界
+## Data boundaries
 
-- 客户快照日 `t` 的近期输入使用 `[t-180d, t)` 内的合格交易；补充的客户历史累计金额和订单数允许使用数据起点至 `t` 之前的交易。所有特征均严格排除 `t` 当天及之后的数据；标签只使用 `[t, t+30d)`。
-- 2011 年 1–5 月作按时间向前的开发折；每折训练仅使用标签窗口已经结束的更早快照。2011 年 6–8 月是已看过的开发确认期。
-- 2011 年 9–11 月已被查看，只能作回顾性诊断，不能用于本轮选特征、调参、设阈值或声称独立验证。
-- 需要新的完整时间段或独立项目数据作最终确认。若不可获得，报告必须写明外部验证尚缺。
+- Recent input for customer snapshot date `t` uses qualifying transactions within `[t-180d, t)`; supplementary customer historical cumulative amounts and order numbers allow the use of transactions from the data starting point to before `t`. All features strictly exclude data on and after `t`; labels only use `[t, t+30d)`.
+- 2011 Year 1 – 5 Monthly development folds forward in time; training for each fold only uses earlier snapshots where the label window has ended. 2011, June-August is the development confirmation period that has been seen.
+- 2011, September-November have been viewed and can only be used for retrospective diagnosis and cannot be used to select features, adjust parameters, set thresholds or claim independent verification in this round.
+- New complete time period or individual project data required for final confirmation. If not available, the report must state that external verification is lacking.
 
-## 基线与指标
+## Baselines and indicators
 
-主要基线是原先固定的 `monetary_value_180d / 6`。近期 30/90 天的同速率外推也作为对照，不因结果较差而删除。
+The main baseline is the originally fixed `monetary_value_180d / 6`. Extrapolations at the same rate in the recent 30 / 90 days were also used as controls and were not deleted due to poor results.
 
-强化目标相对同批客户的历史金额基线计算：
+The strengthening target is calculated relative to the historical amount baseline of the same batch of customers:
 
-1. 整体 MAE 至少降低 10%；实际购买客户的 MAE 至少降低 5%。
-2. 每月取预测金额最高的 20% 客户，合并后实际消费额覆盖率至少提高 3 个百分点。
-3. 全体预测总额偏差在 ±5% 内；预测金额前 20% 客户的预测总额偏差在 ±10% 内。
-4. 至少三个向前月份逐月 MAE、Top 20% 覆盖率均不差于基线。
+1. The overall MAE is reduced by at least 10%; the actual purchasing customer's MAE is reduced by at least 5%.
+2. Take 20% customers with the highest predicted amount every month. After the merger, the actual consumption coverage rate will increase by at least 3 percentage points.
+3. The overall forecast total deviation is within ± 5%; the forecast total deviation of 20% customers before the forecast amount is within ± 10%.
+4. The coverage rates of MAE and Top 20% are no worse than the baseline for at least three forward months.
 
-这些是挑战目标，不是已通过的门槛。若因数据波动或业务用途调整，只能在下一份未查看数据被评估前写明原因、新阈值及旧阈值结果；不得事后改写已有结果。WAPE 与同批客户的 MAE 使用相同绝对误差，不单列为独立通过项。
+These are challenge goals, not passed thresholds. If data fluctuates or business purposes are adjusted, the reasons, new thresholds, and old threshold results can only be written before the next unviewed data is evaluated; existing results cannot be rewritten afterwards. W AP E uses the same absolute error as MAE from the same batch of customers and is not listed as an independent passing item.
 
-## 实验纪律
+## Experimental Discipline
 
-- 本轮先比较少量可解释的历史金额窗口特征与直接回归、两阶段模型和固定的简单基线。不要用测试月份挑选方案。
-- 所有候选使用相同客户、时间窗口和评估函数；保存每月、总体和重点客户群指标。
-- 保留失败候选与配置，报告改进的幅度和限制。只有在新的可信验证达到锁定标准后才考虑接入仪表板。
+- This round first compares a small number of interpretable historical amount window features with direct regression, a two-stage model, and a fixed simple baseline. Don't use test months to pick plans.
+- Use the same customers, time windows and evaluation functions for all candidates; save monthly, overall and key customer segment metrics.
+- Preserve failed candidates and configurations, and report the magnitude and limitations of improvements. Only consider accessing the dashboard after the new trusted verification meets the locking criteria.
 
-开发记录：最初九个新特征只取 180 天以内。开发期检查发现只看最近 30/90 天的简单外推弱于 180 天基线，而较早客户历史可能帮助稳定高价值客户排序，因此增加三个严格早于快照日的历史累计特征。这一变更发生在开发期；9–11 月仍不参与选择，不能据此宣称新独立验证。
+Development record: The first nine new features were only taken within 180 days. A development period check found that a simple extrapolation looking only at the most recent 30 / 90 days is weaker than the 180 day baseline, while earlier customer history may help stabilize high-value customer rankings, thus adding three historical cumulative features strictly older than the snapshot date. This change occurred during the development period; 9 – 11 still did not participate in the selection and cannot claim new independent verification based on this.
 
-## 购买条件下的金额：单独的研究问题
+## Amount conditional on purchase: separate research question
 
-无条件金额（客户未来 30 天的预计消费额）与“假如购买，会消费多少”是不同问题。前者必须同时考虑未购买客户；后者可在开发期只用实际购买客户评估，但预测时绝不使用未来购买状态。零消费客户占多数时，单个无条件预测值很难同时最小化全体及实际购买者绝对误差，因此保留原来无条件预测的购买者 MAE 作为诊断，不拿新指标替换或声称原挑战目标已完成。
+The unconditional amount (how much the customer expects to spend in the next 30 days) is a different question than "how much will he spend if he buys". The former must also consider non-purchasing customers; the latter can only use actual purchasing customers for evaluation during the development period, but never use future purchasing status when forecasting. When zero-consuming customers account for the majority, it is difficult for a single unconditional prediction value to simultaneously minimize the absolute errors of all and actual buyers. Therefore, the original unconditional prediction of buyers MAE is retained as a diagnosis, and no new indicators are used to replace it or the original challenge goal is claimed to have been completed.
 
-新增的条件金额模型只与快照前 180 天的每月平均消费、每笔订单平均金额比较；报告条件 MAE 与购买者金额偏差。条件中位数用于 MAE，条件均值可用于计算全体的期望金额。该附加分析不改变上面的四项挑战目标，也不允许用已查看月份作最终验证。
+The newly added condition amount model only compares with the average monthly consumption and the average amount of each order in the 180 days before the snapshot; reports the deviation between the condition MAE and the buyer's amount. The conditional median is used for MAE and the conditional mean can be used to calculate the expected amount of the population. This additional analysis does not change the four challenge objectives above, nor does it allow for final verification using the months viewed.
 
-## 滞后标签校准候选
+## Lag label calibration candidates
 
-由于开发期无条件模型存在总额偏差，追加一个固定的运营式校准候选：对每个截点先训练同样的扩展 Tweedie 模型，取此前最多 3 个已预测且完整 30 天标签已结束的截点，计算这些截点真实总额 / 未校准预测总额。把该比例限制在 `[0.7, 1.3]`，再向 1 收缩一半，即 `factor = 1 + 0.5 × (clipped_ratio - 1)`；无可用历史预测则因子为 1。只用过去未校准预测，避免递归校准；同一截点所有客户乘相同因子，因此 Top20 排名应不变。这个规则基于 2011 年 1–8 月开发分析提出，2011 年 9–11 月和外部数据都已看过，任何后续应用只能称为回顾性分析，不再当作独立验证或用于调这个公式。
+Due to the total amount deviation of the unconditional model during the development period, a fixed operational calibration candidate is added: first train the same extended Tweedie model for each cutoff point, take the previous cutpoints that have been predicted at most 3 and the complete 30 day label has ended, and calculate the true total amount/uncalibrated predicted total amount of these cutoff points. Limit the ratio to `[0.7, 1.3]`, and then shrink it by half to 1, that is, `factor = 1 + 0.5 × (clipped_ratio - 1)`; if there is no available historical forecast, the factor is 1. Only use past uncalibrated forecasts to avoid recursive calibration; all customers at the same cutoff point are multiplied by the same factor, so the Top 20 ranking should remain unchanged. This rule is proposed based on the development analysis of 2011, January-August. 2011, September-November and external data have been viewed. Any subsequent application can only be called retrospective analysis and will no longer be regarded as independent verification or used to adjust this formula.
 
-## 去年同期特征的开发期诊断
+## Development period diagnosis of characteristics of the same period last year
 
-追加一个金额特征：快照前第 365 至 335 天的合格消费额。若原始数据起点晚于窗口起点，标记缺失，而不是把“缺少数据”写成零。开发期的首次试验显示整体 MAE 下降，但总额低估加重；因此还要比较仅使用“该历史窗口是否完整”这一标志的模型，以区分真实的去年同期金额信息与训练年份变化。该特征不进入已锁定的外部两年数据检验；任何对 9–11 月的检查均标成回顾性。
+Add an amount feature: the qualifying consumption amount from days 365 to 335 before the snapshot. If the starting point of the original data is later than the starting point of the window, mark it as missing instead of writing "missing data" as zero. The first trial during the development period showed a decrease in overall MAE, but an increase in total underestimation; therefore, models using only the flag "whether the historical window is complete" were also compared to distinguish true last year amount information from training year changes. This feature does not enter the locked external two-year data inspection; any inspection of months 9 – 11 is marked retrospective.
 
-## 两阶段模型加入去年同期特征
+## The two-stage model adds the characteristics of the same period last year
 
-开发期的直接 Tweedie 加入去年同期金额后整体误差下降，但购买者误差和总额偏差没有同步改善。追加一个单一候选：现有两阶段购买概率 × 购买条件下 Gamma 均值模型，两部分都增加上述去年同期金额特征，其余参数保持不变。只在 2011 年 1–8 月按时间向前比较，并观察排序及金额误差的取舍；不因本轮结果重新解释已查看的 9–11 月为独立测试。
+ direct during the development period  Tweedie  The overall error decreases after adding the amount for the same period last year,  However, buyer error and total deviation did not improve simultaneously. Append a single candidate:  The current two-stage purchase probability  ×  Conditions of purchase  Gamma  mean model,  Both parts increase the above-mentioned amount characteristics of the same period last year.,  The remaining parameters remain unchanged. only in  2011  Year  1–8  Month-by-month forward comparison,  And observe the selection of sorting and amount errors;  Viewed data will not be reinterpreted due to the results of this round.  9–11  Monthly independent testing.
 
-## 较近期训练样本加权
+## Weight more recent training samples
 
-开发期已经看到交易活跃度与金额水平随月份漂移。追加一个固定候选：在“扩展 Tweedie + 去年同期金额”上，较旧训练快照按距目标截点的月龄降低权重，权重为 `0.5 ** (间隔天数 / 180)`；其它模型参数、特征和时间切分不变。180 天对应原输入观察窗口，是业务上可解释的半衰期，并非依据后续结果挑出的最优值。只在 1–8 月开发期比较；该候选没有新的同商家独立测试。
+During the development period, trading activity and amount levels have been seen drifting from month to month. Add a fixed candidate: On "Extended Tweedie + Amount for the same period last year", the older training snapshot is reduced in weight according to the age in months from the target cutoff point, and the weight is `0.5 ** (Interval days / 180)`; other model parameters, features and time segmentation remain unchanged. 180 days correspond to the original input observation window, which is a half-life that can be explained in business, and is not the optimal value selected based on subsequent results. Comparison only during the January-August development period; this candidate has no new independent testing by the same merchant.
 
-## 两阶段误差来源审计
+## Two-stage error source audit
 
-下一轮先诊断问题发生在“会不会买”还是“买了花多少”，不新增用结果挑选的模型。固定使用现有扩展 20 个截点前特征、已有两阶段模型参数（80 棵二分类树、120 棵 Gamma 金额树、0.05 学习率、15 叶、种子 42），另训练现有 120 棵 L1 条件金额树用于购买者 MAE 对照。每个 2011 年 1–8 月目标截点仅用 30 天标签已成熟的早期快照训练。保存购买概率 `p`、购买条件均值 `m`、条件中位数及 `p×m`，实际未来购买状态仅用于评估。
+In the next round, we first diagnose whether the problem occurs in "will I buy it?" or "how much will I spend after buying it?" without adding a new model using result selection. Fixed use of existing extended 20 pre-intercept features, existing two-stage model parameters ( 80 binary classification trees, 120 Gamma amount trees, 0.05 learning rate, 15 leaves, seeds 42 ), and additionally train existing 120 L 1 conditional amount trees for buyers MAE control. Each 2011, January-August target cutoff is trained with only 30 day label mature early snapshots. Save the purchase probability `p`, purchase condition mean `m`, condition median and `p×m`. The actual future purchase status is only used for evaluation.
 
-除 MAE、Top20 覆盖和总额偏差外，报告 AP、购买人数预测偏差、条件均值在实际购买者中的金额偏差、条件中位数购买者 MAE。总额误差精确分为 `Σ(p×m)-Σ(I×m)` 和 `Σ(I×m)-Σ实际金额` 两项，分别称为购买发生部分和购买金额部分；`I` 为实际是否购买，只在事后审计中使用。先看 1–5 月和 6–8 月开发结果，再决定下一项修改；不根据已查看的 9–11 月调参或宣称最终验收。
+In addition to MAE, Top 20 coverage and total amount deviation, AP, purchaser forecast deviation, conditional mean amount deviation among actual buyers, conditional median purchaser MAE are reported. The total error is accurately divided into two items: `Σ(p×m)-Σ(I×m)` and `Σ(I×m)-Σactual amount`, which are called the purchase occurrence part and the purchase amount part respectively; `I` refers to whether the actual purchase was made and is only used in post-event audits. First look at the development results of 1 – 5 and June-August before deciding on the next modification; do not adjust parameters or declare final acceptance based on the viewed September-November.
 
-首轮分解后，2011 年 6–8 月购买人数预测偏差仅 +0.65%，购买者条件均值金额偏差 -7.17%，因此追加一个定向候选：保持购买概率模型和参数完全不变，仅对购买条件下 Gamma 均值及 L1 中位数模型加入已有、严格早于截点的去年同期 30 天金额特征。比较同一批开发折的金额分量、购买者 MAE 与期望金额误差。该候选只用于定位和改进金额部分，不能从开发期结果直接宣布通过验收。
+After the first round of decomposition, the forecast deviation of the number of monthly buyers in 2011, 6 – 8 is only + 0.65%, and the deviation of the buyer's conditional mean amount is - 7.17%. Therefore, an additional directional candidate is added: keep the purchase probability model and parameters completely unchanged, and only add the existing Gamma mean and L 1 median model under the purchase condition to the same period last year that is strictly earlier than the cutoff point. 30 day amount characteristics. Compare the amount component of the same batch of development folds, buyer MAE and the expected amount error. This candidate is only used for positioning and improving the amount part, and cannot be directly declared accepted from the results of the development period.
 
-该特征候选在 6–8 月改善条件中位数的购买者 MAE，却让条件均值金额偏差更负。下一步只对条件均值 `m` 使用此前已固定的运营式校准规则：最近最多三个完整标签已成熟的预测截点，取其中实际发生购买者的 `Σ实际金额/Σ未校准条件均值`，比例限制 `[0.7,1.3]`，再向 1 收缩一半。历史实际购买状态只用于估算已结束月份的因子，当前客户的未来购买状态绝不进入输入。购买概率 `p`、金额中位数和所有模型参数不变。两个金额特征组均保留原样与校准版；这一追加分析仍只属于 1–8 月开发期，不把 9–11 月当独立测试。
+This feature candidate improves the conditional median buyer MAE in months 6 – 8, but makes the conditional mean amount deviation more negative. The next step is to only use the previously fixed operational calibration rule for the conditional mean `m`: the most recent prediction cut-off point for which up to three complete labels have matured, take the actual purchaser `Σactual amount/ΣUncalibrated conditional mean`, the proportion limit `[0.7,1.3]`, and then shrink it by half to 1. Historical actual purchase status is only used to estimate factors for the months ended, future purchase status of current customers never enters the input. The purchase probability `p`, the median amount, and all model parameters remain unchanged. Both amount feature groups remain the original and calibrated version; this additional analysis still only belongs to the January-August development period, and the September-November is not considered as an independent test.
 
-## 开发期客户成组不确定性
+## Uncertainty of customer grouping during development period
 
-为避免少数高额客户造成虚假的点估计优势，固定在已查看的 2011 年 6–8 月开发确认期对同一客户的所有月份一起重抽样，使用随机种子 42、500 次有放回抽样。比较事先已有的“去年同期直接 Tweedie”和“20 特征两阶段 + 已成熟购买者金额校准”对历史 180 天金额基线的整体 MAE 改善与 Top20 覆盖百分点差；另比较“去年同期条件中位数”对历史每笔订单均价的购买者 MAE 改善。每次重抽样对所有方法使用完全相同的客户。报告点估计与百分位 95% 区间，不改阈值，也不把客户抽样区间解释为未来月份不确定性或独立测试。
+In order to avoid false point estimation advantages caused by a small number of high-value customers, the development confirmation period of June-August in the viewed 2011, is fixed and all months of the same customer are resampled together, using random seeds 42 and 500 sampling with replacement. Compare the overall MAE improvement and the Top 20 coverage percentage difference between the existing "direct Tweedie for the same period last year" and " 20 characteristic two-stage + mature buyer amount calibration" on the historical 180 day amount baseline; also compare the "conditional median for the same period last year" for the buyer MAE improvement on the historical average price of each order. Each resampling uses exactly the same clients for all methods. Report point estimates with percentile 95% ranges, without changing the thresholds or interpreting customer sampling ranges as future month uncertainty or independent testing.
 
-## 条件均值的近期样本候选
+## Recent sample candidates for conditional mean
 
-两阶段审计显示 6–8 月的购买人数基本对准，而 Gamma 条件均值偏低。为检验较旧购买金额是否拖累当前预测，保持 20 个特征、购买概率模型、L1 条件中位数及 Gamma 参数不变，只给 Gamma 模型的购买者训练行按目标截点前的年龄加权：`weight = 0.5 ** (间隔天数 / 180)`。180 天沿用项目的观察窗口及先前固定的半衰期，不针对 6–8 月搜索权重。比较 1–5 月滚动开发与 6–8 月已查看的确认结果，报告整体、购买者及金额分量；不使用 9–11 月选择该候选。
+The two-stage audit shows that the number of buyers in June-August is basically aligned, while the Gamma conditional mean is low. To test whether older purchase amounts drag down current predictions, we keep the 20 features, the purchase probability model, the L 1 conditional median, and the Gamma parameter unchanged, and give only the buyer training rows of the Gamma model weighted by age before the target cutoff: `weight = 0.5 ** (Interval days / 180)`. 180 days follow the project's observation window and previously fixed half-life, and do not target June-Augustly search weights. Compare January-Mayly rolling development with June-August viewed confirmation results, reporting overall, purchaser, and dollar components; do not use September-November to select this candidate.
 
-该候选在 6–8 月进一步低估。尾部诊断发现每个月实际消费最高的约 1% 购买者均进入模型 Top20 名单，但贡献 19%–28% 的购买金额，模型对这些已识别客户的金额仍明显偏低。追加一个不改购买概率或原 Gamma 模型的单调校准候选：对最近最多三个已成熟截点的实际购买者，使用当时的样本外 Gamma 条件均值及实际购买金额拟合一维 isotonic 映射；至少 500 条成熟购买者记录才启动，否则使用原预测。对当前条件均值以 `0.5×原值 + 0.5×单调映射值` 收缩，映射范围外取边界值。实际未来购买状态只用来建立过去已成熟月份的映射，不进入当前预测。阈值、三个月窗口与半数收缩在查看该候选结果前固定；1–8 月仍只是开发比较，9–11 月不参与选择。
+This candidate was further undervalued in months 6 – 8. Tail diagnosis found that approximately 1% buyers with the highest actual consumption each month entered the model's Top 20 list, but contributed 19% – 28% purchase amounts, and the model's amount for these identified customers was still significantly lower. Add a monotonic calibration candidate that does not change the purchase probability or the original Gamma model: for up to three recent actual buyers who have matured cut-off points, use the out-of-sample Gamma conditional mean and actual purchase amount to fit a one-dimensional isotonic map; at least 500 mature buyer records are started, otherwise the original prediction is used. The current condition mean is shrunk by `0.5×original value + 0.5×monotonic mapping value`, and the boundary value is taken outside the mapping range. Actual future purchase status is only used to establish a mapping of past months with fully observed labels and does not feed into current forecasts. The threshold, three-month window and half shrinkage are fixed before viewing the candidate results; January-August are still only development comparisons, and September-November do not participate in the selection.
 
-单调校准仅小幅减少总额偏差。追加一个固定模型目标候选来检验尾部欠拟合：保留相同的 20 个截点前特征、同一个购买概率模型、120 棵树、0.05 学习率、15 叶及种子 42，购买者条件均值的训练目标从 Gamma 改为 L2 平方误差。L2 对极高金额的误差施加更大代价；同时可能牺牲普通购买者的 MAE，因此并列报告整体 MAE、购买者 MAE、Top20 覆盖、金额偏差及月度稳定性，不只比较总额。只在 1–8 月开发期运行，9–11 月不用于挑选。
+Monotonic calibration reduces the total bias only slightly. Add a fixed model target candidate to test tail underfitting: retain the same 20 pre-intercept features, the same purchase probability model, 120 tree, 0.05 learning rate, 15 leaves and seeds 42, and the training target of the buyer conditional mean is changed from Gamma to L 2 squared error. L 2 imposes a greater cost on extremely high amounts of error; at the same time, MAE may be sacrificed for ordinary buyers, so overall MAE, buyer MAE, Top 20 coverage, amount deviation, and monthly stability are reported side by side, not just totals. Only runs during the January-August development period, September-November are not used for selection.
 
-L2 使 6–8 月总额偏差接近零但增加个人误差。进一步按模型预测的条件金额分层审计：6–8 月条件金额排名最高的 10% 客户群，其实际购买者金额/未校准条件均值约 1.18，其他 90% 约 0.97；而 1–5 月两个群体均约 0.95。只追加一个分层滞后校准候选，保留原购买概率、Gamma 条件均值、特征和参数；每个历史截点按当时所有客户的条件均值排名事先标记前 10% 与其余客户。目标截点分别从最近最多三个标签已成熟的历史截点中，取每组实际购买者的 `Σ实际金额/Σ未校准条件均值`，继续沿用 `[0.7,1.3]` 限制和向 1 收缩一半；历史某组没有购买者时因子为 1。当前分组只依当前预测条件金额，不使用未来购买状态。报告相对原全局滞后校准的 MAE、购买者 MAE、Top20、总额偏差和逐月稳定性；已看过的 6–8 月仍仅为开发确认，9–11 月不得据此调参或称为独立测试。
+L 2 brings the June-Augustly total deviation close to zero but increases the individual error. Further stratified auditing was carried out according to the condition amount predicted by the model: 6 – 8 The 10% customer group with the highest monthly condition amount has an actual buyer amount/uncalibrated condition mean of about 1.18, and other 90% about 0.97; while 1 – 5, both groups in the month are about 0.95. Only one stratified lag calibration candidate is added, and the original purchase probability, Gamma conditional mean, features and parameters are retained; each historical cutoff point is ranked in advance by the conditional mean ranking of all customers at that time, and the top 10% and the remaining customers are marked in advance. The target cut-off point is taken from the recent historical cut-off points of up to three mature tags, taking the `Σactual amount/ΣUncalibrated conditional mean` of each group of actual buyers, continuing to use the `[0.7,1.3]` limit and shrinking it by half to 1; when a certain group has no buyers in the history, the factor is 1. The current grouping is only based on the current forecast condition amount and does not use future purchase status. Reports MAE, Buyer MAE, Top 20, total deviation and month-to-month stability relative to the original global lag calibration; the months 6 – 8 that have been viewed are still only development confirmations, and the months 9 – 11 cannot be used to adjust parameters or be called independent tests.

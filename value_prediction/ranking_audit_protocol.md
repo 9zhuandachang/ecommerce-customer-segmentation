@@ -1,23 +1,23 @@
-# 高价值客户名单稳定性与误差分布：事前分析方案
+# High-value customer list stability and error distribution: ex-ante analysis plan
 
-记录于查看本分析结果之前。此分析只使用已经保存的、原商家客户月快照的样本外预测，不重新拟合模型，也不更改 `optimization_protocol.md` 的消费额预测挑战目标。
+Recorded before viewing the results of this analysis. This analysis only uses the saved out-of-sample forecasts from the original merchant customer monthly snapshot, does not refit the model, and does not change the consumption forecast challenge target of `optimization_protocol.md`.
 
-## 范围与来源
+## Scope and Source
 
-- 固定方法：`historic_180d`（基线）、`extended_tweedie`（20 个截点前特征）、`extended_tweedie_previous_year`（增加去年同期截点前金额）。三者使用同一客户、月份和真实未来 30 天金额。
-- 2011 年 1–5 月为滚动开发，6–8 月为已查看的开发确认，9–11 月为已查看的回顾诊断。所有月份均非新的独立验收。
-- 输入：`outputs/optimization/development_predictions.csv`、`outputs/retrospective_check/customer_predictions.csv`、`data/processed/customer_snapshot_pipeline/customer_snapshots.csv`。运行前核对开发预测文件在原 manifest 中的哈希、两份 manifest 的快照源哈希，以及每个方法的客户月主键唯一、目标金额一致、月份完整。原回顾期 manifest 没有保存预测文件哈希，因此本分析另记录该文件的当前 SHA-256，并复算其月度指标与原报告一致；不倒填原 manifest。
+- Fixed method: `historic_180d` (baseline), `extended_tweedie` ( 20 features before the cutoff), `extended_tweedie_previous_year` (increase the amount before the cutoff for the same period last year). All three use the same customer, month, and amount of real 30 days in the future.
+- 2011 years, January-May are rolling development, June-August are viewed development confirmations, September-November are viewed retrospective diagnoses. All months are not new independent acceptances.
+- Input: `outputs/optimization/development_predictions.csv`, `outputs/retrospective_check/customer_predictions.csv`, `data/processed/customer_snapshot_pipeline/customer_snapshots.csv`. Before running, check the hash of the development forecast file in the original manifest, the snapshot source hash of the two manifests, and the customer-month primary key of each method is unique, the target amount is consistent, and the month is complete. The original review period manifest did not save the predicted file hash, so this analysis also records the current SHA- 256 of the file, and recalculates its monthly indicators to be consistent with the original report; the original manifest will not be filled back.
 
-## 固定指标
+## Fixed indicator
 
-1. **名单稳定性**：对相邻两个自然月，只取两个月都有快照的客户。两个月各自在这批共同客户中按预测金额从高到低、客户 ID 从小到大取前 `ceil(20% × 共同客户数)`。报告两个月名单交集除以名单人数（留存率）及交集除以并集（Jaccard）。若共同客户少于 500，则记录样本不足，不计算稳定性。按新月份所属的三个既定期间分别汇总相邻月对的简单平均及范围；任何重叠都不等于金额预测准确。
-2. **当月名单效用**：在相同共同客户中，计算新月份名单覆盖的该月实际消费额比例，并与历史金额基线比较；另报告这批共同客户按上月预测排名形成的名单在新月份的消费额覆盖，以显示重新打分的差异。只有新月份真实 30 天总金额大于零才计算。共同客户子集是控制客户进出导致的变化，不是完整运营客户群的验收指标；上月名单在这里也是事后限定到共同客户的诊断，不能当作真实线上名单回放。
-3. **历史活跃度分组误差**：按快照日已知的 `recency_days` 固定分为 `0–30`、`31–90`、`91–180` 天。每个期间及每组对同一批客户比较整体 MAE、实际购买者 MAE、Top20 实际消费额覆盖和预测总额偏差；Top20 在各月份的组内分别选。另保存逐月各组误差。少于 100 条客户月快照或 20 条实际购买快照的组只保留计数，不解释相对改善。分组绝不使用未来是否购买或未来消费额。
+1. **List stability**: For two adjacent natural months, only customers with snapshots in both months will be taken. For each of the two months in this batch of common customers, the predicted amount is from high to low, and the customer ID is from small to large. Take the first `ceil(20% × Number of common customers)`. Reports the intersection of two-month lists divided by list size (retention rate) and the intersection divided by the union (Jaccard). If the number of common customers is less than 500, the recorded sample is insufficient and stability is not calculated. Summarize the simple average and range of adjacent month pairs according to the three established periods to which the new month belongs; any overlap does not mean that the amount forecast is accurate.
+2. **List utility for the current month**: Among the same common customers, calculate the proportion of actual consumption in the month covered by the new month's list, and compare it with the historical amount baseline; also report the consumption coverage in the new month of the list formed by the predicted ranking of this group of common customers in the previous month to show the difference in rescoring. Only the total amount of the actual 30 days in the new month is greater than zero is calculated. The subset of common customers is a change caused by controlling the entry and exit of customers, and is not an acceptance indicator for a complete operating customer base; the list of last month is also a diagnosis that is limited to common customers after the fact and cannot be played back as a real online list.
+3. **Historical activity grouping error**: `recency_days` known according to the snapshot date is fixedly divided into `0–30`, `31–90`, and `91–180` days. For each period and each group, compare the overall MAE, actual buyers MAE, Top 20 actual consumption coverage and forecast total deviation for the same group of customers; Top 20 is selected separately within the group in each month. Also save the monthly group errors. Groups with fewer than 100 customer monthly snapshots or 20 actual purchase snapshots only retain a count and do not account for relative improvement. Grouping never uses future purchases or future spending amounts.
 
-这些分析用于定位收益和风险，不据此从已查看月份挑选新模型、调整参数或改写验收阈值。若结果提示新的可操作特征，必须先在新的可信未查看数据上锁定评估，才可讨论金额模型的最终验收。
+These analyzes are used to position benefits and risks and are not used to select new models from the months viewed, adjust parameters, or overwrite acceptance thresholds. If the results suggest new actionable characteristics, the evaluation must be locked on new trusted unviewed data before final acceptance of the dollar model can be discussed.
 
-## 来源核对时补充的版本边界（分析结果之前）
+## Version boundaries added during source verification (before analyzing results)
 
-首次运行在来源检查阶段中止，尚未计算或查看上述指标。原因：9–11 月原 manifest 引用的开发预测文件 SHA-256 为 `3381a20d...`，当前开发预测文件为 `a8ebe44c...`。原回顾代码中该旧开发文件只进入本分析未采用的滞后校准方法；本分析采用的三种方法在回顾代码中由当期已成熟数据直接生成。两段 manifest 的快照、标签、时序特征和季节特征哈希一致，回顾代码仍与原 manifest 的脚本哈希一致。
+The first run was aborted during the source check phase, before the above metrics were calculated or viewed. Reason: The development prediction file SHA- 256 referenced by the 9 – 11 Yuehara manifest is `3381a20d...`, and the current development prediction file is `a8ebe44c...`. In the original review code, the old development file only entered the lag calibration method that was not used in this analysis; the three methods used in this analysis were directly generated from the mature data of the current period in the review code. The snapshots, labels, timing features, and seasonal feature hashes of the two manifests are consistent, and the review code is still consistent with the script hash of the original manifest.
 
-为避免跨文件版本差异影响名单稳定性，固定**排除 2011 年 8→9 月这一个月对**；1–8 月内部与 9–11 月内部月对照常分析。两段各自核对来源及回顾期月度指标，结果文件记录当前两份预测 CSV 的完整哈希和这一排除。不得将此补充解释为根据指标优劣调整口径。
+In order to avoid cross-file version differences affecting the stability of the list, the month-to-month alignment of 2011, 8 → 9 month is excluded; the January-August internal month-to-month comparison and the September-November internal month-to-month comparison are performed for normal analysis. The two paragraphs each check the source and look-back period monthly indicators, and the results file records the complete hash of the two current predictions CSV and this exclusion. This supplement should not be interpreted as adjusting the definition based on the merits of the indicators.

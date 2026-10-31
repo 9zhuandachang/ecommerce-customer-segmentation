@@ -1,35 +1,35 @@
 {
   "status": "reassessment_of_existing_outputs_no_new_independent_test",
-  "protocol_sha256": "9140924dc82d39f21cdb1babbe1279414ed1a85cb1acf055356b01f37e7c18c7",
-  "script_sha256": "72eb85b499686b7daa5f81baf9f5e30cbd0bbe37af23a332ce48826c4d673e3f",
+  "protocol_sha256": "41b160eb25072db18740a101919385e609b57ba2d05cb3789bc5f2477603604f",
+  "script_sha256": "470a72129cc3534cc64f094154bb2d1455462bac65667a069eea550d43741f25",
   "scorecard_sha256": "4c8308fc555d8182afb20b8db32d0ce1e1b5b1d011e1ee7e7646f77b38c41132",
   "source_hashes": {
     "original_jan_may": {
-      "manifest_sha256": "30ec68b020ee1d5e9461b4f105f8705398ce7456136218d31b1ecd9737582b8d",
+      "manifest_sha256": "b39f9e67b21df84f5b05d6123d828859edd68df4fda00585ae509252cbf2b834",
       "monthly_sha256": "b897228948d35d60b40f1ff2239624a1f272dbc966c0af5eab38ac06a9c4d02f"
     },
     "original_jun_aug": {
-      "manifest_sha256": "30ec68b020ee1d5e9461b4f105f8705398ce7456136218d31b1ecd9737582b8d",
+      "manifest_sha256": "b39f9e67b21df84f5b05d6123d828859edd68df4fda00585ae509252cbf2b834",
       "monthly_sha256": "b897228948d35d60b40f1ff2239624a1f272dbc966c0af5eab38ac06a9c4d02f"
     },
     "original_sep_nov": {
-      "manifest_sha256": "de825243d24f94b40184d62b118b77f45fa1ab9257a1a011020c932b97085684",
+      "manifest_sha256": "91ffdd96896a48e4a346ca561e6d3754b298f97dd1e9cd9b7c9ca84d9d270f02",
       "monthly_sha256": "47be8daa1ae45592ac527d6b81332c3310a145cc9de39320eea481d5dd0a940a"
     },
     "grocery_two_year": {
-      "manifest_sha256": "f4aca683f78a32b53603324774bd470e59c34715a67bf7766ec22630a920183e",
+      "manifest_sha256": "0451d3d69e9833587bc5e344a1a1020530ec95675fb47531173f6dbfdf0cc247",
       "monthly_sha256": "a8b294faa0ae0ebe835291433fb6adbbd27bd9c9198d56b941530dd6b2fb75d7"
     },
     "jewelry": {
-      "manifest_sha256": "5046bd1e90464eede8f34509d1023fe1a179ba1ebc1b3f729a75f6446464d370",
+      "manifest_sha256": "e49e42804deb896549b21ac39970598089ef2e26cfef72049803b5da9ee33162",
       "monthly_sha256": "c650538e13440b81bdb348d76310a62b712355ca793c4100edd8f3f095218e37"
     },
     "amazon": {
-      "manifest_sha256": "ca9d2fef342903c0f836cfae373a8a48ac39a72d20501a20a4f5564bb662eafe",
+      "manifest_sha256": "647762508f94434076a0f1cc0929de1d2f32f212914a9f3921aefbc81c2bb8a9",
       "monthly_sha256": "880f4f7a674d590509efebcc97ae36e05d66f59e132236324aa0138c9bdd6672"
     },
     "cdnow": {
-      "manifest_sha256": "b44dee9f1c2210c1a16c44190b02c4b583d1491179e13eaba39ee84aacca0406",
+      "manifest_sha256": "1acc9ccba7590ed9d693b634bab419485a30368e523274e036297d58d5a5ccdd",
       "monthly_sha256": "c269c24c0a36b74621d8867943062ca815224a7d1e883a8aa74b1554338f39c8"
     }
   },

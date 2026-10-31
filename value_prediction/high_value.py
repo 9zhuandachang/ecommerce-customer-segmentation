@@ -164,29 +164,29 @@ def load_cohorts() -> pd.DataFrame:
 def report_text(monthly: pd.DataFrame, periods: pd.DataFrame,
                 decision: dict) -> str:
     lines = [
-        '# 未来 30 天高消费潜力名单：历史回放', '',
-        '固定使用既有 20 特征模型的排序，与过去 180 天消费额排序比较。'
-        '这是已查看月份的课程演示，**不是新独立测试，也不是个人消费额预测验收**。', '',
-        '## 同一批客户的 Top 20% 名单', '',
-        '| 月份 | 客户数 | 名额 | 模型覆盖 | 历史金额基线覆盖 | 提升 |',
+        '#Future 30 List of Sky-high Consumption Potential: Historical Replay', '',
+        'The ranking of the existing 20 feature model is fixed and compared with the ranking of consumption amount in the past 180 days.'
+        'This is a course demonstration for the month viewed, **not a new independent test, nor a personal spending forecast acceptance**.', '',
+        '## Top 20% list of the same batch of customers', '',
+        '| Month | Number of customers | Quota | Model coverage | Historical amount baseline coverage | Improvement |',
         '| --- | ---: | ---: | ---: | ---: | ---: |',
     ]
     for row in monthly.itertuples():
         lines.append(f'| {row.snapshot_date[:7]} | {row.customers:,} | '
                      f'{row.top20_count:,} | {row.model_capture:.2%} | '
-                     f'{row.baseline_capture:.2%} | {row.gain_pp:+.2f} 个百分点 |')
-    lines += ['', '| 期间 | 客户月 | 模型覆盖 | 基线覆盖 | 提升 | 不退步月份 |',
+                     f'{row.baseline_capture:.2%} | {row.gain_pp:+.2f} percentage points |')
+    lines += ['', '| Period | Customer Month | Model Coverage | Baseline Coverage | Improvement | No Regression Month |',
               '| --- | ---: | ---: | ---: | ---: | ---: |']
     for row in periods.itertuples():
         lines.append(f'| {row.period} | {row.customers:,} | '
                      f'{row.model_capture:.2%} | {row.baseline_capture:.2%} | '
-                     f'{row.gain_pp:+.2f} 个百分点 | {row.nonworse_months}/3 |')
-    lines += ['', f'**历史演示门槛：{"达到" if decision["historical_demo_allowed"] else "未达到"}。** '
-              '该门槛是在既有结果已被查看后制定，仅决定课程演示是否展示名单，'
-              '不表示统计显著、未来泛化或营销增量。', '',
-              '名单 CSV 只含当时可用的客户 ID、历史特征与排名；'
-              '未来实际消费额只保留在汇总评价中。金额数值预测仍未通过原强化验收。',
-              '比较月份并非线上触达试验，没有活动成本、对照组或真实 ROI。', '']
+                     f'{row.gain_pp:+.2f} percentage points | {row.nonworse_months} / 3 |')
+    lines += ['', f'**Historical demonstration threshold: {"reach" if decision["historical_demo_allowed"] else "Not reached"}.**'
+              'This threshold is established after the existing results have been viewed and only determines whether the course demonstration will show the list.'
+              'No representation is made of statistical significance, future generalization, or marketing increments.', '',
+              'List CSV only contains customer IDs, historical characteristics and rankings available at that time;'
+              'Actual future consumption will only be retained in the summary evaluation. The numerical prediction of the amount has not yet passed the original enhanced acceptance.',
+              'Comparison months are not an online reach trial and have no campaign costs, control groups, or true ROI.', '']
     return '\n'.join(lines)
 
 

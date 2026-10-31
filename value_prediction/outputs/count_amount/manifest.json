@@ -1,7 +1,7 @@
 {
   "status": "development_only_not_independent_acceptance",
-  "protocol_sha256": "e00a5744598b3fd0179f0590b99adf9074de49e2003238e77edbade19dadf21f",
-  "script_sha256": "a28edd4220107c917e907185fe4dc239e081feb4d0ac50e32c1e2462c7a98652",
+  "protocol_sha256": "3ef5ddcee862790d5f7aef291ebc0e18014c670fd9d524e1e48da9415ead1efe",
+  "script_sha256": "3fe38c2120baaefce6cc3e7658c55cca46935d16d5ddd3e85ad9e6bd3922d62a",
   "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
   "labels_sha256": "b7da0c476c6071649eb7d169428f974bd22bacd93ce8d077a6a7af1783427c71",
   "clean_sha256": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",

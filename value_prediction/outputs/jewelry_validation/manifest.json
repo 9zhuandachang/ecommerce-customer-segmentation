@@ -2,8 +2,8 @@
   "status": "locked_cross_shop_ecommerce_test_not_original_shop_acceptance",
   "source_url": "https://www.kaggle.com/api/v1/datasets/download/mkechinov/ecommerce-purchase-history-from-jewelry-store",
   "source_sha256": "43c1a4e0b2afed6873f5efe31c8327e3cdfed91dd357b9508ae2ae312c6f5079",
-  "protocol_sha256": "95d74df6b88498755a55419bf865824844d23d606054c504f8fb9b220e037cdd",
-  "script_sha256": "7b8e02371d41fb20216a5d1b1c5a84f4b3c381a7d2b447d299d65908fcc94c45",
+  "protocol_sha256": "a57db6c63fe720cb18c0a776f32593fce0bfa9919d5315dbd0a883a6cf0ce954",
+  "script_sha256": "c718f674a10607d997af22292ddabc89561558d4656c22bc4dc81701ba230215",
   "source_audit": {
     "source_rows": 95911,
     "eligible_rows": 90559,

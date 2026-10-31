@@ -252,7 +252,7 @@ class StageSixDashboardTests(unittest.TestCase):
             self.assertFalse(dashboard.error)
             text = ' '.join(str(element.value) for category in ('title', 'caption', 'subheader', 'info')
                             for element in getattr(dashboard, category))
-            for redundant in ('sha256', 'XGBoost', 'LightGBM', 'NDCG', 'ROC-AUC', 'Brier', '验证期', '复核', '模型版本'):
+            for redundant in ('sha256', 'XGBoost', 'LightGBM', 'NDCG', 'ROC-AUC', 'Brier', 'Validation period', 'Test-period review', 'model version'):
                 self.assertNotIn(redundant, text)
             rendered = [text] + [element.value for element in dashboard.markdown]
             rendered += [button.label for button in dashboard.button]
@@ -275,8 +275,8 @@ class StageSixDashboardTests(unittest.TestCase):
 
     def test_english_labels_preserve_existing_session_data_and_selections(self):
         from app.business_views import GROUP_NAMES
-        legacy_names = {1: '群 1｜较久未购', 2: '群 2｜近期高频',
-                        0: '群 3｜近期低客单', 3: '群 4｜近期高客单'}
+        legacy_names = {1: '\u7fa4 1\uff5c\u8f83\u4e45\u672a\u8d2d', 2: '\u7fa4 2\uff5c\u8fd1\u671f\u9ad8\u9891',
+                        0: '\u7fa4 3\uff5c\u8fd1\u671f\u4f4e\u5ba2\u5355', 3: '\u7fa4 4\uff5c\u8fd1\u671f\u9ad8\u5ba2\u5355'}
         legacy_customers = self.workspace['customers'].assign(
             segment_name=self.workspace['customers'].cluster.map(legacy_names))
         original = legacy_customers.copy(deep=True)
@@ -285,7 +285,7 @@ class StageSixDashboardTests(unittest.TestCase):
         dashboard.session_state['workspace_page'] = 'segments'
         dashboard.session_state['segment_group'] = legacy_names[1]
         dashboard.session_state['repurchase_group'] = legacy_names[3]
-        dashboard.session_state['recommendation_customer_sort'] = '近180天购买次数从高到低'
+        dashboard.session_state['recommendation_customer_sort'] = '\u8fd1180\u5929\u8d2d\u4e70\u6b21\u6570\u4ece\u9ad8\u5230\u4f4e'
         dashboard.session_state['recommendation_customer'] = '12348'
         dashboard.run()
         self.assertFalse(dashboard.exception)
@@ -309,9 +309,9 @@ class StageSixDashboardTests(unittest.TestCase):
         package = importlib.import_module('app')
         views = importlib.import_module('app.business_views')
         inference = importlib.import_module('app.upload_inference')
-        legacy_pages = {key: (f'旧页面{number}', icon)
+        legacy_pages = {key: (f'Old page {number}', icon)
                         for number, (key, (_, icon)) in enumerate(views.PAGES.items())}
-        legacy_groups = {cluster: f'旧群体{cluster}' for cluster in views.GROUP_NAMES}
+        legacy_groups = {cluster: f'Old group {cluster}' for cluster in views.GROUP_NAMES}
         orphaned = ModuleType('app.business_views')
         orphaned.UI_TEXT_VERSION = 'zh-legacy'
         orphaned.PAGES = legacy_pages
@@ -376,7 +376,7 @@ class StageSixDashboardTests(unittest.TestCase):
     def test_dashboard_high_value_only_exposes_actionable_customer_columns(self):
         from app.business_views import VALUE_COLUMNS
         dashboard = self.open_dashboard()
-        dashboard.session_state['value_scope'] = '全部客户'  # A previous session must also use the fixed Top20% scope.
+        dashboard.session_state['value_scope'] = 'All customers'  # A previous session must also use the fixed Top20% scope.
         self.open_business_page(dashboard, 'value')
         self.assertFalse(dashboard.exception)
         self.assertFalse(dashboard.error)
@@ -414,7 +414,7 @@ class StageSixDashboardTests(unittest.TestCase):
         shown = dashboard.dataframe[0].value
         self.assertEqual(len(shown), 10)
         self.assertEqual(shown['Product code'].nunique(), 10)
-        self.assertNotIn('排序分数', shown)
+        self.assertNotIn('Ranking score', shown)
         self.assertNotIn('Recommendation type', shown)
         self.assertEqual(len(dashboard.dataframe), 1)
         self.assertEqual([metric.label for metric in dashboard.metric],
@@ -482,7 +482,7 @@ class StageSixDashboardTests(unittest.TestCase):
         self.assertEqual(details.loc['Purchase history span', 'Value'], '0.0 days')
         self.assertEqual(len(dashboard.dataframe[0].value), 10)
         self.assertGreater(self.workspace['unknown_products'], 0)
-        self.assertFalse(any('推荐名单仅覆盖已知商品' in caption.value for caption in dashboard.caption))
+        self.assertFalse(any('The recommended list only covers known products' in caption.value for caption in dashboard.caption))
         two_orders = profiles.loc[profiles.order_count.eq(2) & profiles.historical_repeat_share.eq(0)].index[0]
         next(widget for widget in dashboard.selectbox if widget.label == 'Customer ID').set_value(two_orders).run()
         self.assertFalse(dashboard.exception)
@@ -503,7 +503,7 @@ class StageSixDashboardTests(unittest.TestCase):
 
     def test_business_exports_strip_research_metadata_and_future_answers(self):
         from app.business_views import customer_table, value_table, product_table, business_export
-        customer = pd.DataFrame({'rank': [1], 'CustomerID': ['a'], 'segment_name': ['群A'], 'repurchase_score': [.7],
+        customer = pd.DataFrame({'rank': [1], 'CustomerID': ['a'], 'segment_name': ['Group A'], 'repurchase_score': [.7],
                                  'recency_days': [5], 'frequency': [3], 'monetary': [120.], 'aov': [40.],
                                  'repurchase_30d': [1], 'model_version': ['SECRET']})
         out = business_export(customer_table(customer), '2011-09-01')
@@ -517,7 +517,7 @@ class StageSixDashboardTests(unittest.TestCase):
         value = business_export(value_table(priority), '2011-09-01')
         self.assertEqual(value['Potential rank'].tolist(), [2])
         self.assertFalse({'baseline_rank', 'ranking_method', 'spend_30d', 'priority_band', 'Attention level'} & set(value))
-        self.assertNotIn('Attention level', business_export(value.assign(**{'Attention level': '旧字段'}), '2011-09-01'))
+        self.assertNotIn('Attention level', business_export(value.assign(**{'Attention level': 'old field'}), '2011-09-01'))
         products = pd.DataFrame({'rank': [1], 'stock_code': ['sku'], 'description': ['cup'],
                                  'purchased_in_past_180d': [True], 'purchase_count_180d': [2],
                                  'days_since_item_purchase': [5.], 'recommendation_method': ['D_classifier'],
@@ -529,7 +529,7 @@ class StageSixDashboardTests(unittest.TestCase):
         self.assertEqual(exported['Purchases (180d)'].iloc[0], 2)
         self.assertFalse({'ranking_score', 'target_items', 'recommendation_method', 'Recommendation reason', 'Recommendation type',
                           'recommendation_kind'} & set(exported))
-        stale = exported.assign(**{'Recommendation reason': '旧字段', 'Recommendation type': '再次购买'})
+        stale = exported.assign(**{'Recommendation reason': 'old field', 'Recommendation type': 'buy again'})
         self.assertFalse({'Recommendation reason', 'Recommendation type'} & set(business_export(stale, '2011-09-01')))
 
 
@@ -927,6 +927,31 @@ class StageSixTests(unittest.TestCase):
             'mean_ap': .60, 'mean_precision_at_20pct': .644}), incumbent))
 
 
+
+
+class EnglishRepositoryTests(unittest.TestCase):
+    def test_public_documentation_and_source_text_are_english(self):
+        import re
+        paths = [ROOT / 'README.md', *sorted((ROOT / 'docs').glob('*.md')),
+                 ROOT / 'docs/project_learning_guide.html']
+        paths += [path for directory in ('app', 'src', 'stage4', 'stage5', 'stage6',
+                                         'recommendation', 'value_prediction', 'tests')
+                  for path in (ROOT / directory).rglob('*.py')]
+        for path in paths:
+            with self.subTest(path=str(path.relative_to(ROOT))):
+                self.assertIsNone(re.search(r'[\u3400-\u9fff]', path.read_text(encoding='utf-8-sig')))
+                self.assertIsNone(re.search(r'[\u3400-\u9fff]', path.name))
+
+    def test_public_markdown_local_links_resolve(self):
+        import re
+        from urllib.parse import unquote, urlsplit
+        for path in [ROOT / 'README.md', *sorted((ROOT / 'docs').glob('*.md'))]:
+            for target in re.findall(r'\]\(([^)]+)\)', path.read_text(encoding='utf-8-sig')):
+                if urlsplit(target).scheme or target.startswith('#'):
+                    continue
+                local = (path.parent / unquote(target.split('#', 1)[0])).resolve()
+                with self.subTest(document=path.name, target=target):
+                    self.assertTrue(local.exists())
 
 if __name__ == '__main__':
     unittest.main()

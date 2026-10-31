@@ -397,13 +397,13 @@ def main() -> None:
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 
     lines = [
-        '# 阶段五：复购模型重新对比', '',
-        '本实验在同一批客户月快照上比较四种模型、三组特征。训练期为 2010-06 至 2011-05，'
-        '正式验证期为 2011-06 至 2011-08；测试标签未参与本实验。',
-        '此前项目已查看过这批历史数据，因此结果属于回顾性比较，不是新的独立验证。', '',
-        '选择规则：先在训练期三个向前月份为每个组合选复杂度，再按正式验证期 AP 选模型；'
-        '候选的向前平均 AP 和验证期 Top 20% 精确率不能低于基础八项 LR。', '',
-        '| 特征组 | 模型 | 参数 | 向前平均 AP | 验证 AP | Top 20% 精确率 | ROC-AUC | Brier | 入选条件 | 最终选择 |',
+        '# Stage 5: Re-comparison of repurchase models', '',
+        'This experiment compares four models and three sets of features on the same batch of customer monthly snapshots. The training period is 2010 - 06 to 2011 - 05,'
+        'The formal verification period is 2011 - 06 to 2011 - 08; the test tags did not participate in this experiment.',
+        'The project has looked at this historical data before, so the results are a retrospective comparison and not a new independent verification.', '',
+        'Selection rules: First select the complexity for each combination in the three forward months of the training period, and then select the model according to the formal verification period AP;'
+        'The candidate\'s forward average AP and validation period Top 20% accuracy cannot be lower than the basic eight items LR.', '',
+        '| Feature group | Model | Parameters | Forward average AP | Validation AP | Top 20% accuracy | ROC-AUC | Brier | Selection criteria | Final selection |',
         '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |',
     ]
     for row in comparison.itertuples():
@@ -411,15 +411,15 @@ def main() -> None:
             f'| {row.feature_set} | {row.model} | {row.complexity:g} | '
             f'{row.mean_fold_ap:.4f} | {row.ap:.4f} | '
             f'{row.precision_at_20pct:.4f} | {row.roc_auc:.4f} | '
-            f'{row.brier:.4f} | {"是" if row.eligible else "否"} | '
-            f'{"是" if row.selected else "否"} |')
+            f'{row.brier:.4f} | {"Yes" if row.eligible else "No"} |'
+            f'{"Yes" if row.selected else "No"} |')
     lines += [
-        '', f'**选定：{winner.feature_set} / {winner.model}，复杂度参数 {winner.complexity:g}。**',
-        '入选模型完整参数：`' + json.dumps(selected_parameters, ensure_ascii=False) + '`。',
-        f'验证 AP={winner.ap:.4f}，Top 20% 精确率={winner.precision_at_20pct:.4f}；'
-        f'验证期平均评分={winner.mean_score:.4f}，实际复购率={winner.observed_rate:.4f}。',
-        '', '事后按客户成组重抽样检查 AP 差值（不参与选模）：',
-        '| 对比对象 | 观察到的 AP 差 | 95% 重抽样区间 |',
+        '', f'**Selected: {winner.feature_set} / {winner.model}, complexity parameter {winner.complexity:g}.**',
+        'Complete parameters of the selected model: `' + json.dumps(selected_parameters, ensure_ascii=False) + '`。',
+        f'Verify AP = {winner.ap:.4f}, Top 20% accuracy = {winner.precision_at_20pct:.4f};'
+        f'The average rating during the verification period = {winner.mean_score:.4f}, and the actual repurchase rate = {winner.observed_rate:.4f}.',
+        '', 'Afterwards, re-sample and check the AP difference according to customer groups (not involved in model selection):',
+        '| Comparison object | Observed AP difference | 95% resampling interval |',
         '| --- | ---: | ---: |',
     ]
     for row in uncertainty.itertuples():
@@ -427,12 +427,12 @@ def main() -> None:
                      f'{row.observed_ap_delta:+.4f} | '
                      f'[{row.bootstrap_low_2_5:+.4f}, {row.bootstrap_high_97_5:+.4f}] |')
     lines += [
-        '该区间只反映这些验证客户的重抽样波动；模型是在同一验证期选出的，'
-        '且只有三个月，因此它不是未来表现的置信保证。',
-        '', '逐月结果见 `monthly_validation.csv`；每轮向前结果见 `forward_folds.csv`；'
-        '所有验证评分见 `validation_predictions.csv`。入选模型仅用训练期拟合，'
-        '保存为 `selected_model.joblib`。此实验尚未替换阶段六或仪表板模型。',
-        '', '只凭这些历史指标，不能推断真实营销增量或未来新数据表现。',
+        'This interval reflects only the resampling fluctuations of these validation customers; the model was selected during the same validation period,'
+        'and is only for three months, so it is not a confident guarantee of future performance.',
+        '', 'The monthly results are shown in `monthly_validation.csv`; the forward results in each round are shown in `forward_folds.csv`;'
+        'See `validation_predictions.csv` for all validation scores. The selected model is only fit in the training period,'
+        'Save as `selected_model.joblib`. This experiment has not yet replaced the Stage Six or Dashboard models.',
+        '', 'It is impossible to infer true marketing increments or future new data performance based on these historical indicators alone.',
     ]
     (OUTPUT / 'report.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
     print(f'Selected: {winner.feature_set} / {winner.model} / {winner.complexity:g}', flush=True)

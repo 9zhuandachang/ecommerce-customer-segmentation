@@ -1,52 +1,52 @@
-# 商品级推荐：四组特征 × 三类模型，v3事先方案
+# Product-level recommendation: four sets of features × three types of models, v 3 advance plan
 
-在本轮商品级标签矩阵、模型及新指标生成前固定本方案。v1和profile_v2完整保留；验证期曾被用于旧方案研究，9–11月商品答案也已查看。本轮1–5月向前开发、6–8月验证选型、9–11月固定复核，不声称恢复新的独立测试，不根据复核改变配置。其他三个项目目标不变。
+This solution is fixed before the current round of product-level label matrix, model and new indicator generation. v 1 and profile_v 2 are retained intact; the validation period was used for old scheme research, and the September-Novemberly product answers have also been viewed. This round of 1 – 5 will be developed monthly, 6 – 8 will be verified and selected monthly, and 9 – 11 will be reviewed monthly. It does not claim to resume new independent testing, and does not change the configuration based on the review. The goals of the other three projects remain unchanged.
 
-## 任务、候选与标签
+## Tasks, candidates and labels
 
-沿用每月1日、原合格客户、此前180天交易、每人10件、随后30天内第一购买时刻的去重商品答案。同一时刻的多张发票合并。训练只使用确有下一单且 `snapshot_date+30天 <= fit_cutoff` 的成熟记录；0表示该商品未在这次下一单出现，不表示不喜欢。推理为所有合格客户生成名单。候选为阶段拟合时点之前180天出现的全部商品，阶段内目录冻结；未知答案商品保留评价分母，不能按答案加入目录。
+Use the deduplicated product answer on the 1 day of each month, the original qualified customer, the previous 180 days of transactions, 10 items per person, and the first purchase moment in the following 30 days. Merge multiple invoices at the same time. The training only uses mature records with `snapshot_date+30day <= fit_cutoff` that have placed an order; 0 means that the product does not appear in the next order, and does not mean that you don't like it. Inference generates a list of all qualified customers. Candidates are all products that appeared 180 days before the stage fitting time point, and the catalog in the stage is frozen; products with unknown answers retain the evaluation denominator and cannot be added to the catalog based on the answer.
 
-## 四组特征
+## Four groups of features
 
-- A基础：是否买过、不同发票购买次数180/90/30天（log1p）、距该商品最近/首次可见购买天数、平均购买间隔及是否有两次购买、间隔到期比、个人订单含该商品比例；商品30/180天购买热度（log1p）、热度变化、购买客户数（log1p）、180天内可见天数。数量/金额不作为互动强度，不使用客户ID或商品ID作为输入，不假设商品类别或真实上市日期。
-- B：A + 已实现的10项历史画像 + 画像与“买过/次数/商品热度”的6项交互。历史不足保留缺失。画像对同一客户各商品相同，交互使线性模型也能检验其排序作用。
-- C：A + EASE逐客户归一化得分（除以候选内绝对最大值）及无可用信号标志；不把三个算法全部加入，也不重复加入排名。
-- D：A + B画像和交互 + C信号 + 重复比例×EASE得分交互。
+- A basis: whether it has been purchased before, the number of 180 / 90 / 30 purchases in different invoice days (log 1 p), the number of days since the latest/first visible purchase of the product, the average purchase interval and whether there are two purchases, the interval expiry ratio, the proportion of personal orders containing the product; the purchase popularity of the product 30 / 180 days (log 1 p), change in popularity, number of purchasing customers (log 1 p), number of visible days within 180. Quantity/amount is not used as interaction intensity, customer ID or item ID is not used as input, and item category or true launch date is not assumed.
+- B: A + realized 10 item historical profile + profile interacts with the 6 item of "purchased/number of times/product popularity". The history is insufficient and the preservation is missing. The profile is the same for each product of the same customer, and the interaction enables the linear model to test its ranking effect.
+- C: A + EASE customer-by-customer normalized score (divided by the absolute maximum value within the candidate) and no available signal flag; do not add all three algorithms, and do not add the ranking repeatedly.
+- D: A + B profile and interaction + C signal + repeat ratio × EASE score interaction.
 
-所有特征仅来自截点前交易。客户历史及可观察商品统计按月更新，全局商品关系阶段内固定。未买商品次数为0，时间以180天截断值配合买过标志表示。少于两次购买的间隔缺失用截断值并保留标志；画像缺失只在训练资料拟合中位数填补。
+All features are from pre-cutoff trades only. Customer history and observable product statistics are updated monthly, and the global product relationship stage is fixed. The number of unpurchased items is 0, and the time is represented by the 180 day cutoff value and the purchased mark. Missing intervals of less than two purchases are cut off and flags are retained; missing images are only filled in by fitting the median to the training data.
 
-## 历史EASE信号与采样
+## History EASE signal and sampling
 
-从2010-06开始，按月只使用当时之前180天交易拟合EASE。正则候选10/30/100/300/1000/3000/10000/30000；每个月的正则只根据更早、30天标签已成熟月份的EASE平均NDCG选定，无更早结果时选最大正则。当前月答案只能在其标签成熟后影响后续月份的参数选择，不影响本月输入。
+Starting from 2010 - 06, fit EASE on a monthly basis using only transactions 180 days before that time. Regular candidates 10 / 30 / 100 / 300 / 1000 / 3000 / 10000 / 30000; the regular candidates for each month are only based on the EASE average NDCG of the earlier, 30 day-tagged month with fully observed labels. Selected, select the maximum regularity when there is no earlier result. The current month's answer can only affect the parameter selection of subsequent months after its label matures, and does not affect this month's input.
 
-6–8月EASE在6月1日前拟合、阶段内冻结；9–11月在9月1日前拟合并冻结。对历史训练输入、验证、复核分别保存拟合边界、正则选择及哈希。
+June-August EASE are fitted and frozen within the stage before June 1; September-November are fitted and frozen before September 1. Save fitting boundaries, regular selections and hashes for historical training input, verification and review respectively.
 
-训练保留所有候选内正例，每个客户月抽 `min(120,max(50,5*正例数))` 个负例（不足则全取）：一半为EASE、个人购买次数、热门排序交替产生的难负例，另一半从其余负例均匀无放回抽样，固定种子42并按年月和客户确定。四组、三模型使用完全相同的样本，不因模型删困难客户。全为未知正例的客户月无法形成有正例的训练组，单独记录并仍保留在全部评价中。抽样分数不解释为校准购买概率。
+Training retains all candidate positive examples, and samples `min(120,max(50,5*Number of positive examples))` negative examples per customer per month (all are taken if insufficient): half are hard negative examples generated alternately by EASE, personal purchase times, and popular rankings, and the other half are uniformly sampled from the remaining negative examples without replacement, with a fixed seed of 42 and determined by year, month and customer. The four groups and three models use exactly the same samples, and no difficult customers will be deleted due to the model. Customer months that are all unknown positive examples cannot form a training group with positive examples, and are recorded separately and remain in all evaluations. Sampling scores are not interpreted as calibrated purchase probabilities.
 
-评价与推理始终打分完整候选目录，不采样负例，不根据真实答案预筛候选；分批计算得到精确Top10。打分统一保留12位小数以消除批次浮点尾差，同分按冻结目录的热门程度和商品编码。训练样本、分组与采样审计作为正式可复现产物保存。
+Evaluation and reasoning always score the complete candidate list, do not sample negative examples, and do not pre-screen candidates based on real answers; the accurate Top 10 is calculated in batches. The scoring is uniformly retained with 12 decimal places to eliminate the floating point difference in the batch. The same score is based on the popularity of the frozen catalog and the product code. Training samples, grouping and sampling audits are saved as formal reproducible products.
 
-## 三类模型、预算与参数选择
+## Three types of models, budget and parameter selection
 
-- LR：训练中位数填补、标准化、L2逻辑回归，C=0.01/0.1/1/10，共4组，LBFGS最多300次；每个客户月总样本权重相同，不另外设置类别权重。
-- LightGBM分类：叶数7/15 × 树数60/120，共4组，binary目标、学习率0.05、最小叶样本100、L2=5、种子42、4线程、确定性；同客户月等权。
-- LightGBM排序：同4组树配置、lambdarank、0/1相关性、label_gain=[0,1]、截断层15、查询为客户月、lambdarank_norm开启；不使用验证期早停。
+- LR: Training median filling, standardization, L 2 logistic regression, C= 0.01 / 0.1 / 1 / 10, a total of 4 groups, LBFGS at most 300 times; the total sample weight of each customer per month is the same, and no additional category weights are set.
+- LightGBM classification: number of leaves 7 / 15 × number of trees 60 / 120, total 4 group, binary target, learning rate 0.05, minimum leaf sample 100, L 2 = 5, seed 42, 4 thread, certainty; same customer monthly equal rights.
+- LightGBM sorting: Same as 4 group tree configuration, lambdarank, 0 / 1 correlation, label_gain=[ 0,1 ], truncation layer 15, query for customer month, lambdarank_norm on; do not use validation period early stop.
 
-每类模型、每组特征跑4个配置及1–5月五个完整目录向前折。为隔离画像/信号作用，同类模型最终使用一套共同参数：按四组特征、五个月等权平均NDCG选定，精确同分选更强正则/更少叶子和树。共12个入围版本，同类的四组严格同参数、同训练资料和预处理边界。报告预算相同但不宣称算力相同。
+Each type of model and each set of features run 4 configurations and 1 – 5 five complete catalogs are folded forward. In order to isolate the role of profile/signal, similar models finally use a common set of parameters: selected according to four groups of features, five-month equally weighted average NDCG, and precise same sorting with stronger regularity/fewer leaves and trees. There are 12 shortlisted versions in total, and the four groups of the same type strictly have the same parameters, training data and preprocessing boundaries. Report the same budget but do not claim the same computing power.
 
-## 旧对照、验收及归因
+## Old comparison, acceptance and attribution
 
-保留原纯补货、纯EASE和profile_v2最强画像混合（EASE）；直接加载旧冻结模型，候选与客户相同。旧固定混合权重1，与纯补货相同，不重复计一个不同方法。
+Keep the original pure replenishment, pure EASE and profile_v 2 strongest profile mixture ( EASE ); directly load the old frozen model, the candidate is the same as the customer. Old fixed mix weight 1, same as pure replenishment, without double counting a different method.
 
-验证选型：按NDCG对12个新版本排序，与当前默认纯补货比较。替换门槛：月均NDCG至少+0.01、Recall至少+0.01、未买商品Recall至少+0.01，至少2/3月NDCG不退步；多个满足时选最高NDCG，同分先更少特征、更简单模型。若都未满足，保留原默认并报告差距，不制造通过。
+Verify selection: Sort 12 new versions by NDCG, compared to the current default pure replenishment. Replacement threshold: monthly average NDCG at least + 0.01, Recall at least + 0.01, unbought items Recall at least + 0.01, at least 2 / 3 monthly NDCG without regression; when multiple are satisfied, choose the highest NDCG, with the same score, we first have fewer features and a simpler model. If neither is satisfied, the original default will be retained and the gap will be reported without passing.
 
-画像归因：同模型同参数比较B-A、D-C；信号归因比较C-A、D-B，全部报告，不能只展示有利组合。所选B/D要声称画像有额外价值，需相应对照NDCG至少+0.002、2/3月不退步、Recall下降不超过0.005；否则区分“新商品级打分有效”与“画像有效”。对最佳新方案减纯补货及其有/无画像对照做500次客户成组配对抽样，作为多次选型后的内部诊断，不作新独立显著性证明。
+Profile attribution: compare B-A, D-C with the same model and parameters; compare C-A, D-B with signal attribution, report all, don't just show the favorable combinations. The selected B/D should claim that the profile has extra value, and it needs to be compared accordingly. NDCG should be at least + 0.002, 2 / 3 should not decline every month, and Recall should not drop more than 0.005; otherwise, distinguish between "new product-level scoring is valid" and "image is valid". We will do 500 customer group paired sampling for the pure reduction replenishment of the best new solution and its comparison with/without profiles, as an internal diagnosis after multiple selections, and no new independent significance proof will be made.
 
-逐月报告NDCG/Recall/Hit/Precision@10、@5、未买/已买Recall、覆盖率、候选外答案比例、不同画像组。用验证冻结选择和最终模型后，才计算本轮9–11月商品级推荐复核；旧期答案已查看，不据此调整门槛、参数、特征或默认。
+Monthly reports on NDCG / Recall /Hit/Precision@ 10, @ 5, unbought/bought Recall, coverage rate, proportion of answers outside candidates, and different profile groups. This round of September-Novemberly product-level recommendation review will be calculated only after the verification freeze selection and final model are used; the old answers have been viewed, and the thresholds, parameters, features or defaults will not be adjusted accordingly.
 
-## 交付与验证
+## Delivery and Verification
 
-输出到`recommendation/outputs/item_v3/`：锁定方案与选择、历史样本/采样及成熟标签审计、EASE时间审计、240次开发模型结果、12版本验证/复核及旧对照、同参数归因、模型包、15种安全推荐列表、报告和案例。重复运行核对完整产物；方法变化另建版本。
+Output to `recommendation/outputs/item_v3/`: locking scheme and selection, historical sample/sampling and mature label audit, EASE time audit, 240 secondary development model results, 12 version verification/review and old control, same parameter attribution, model package, 15 security recommendation list, reports and cases. Repeat the run to check the complete product; create another version if the method changes.
 
-页面并列呈现画像及具体商品的已购次数、最近购买时间、推荐优先级和来源，可切换12版本及旧对照、导出10件名单。分数不是校准概率，不展示未来订单或个人命中答案。扩展现有测试模块，核对特征公式/缺失/未来隔离、EASE选择成熟边界、负例采样、相同样本/参数、完整目录打分与分批一致、标签与分母、选择忽略复核、模型及全部列表复现、页面/导出；不向仓库加入临时验证脚本。
+The page displays the profile and the number of purchases, recent purchase time, recommendation priority and source of specific products side by side. You can switch the 12 version and old comparison, and export the 10 item list. Scores are not calibrated probabilities and do not demonstrate future orders or individual hit answers. Expand the existing test module to check feature formula/missing/future isolation, EASE selection mature boundary, negative sample sampling, same sample/parameter, complete directory scoring consistent with batching, label and denominator, selection to ignore review, model and full list recurrence, page/export; do not add temporary verification scripts to the warehouse.
 
-参考：[LightGBM排序](https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.LGBMRanker.html)、[参数](https://lightgbm.readthedocs.io/en/stable/Parameters.html)、[逻辑回归](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)。
+Reference: [LightGBM sorting](https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.LGBMRanker.html), [parameter](https://lightgbm.readthedocs.io/en/stable/Parameters.html), [logistic regression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html).

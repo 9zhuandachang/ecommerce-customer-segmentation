@@ -150,30 +150,30 @@ def main() -> None:
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n',
         encoding='utf-8')
     names = {
-        'prior_year_tweedie_mae_reduction': '去年同期直接模型整体 MAE 降幅',
-        'prior_year_tweedie_top20_gain_pp': '去年同期直接模型 Top20 覆盖提升（百分点）',
-        'buyer_lag_two_stage_mae_reduction': '购买者滞后校准两阶段模型整体 MAE 降幅',
-        'buyer_lag_two_stage_top20_gain_pp': '购买者滞后校准两阶段模型 Top20 覆盖提升（百分点）',
+        'prior_year_tweedie_mae_reduction': 'The overall direct model decrease in the same period last year was MAE.',
+        'prior_year_tweedie_top20_gain_pp': 'Direct model Top 20 coverage improvement in the same period last year (percentage points)',
+        'buyer_lag_two_stage_mae_reduction': 'Buyer lag calibrated two-stage model overall MAE decline',
+        'buyer_lag_two_stage_top20_gain_pp': 'Buyer lag calibrated two-stage model Top 20 Coverage improvement (percentage points)',
         'prior_year_conditional_median_buyer_mae_reduction':
-            '去年同期条件中位数对历史订单均价的购买者 MAE 降幅',
+            'The median conditional price during the same period last year decreased by MAE for buyers of the historical order average price.',
     }
     lines = [
-        '# 开发确认期客户成组不确定性', '',
-        f'2011 年 6–8 月共有 {len(data):,} 条客户月快照、'
-        f'{details["customer_clusters"]:,} 名客户。按客户重抽样 {RESAMPLES} 次，'
-        f'随机种子 {SEED}，所有方法共享每次抽到的客户。',
-        '这是固定三个月内的客户抽样区间，不包含未来月份变化，也不是新的独立测试。',
-        '', '| 比较 | 点估计 | 95% 客户抽样区间 |',
+        '# Development of customer group uncertainty during the confirmation period', '',
+        f'There are {len(data):,} customer monthly snapshots in 2011 year 6 – 8 month,'
+        f'{details["customer_clusters"]:,} customers. Resample {RESAMPLES} times by customer,'
+        f'Random seed {SEED}, all methods share the customers drawn each time.',
+        'This is a sample of customers over a fixed three-month period and does not include changes in future months and is not a new independent test.',
+        '', '| Comparison | Point estimate | 95% customer sampling interval |',
         '| --- | ---: | ---: |',
     ]
     for row in intervals.itertuples(index=False):
-        suffix = ' 个百分点' if row.metric.endswith('_pp') else '%'
-        scale = 1 if suffix.startswith(' 个') else 100
+        suffix = 'percentage points' if row.metric.endswith('_pp') else '%'
+        scale = 1 if suffix.startswith('a') else 100
         lines.append(f'| {names[row.metric]} | {row.point * scale:+.2f}{suffix} | '
                      f'[{row.lower_95 * scale:+.2f}{suffix}, '
                      f'{row.upper_95 * scale:+.2f}{suffix}] |')
-    lines += ['', '区间只检查这些已查看月份里，客户构成变化会让结论波动多少。'
-              '即使整个区间高于零，也不能证明新月份或另一家商家会达到原挑战标准。', '']
+    lines += ['', 'The interval only checks how much changes in customer composition will fluctuate the conclusion in these viewed months.'
+              'Even if the entire range is above zero, that does not prove that a new month or another merchant will meet the original challenge criteria.', '']
     (OUTPUT / 'report.md').write_text('\n'.join(lines), encoding='utf-8')
     print(f'wrote development uncertainty report to {OUTPUT}', flush=True)
 

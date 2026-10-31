@@ -1,6 +1,6 @@
 {
   "selected_method": "personal_repeat",
-  "selected_name": "个人重复购买",
+  "selected_name": "Personal repeat purchase",
   "best_rule": "personal_repeat",
   "best_learner": "ease",
   "mean_validation_ndcg_gain": -0.044688803180251035,
@@ -66,7 +66,7 @@
     "method": "personal_repeat",
     "half_life": null
   },
-  "plan_sha256": "0fb176490435cb1f6a127aa47e80b2e26bbca34ec4c6377aed6ec607d3055e53",
+  "plan_sha256": "8b78c95fa3e385b9db7b71ddc6464ef38e4a4f8355a236d6b430a70efdbcb845",
   "model_sha256": "64c4b15cfa60f6d04f3d5d73d31841bb54d361dd56ba00ded3703d53733f6534",
   "training_audit": [
     {

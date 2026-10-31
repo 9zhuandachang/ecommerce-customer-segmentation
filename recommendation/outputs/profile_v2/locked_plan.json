@@ -6,16 +6,16 @@
     "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
   },
   "code_hashes": {
-    "profiles.py": "facf963e09f80d64422915597f8a3fa4667b5174795249a6a4a4eed0c92ea0b5",
-    "hybrid.py": "eeee5c56098c987ad57716fe4a9e1bbaa311d08f0dbe403f644ed35345292bcf",
-    "profile_experiment.py": "9c7f8ab01a7b3fdae280c8bfb00569734b8c30b5d851b462e101803f58f32747",
-    "profile_protocol.md": "d5eb2652dbfe9c7f3c3646144c9225e6cee67e65816aa6e161cd2ebe4bb07476",
+    "profiles.py": "322ed4c02fcaf73a95c6cc3e1a2cb9d2df918d8f4555a78960356f008c754b4d",
+    "hybrid.py": "9e7d6017a8455c80acd6a21a9473ebbe4988b09963bb7a8c5de1812e176eda52",
+    "profile_experiment.py": "e344f8ce7f583b2c8470513b7b609deb6a6d081adf26776b5c02543c982c7be7",
+    "profile_protocol.md": "1b790609caca9c480aaaa54125d5fa3e91c900247e9daa017f31c9763b8d1eb8",
     "data.py": "d959a9249e6e379672cdb4471e2f1836f24e0a309631c034e02fa91381e24966",
-    "models.py": "784416c7c3fe9d01e6ee98ad81048c41c39f017e3b194749b321ba5119ea6573",
+    "models.py": "2931a2e1e9f9627e3fa1d27d51f8009eb7dd8faf6ba259bad30fe5da97a7af76",
     "metrics.py": "e80d61f13f70be1b9c165b67a8a32bfcca61fcb7da5f53818eb2a23d46e13154",
-    "experiment.py": "32abcda4cbb5ad8c71ad57ebed91600d4be2b0f586970a41ab9675b4ff85f17d"
+    "experiment.py": "69514f65b6b556b074bc3d9253a9401d5040b8202092838757898c1cb7101ffe"
   },
-  "protocol_sha256": "d5eb2652dbfe9c7f3c3646144c9225e6cee67e65816aa6e161cd2ebe4bb07476",
+  "protocol_sha256": "1b790609caca9c480aaaa54125d5fa3e91c900247e9daa017f31c9763b8d1eb8",
   "base_specs": {
     "popular": {
       "id": "popular_30",
@@ -1055,7 +1055,7 @@
       "strength": 2.0
     }
   ],
-  "v1_manifest_sha256": "1bfa0b868f63b19106897eb5ffcf07dc89bae157d2dcb42721b9cda7625ed241",
+  "v1_manifest_sha256": "5515fdb2ea1bfd8f03bd5c401f1f9e0fd589060f4ec72374e0af4157d896d9f1",
   "versions": {
     "python": "3.11.9",
     "numpy": "2.4.6",

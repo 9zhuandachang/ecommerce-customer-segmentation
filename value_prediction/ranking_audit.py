@@ -218,17 +218,17 @@ def segment_metrics(wide: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
 def make_report(wide: pd.DataFrame, stability: pd.DataFrame,
                 pooled: pd.DataFrame) -> str:
     lines = [
-        '# 高价值客户名单稳定性与历史活跃度误差审计', '',
-        '规则事先记录于 `ranking_audit_protocol.md`。这是已查看月份的诊断，非新的独立验收；不重新训练或选择模型。',
-        f'共 {len(wide):,} 条独立客户月快照，期间 2011-01 至 2011-11。', '',
-        '## 相邻月共同客户的 Top20 名单', '',
-        '| 新月份期间 | 方法 | 月对 | 共同客户数范围 | 名单留存均值 | Jaccard 均值 | 新月名单消费覆盖均值 | 上月排名名单在新月的消费覆盖均值 |',
+        '# High-value customer list stability and historical activity error audit', '',
+        'The rules are recorded in `ranking_audit_protocol.md` in advance. This is a diagnostic for the month viewed, not a new independent acceptance; no model retraining or selection is required.',
+        f'A total of {len(wide):,} unique customer monthly snapshots, ranging from 2011 - 01 to 2011 - 11.', '',
+        '## Top 20 list of mutual customers in adjacent months', '',
+        '| New Month Period | Method | Month Pairs | Range of Common Customers | List Retention Mean | Jaccard Mean | New Month List Spending Coverage Mean | Last Month\'s Ranked List Spending Coverage Mean in New Month |',
         '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |',
     ]
     for (period, method), rows in stability.groupby(['period', 'method'], sort=False):
         ok = rows.loc[rows.status.eq('ok')]
         if ok.empty:
-            lines.append(f'| {period} | {method} | 0 | 样本不足 | — | — | — | — |')
+            lines.append(f'| {period} | {method} | 0 | Insufficient samples | — | — | — | — |')
             continue
         lines.append(
             f'| {period} | {method} | {len(ok)} | '
@@ -236,10 +236,10 @@ def make_report(wide: pd.DataFrame, stability: pd.DataFrame,
             f'{ok.retention.mean():.2%} | {ok.jaccard.mean():.2%} | '
             f'{ok.current_list_capture.mean():.2%} | '
             f'{ok.previous_rank_capture.mean():.2%} |')
-    lines += ['', '月对逐项数据见 `list_stability.csv`。共同客户名单是控制客户流入流出的诊断口径；'
-              '上月排名也在事后限定的共同客户内重排，不是线上旧名单回放。', '',
-              '## 快照时已知的最近购买间隔', '',
-              '| 期间 | 最近购买间隔 | 客户月 | 未来购买快照 | 20 特征模型 MAE 相对基线 | 去年同期模型 MAE 相对基线 | 20 特征模型购买者 MAE 相对基线 |',
+    lines += ['', 'For monthly data, see `list_stability.csv`. The common customer list is a diagnostic tool for controlling the inflow and outflow of customers;'
+              'Last month\'s rankings are also rearranged within joint customers that are limited in advance, and are not an online replay of the old list.', '',
+              '## The most recent purchase interval known at the time of snapshot', '',
+              '| Period | Recent Purchase Interval | Customer Months | Future Purchase Snapshot | 20 Feature Model MAE Relative Baseline | Year-ago Model MAE Relative Baseline | 20 Feature Model Buyers MAE Relative Baseline |',
               '| --- | --- | ---: | ---: | ---: | ---: | ---: |']
     for (period, group), rows in pooled.groupby(['period', 'recency_group'],
                                                 sort=False):
@@ -248,17 +248,17 @@ def make_report(wide: pd.DataFrame, stability: pd.DataFrame,
         direct = by_method.loc['extended_tweedie']
         seasonal = by_method.loc['extended_tweedie_previous_year']
         if not bool(base.interpretation_eligible):
-            values = ('样本不足', '样本不足', '样本不足')
+            values = ('Insufficient sample', 'Insufficient sample', 'Insufficient sample')
         else:
             values = (f'{(1 - direct.mae / base.mae):+.2%}',
                       f'{(1 - seasonal.mae / base.mae):+.2%}',
                       f'{(1 - direct.positive_mae / base.positive_mae):+.2%}')
-        lines.append(f'| {period} | {group} 天 | {int(base.snapshot_count):,} | '
+        lines.append(f'| {period} | {group} days | {int(base.snapshot_count):,} |'
                      f'{int(base.buyer_count):,} | {values[0]} | {values[1]} | '
                      f'{values[2]} |')
-    lines += ['', '正值表示误差降低，负值表示误差增加。完整的 MAE、购买者 MAE、组内按月 Top20 覆盖和预测总额偏差见 '
-              '`recency_period_metrics.csv` 与 `recency_monthly_metrics.csv`。', '',
-              '稳定性、分组优势和名单消费覆盖均不证明个人金额准确，也不替代原商家未来新月份的多指标验收。', '']
+    lines += ['', 'Positive values indicate a decrease in error, and negative values indicate an increase in error. For complete MAE, buyer MAE, group by month Top 20 coverage and forecast total deviation, see'
+              '`recency_period_metrics.csv` and `recency_monthly_metrics.csv`.', '',
+              'Stability, grouping advantages and list consumption coverage do not prove the accuracy of individual amounts, nor do they replace the original merchant\'s multi-index acceptance in new months in the future.', '']
     return '\n'.join(lines)
 
 
