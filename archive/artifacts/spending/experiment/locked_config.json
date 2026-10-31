@@ -1,0 +1,30 @@
+{
+  "selected_on_validation": "direct_l2",
+  "validation_acceptance_passed": true,
+  "amount_bias_tolerance": 0.1,
+  "acceptance_rule": "MAE below historic_30d and Top20 spend capture above it on pooled period; both no worse in at least 2 of 3 months; total predicted-spend bias within +/-10%",
+  "target": "spend_30d",
+  "features": [
+    "recency_days",
+    "invoice_frequency_180d",
+    "monetary_value_180d",
+    "average_order_value_180d",
+    "product_diversity_180d",
+    "invoice_count_30d",
+    "invoice_count_90d",
+    "customer_history_days"
+  ],
+  "train_count": 37019,
+  "validation_count": 8146,
+  "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "labels_sha256": "b7da0c476c6071649eb7d169428f974bd22bacd93ce8d077a6a7af1783427c71",
+  "label_manifest_sha256": "a951a2367037afcea077e8871c4f279d1bc94969878459fd163ea3cf56ca4c96",
+  "script_sha256": "03ac5c6d6537c586da70f85609f116bb750f012678d3c43349f16d7854a15f07",
+  "test_dates_previously_examined_for_repurchase": true,
+  "test_spend_labels_used_for_selection": false,
+  "training_only_scale_factor": 1.0425209763596135,
+  "training_only_scaled_validation_mae": 190.009706647082,
+  "training_only_scaled_validation_bias": -0.13700434736265543,
+  "training_only_scale_adopted": false,
+  "model_sha256": "b6ee4f18b586be827e11a97e676f3a2c0002f2ec8dfc9c02afb217b1ee586286"
+}

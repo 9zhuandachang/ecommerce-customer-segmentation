@@ -1,0 +1,35 @@
+{
+  "status": "feasibility_only_no_model_scoring",
+  "source_url": "https://www.kaggle.com/api/v1/datasets/download/olistbr/brazilian-ecommerce",
+  "source_sha256": "967e41e04fc306fe604e2a693f488995a8b41e5047418f8a5c8e4abd6deca784",
+  "protocol_sha256": "59b9803319069887cd5b18ef319ddd08a1fe5af494c5ca653ba4b088b5ffdc7d",
+  "script_sha256": "4a4b193ade3049d6e2b642704ac929c5e5446467836dc3248181a240dc08f879",
+  "source_audit": {
+    "source_orders": 99441,
+    "source_customers": 99441,
+    "source_items": 112650,
+    "eligible_items": 112650,
+    "excluded_invalid_price_items": 0,
+    "eligible_orders": 98666,
+    "eligible_stable_customers": 95420,
+    "status_order_counts": {
+      "delivered": 96478,
+      "shipped": 1107,
+      "canceled": 625,
+      "unavailable": 609,
+      "invoiced": 314,
+      "processing": 301,
+      "created": 5,
+      "approved": 2
+    },
+    "source_valid_item_amount_cents": 1359164370,
+    "adapted_amount_cents": 1359164370
+  },
+  "date_min": "2016-09-04T21:15:19",
+  "date_max": "2018-09-03T09:06:57",
+  "snapshot_count": 436432,
+  "all_labels_reconciled": true,
+  "locked_test_feasible": false,
+  "model_scores_computed": false,
+  "raw_or_customer_predictions_saved_in_repository": false
+}

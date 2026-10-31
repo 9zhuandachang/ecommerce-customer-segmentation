@@ -1,0 +1,16 @@
+{
+  "status": "pre_cutoff_features_all_amounts_reconciled",
+  "definition": [
+    "bulk_spend_share_180d",
+    "median_unit_price_180d",
+    "non_uk_180d"
+  ],
+  "snapshot_rows": 54040,
+  "source_snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "source_clean_sha256": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+  "source_schedule_sha256": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881",
+  "protocol_sha256": "43e26a16ac3869b3f9f1f5aba0a395981d4b790a489d7063deaf117c01c2bc82",
+  "script_sha256": "f107529b5d7b6f23a1dccafba77ed548f7d1227bd9b88aedf787282c08b1a43d",
+  "features_sha256": "23b190d5eb17b5e72e99da9f0e8d2b5c77f47b66f8b3cf7af94583da1d4edec0",
+  "cutoff_audit_sha256": "288c48ec1b26d241efc279a6f25d9982b65d95d78d191f7d91e848fefa27c48e"
+}

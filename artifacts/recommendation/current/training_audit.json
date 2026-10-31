@@ -1,0 +1,380 @@
+{
+  "item_models": [
+    {
+      "phase": "development",
+      "fit_cutoff": "2011-01-01",
+      "rows": 623962,
+      "queries": 5923,
+      "latest_label_end": "2010-12-31 00:00:00"
+    },
+    {
+      "phase": "development",
+      "fit_cutoff": "2011-02-01",
+      "rows": 689156,
+      "queries": 6529,
+      "latest_label_end": "2011-01-31 00:00:00"
+    },
+    {
+      "phase": "development",
+      "fit_cutoff": "2011-03-01",
+      "rows": 689156,
+      "queries": 6529,
+      "latest_label_end": "2011-01-31 00:00:00"
+    },
+    {
+      "phase": "development",
+      "fit_cutoff": "2011-04-01",
+      "rows": 827536,
+      "queries": 7861,
+      "latest_label_end": "2011-03-31 00:00:00"
+    },
+    {
+      "phase": "development",
+      "fit_cutoff": "2011-05-01",
+      "rows": 896361,
+      "queries": 8519,
+      "latest_label_end": "2011-05-01 00:00:00"
+    },
+    {
+      "phase": "validation",
+      "fit_cutoff": "2011-06-01",
+      "rows": 977138,
+      "queries": 9329,
+      "latest_label_end": "2011-05-31 00:00:00"
+    },
+    {
+      "phase": "review_frozen",
+      "fit_cutoff": "2011-09-01",
+      "rows": 1192858,
+      "queries": 11495,
+      "latest_label_end": "2011-08-31 00:00:00"
+    }
+  ],
+  "ease_features": [
+    {
+      "feature_date": "2010-06-01",
+      "fit_cutoff": "2010-06-01",
+      "latest_transaction": "2010-05-30 15:58:00",
+      "selected_spec": {
+        "id": "ease_30000",
+        "method": "ease",
+        "regularization": 30000
+      },
+      "selection_label_dates": []
+    },
+    {
+      "feature_date": "2010-07-01",
+      "fit_cutoff": "2010-07-01",
+      "latest_transaction": "2010-06-30 17:04:00",
+      "selected_spec": {
+        "id": "ease_10",
+        "method": "ease",
+        "regularization": 10
+      },
+      "selection_label_dates": [
+        "2010-06-01"
+      ]
+    },
+    {
+      "feature_date": "2010-08-01",
+      "fit_cutoff": "2010-08-01",
+      "latest_transaction": "2010-07-30 17:08:00",
+      "selected_spec": {
+        "id": "ease_10",
+        "method": "ease",
+        "regularization": 10
+      },
+      "selection_label_dates": [
+        "2010-06-01",
+        "2010-07-01"
+      ]
+    },
+    {
+      "feature_date": "2010-09-01",
+      "fit_cutoff": "2010-09-01",
+      "latest_transaction": "2010-08-31 17:39:00",
+      "selected_spec": {
+        "id": "ease_10",
+        "method": "ease",
+        "regularization": 10
+      },
+      "selection_label_dates": [
+        "2010-06-01",
+        "2010-07-01",
+        "2010-08-01"
+      ]
+    },
+    {
+      "feature_date": "2010-10-01",
+      "fit_cutoff": "2010-10-01",
+      "latest_transaction": "2010-09-30 20:08:00",
+      "selected_spec": {
+        "id": "ease_10",
+        "method": "ease",
+        "regularization": 10
+      },
+      "selection_label_dates": [
+        "2010-06-01",
+        "2010-07-01",
+        "2010-08-01",
+        "2010-09-01"
+      ]
+    },
+    {
+      "feature_date": "2010-11-01",
+      "fit_cutoff": "2010-11-01",
+      "latest_transaction": "2010-10-31 16:26:00",
+      "selected_spec": {
+        "id": "ease_10",
+        "method": "ease",
+        "regularization": 10
+      },
+      "selection_label_dates": [
+        "2010-06-01",
+        "2010-07-01",
+        "2010-08-01",
+        "2010-09-01",
+        "2010-10-01"
+      ]
+    },
+    {
+      "feature_date": "2010-12-01",
+      "fit_cutoff": "2010-12-01",
+      "latest_transaction": "2010-11-30 19:35:00",
+      "selected_spec": {
+        "id": "ease_10",
+        "method": "ease",
+        "regularization": 10
+      },
+      "selection_label_dates": [
+        "2010-06-01",
+        "2010-07-01",
+        "2010-08-01",
+        "2010-09-01",
+        "2010-10-01",
+        "2010-11-01"
+      ]
+    },
+    {
+      "feature_date": "2011-01-01",
+      "fit_cutoff": "2011-01-01",
+      "latest_transaction": "2010-12-23 16:06:00",
+      "selected_spec": {
+        "id": "ease_10",
+        "method": "ease",
+        "regularization": 10
+      },
+      "selection_label_dates": [
+        "2010-06-01",
+        "2010-07-01",
+        "2010-08-01",
+        "2010-09-01",
+        "2010-10-01",
+        "2010-11-01",
+        "2010-12-01"
+      ]
+    },
+    {
+      "feature_date": "2011-02-01",
+      "fit_cutoff": "2011-02-01",
+      "latest_transaction": "2011-01-31 16:59:00",
+      "selected_spec": {
+        "id": "ease_10",
+        "method": "ease",
+        "regularization": 10
+      },
+      "selection_label_dates": [
+        "2010-06-01",
+        "2010-07-01",
+        "2010-08-01",
+        "2010-09-01",
+        "2010-10-01",
+        "2010-11-01",
+        "2010-12-01",
+        "2011-01-01"
+      ]
+    },
+    {
+      "feature_date": "2011-03-01",
+      "fit_cutoff": "2011-03-01",
+      "latest_transaction": "2011-02-28 17:01:00",
+      "selected_spec": {
+        "id": "ease_10",
+        "method": "ease",
+        "regularization": 10
+      },
+      "selection_label_dates": [
+        "2010-06-01",
+        "2010-07-01",
+        "2010-08-01",
+        "2010-09-01",
+        "2010-10-01",
+        "2010-11-01",
+        "2010-12-01",
+        "2011-01-01"
+      ]
+    },
+    {
+      "feature_date": "2011-04-01",
+      "fit_cutoff": "2011-04-01",
+      "latest_transaction": "2011-03-31 19:55:00",
+      "selected_spec": {
+        "id": "ease_10",
+        "method": "ease",
+        "regularization": 10
+      },
+      "selection_label_dates": [
+        "2010-06-01",
+        "2010-07-01",
+        "2010-08-01",
+        "2010-09-01",
+        "2010-10-01",
+        "2010-11-01",
+        "2010-12-01",
+        "2011-01-01",
+        "2011-02-01",
+        "2011-03-01"
+      ]
+    },
+    {
+      "feature_date": "2011-05-01",
+      "fit_cutoff": "2011-05-01",
+      "latest_transaction": "2011-04-28 19:53:00",
+      "selected_spec": {
+        "id": "ease_10",
+        "method": "ease",
+        "regularization": 10
+      },
+      "selection_label_dates": [
+        "2010-06-01",
+        "2010-07-01",
+        "2010-08-01",
+        "2010-09-01",
+        "2010-10-01",
+        "2010-11-01",
+        "2010-12-01",
+        "2011-01-01",
+        "2011-02-01",
+        "2011-03-01",
+        "2011-04-01"
+      ]
+    }
+  ],
+  "validation_ease_spec": {
+    "id": "ease_10",
+    "method": "ease",
+    "regularization": 10
+  },
+  "final_ease_spec": {
+    "id": "ease_10",
+    "method": "ease",
+    "regularization": 10
+  },
+  "sampling": [
+    {
+      "date": "2010-06-01",
+      "queries": 762,
+      "pairs": 79487,
+      "positives": 16137,
+      "unknown_only_buyers": 0
+    },
+    {
+      "date": "2010-07-01",
+      "queries": 721,
+      "pairs": 74027,
+      "positives": 14692,
+      "unknown_only_buyers": 0
+    },
+    {
+      "date": "2010-08-01",
+      "queries": 700,
+      "pairs": 72352,
+      "positives": 14417,
+      "unknown_only_buyers": 0
+    },
+    {
+      "date": "2010-09-01",
+      "queries": 837,
+      "pairs": 87647,
+      "positives": 17782,
+      "unknown_only_buyers": 2
+    },
+    {
+      "date": "2010-10-01",
+      "queries": 971,
+      "pairs": 105324,
+      "positives": 21969,
+      "unknown_only_buyers": 5
+    },
+    {
+      "date": "2010-11-01",
+      "queries": 1163,
+      "pairs": 127788,
+      "positives": 27563,
+      "unknown_only_buyers": 2
+    },
+    {
+      "date": "2010-12-01",
+      "queries": 769,
+      "pairs": 77337,
+      "positives": 15232,
+      "unknown_only_buyers": 0
+    },
+    {
+      "date": "2011-01-01",
+      "queries": 606,
+      "pairs": 65194,
+      "positives": 13304,
+      "unknown_only_buyers": 0
+    },
+    {
+      "date": "2011-02-01",
+      "queries": 635,
+      "pairs": 65280,
+      "positives": 13100,
+      "unknown_only_buyers": 0
+    },
+    {
+      "date": "2011-03-01",
+      "queries": 697,
+      "pairs": 73100,
+      "positives": 14990,
+      "unknown_only_buyers": 2
+    },
+    {
+      "date": "2011-04-01",
+      "queries": 658,
+      "pairs": 68825,
+      "positives": 13830,
+      "unknown_only_buyers": 4
+    },
+    {
+      "date": "2011-05-01",
+      "queries": 810,
+      "pairs": 80777,
+      "positives": 15357,
+      "unknown_only_buyers": 2
+    },
+    {
+      "date": "2011-06-01",
+      "queries": 743,
+      "pairs": 74777,
+      "positives": 14637,
+      "unknown_only_buyers": 2
+    },
+    {
+      "date": "2011-07-01",
+      "queries": 714,
+      "pairs": 70311,
+      "positives": 13116,
+      "unknown_only_buyers": 3
+    },
+    {
+      "date": "2011-08-01",
+      "queries": 709,
+      "pairs": 70632,
+      "positives": 13692,
+      "unknown_only_buyers": 6
+    }
+  ]
+}

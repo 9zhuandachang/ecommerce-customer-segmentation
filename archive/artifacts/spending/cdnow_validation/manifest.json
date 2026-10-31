@@ -1,0 +1,50 @@
+{
+  "status": "cross_retailer_only_not_same_retailer_acceptance",
+  "source_url": "https://brucehardie.com/datasets/CDNOW_master.zip",
+  "source_sha256": "94081977a983e80dff8edfa58c83a97db33ec2bdd553151987f0dd2f63aaff49",
+  "protocol_sha256": "4b851a7084ed8bc0c7560adf48d78a52453a9e44e72e3bf53d13bb42a273d9d1",
+  "script_sha256": "ead82f448198b1fe85ce14418b7bd311c637e8eb56b69e05d124b1cfb77772db",
+  "source_audit": {
+    "source_rows": 69659,
+    "eligible_rows": 69579,
+    "excluded_rows": 80,
+    "excluded_zero_amount_rows": 80,
+    "source_amount_cents": 250031563,
+    "eligible_amount_cents": 250031563,
+    "source_customers": 23570,
+    "eligible_customers": 23502
+  },
+  "date_min": "1997-01-01",
+  "date_max": "1998-06-30",
+  "snapshot_count": 109629,
+  "label_reconciled": true,
+  "test_feasible": true,
+  "acceptance": {
+    "extended_tweedie": {
+      "criteria": {
+        "mae_10pct_better": true,
+        "buyer_mae_5pct_better": false,
+        "top20_capture_3pp_higher": false,
+        "aggregate_bias_within_5pct": false,
+        "top20_group_bias_within_10pct": true,
+        "all_months_mae_not_worse": true,
+        "all_months_top20_not_worse": true
+      },
+      "all_passed": false
+    },
+    "extended_tweedie_lag_calibrated": {
+      "criteria": {
+        "mae_10pct_better": true,
+        "buyer_mae_5pct_better": false,
+        "top20_capture_3pp_higher": false,
+        "aggregate_bias_within_5pct": false,
+        "top20_group_bias_within_10pct": false,
+        "all_months_mae_not_worse": true,
+        "all_months_top20_not_worse": true
+      },
+      "all_passed": false
+    }
+  },
+  "raw_transactions_saved_in_repository": false,
+  "customer_predictions_saved_in_repository": false
+}

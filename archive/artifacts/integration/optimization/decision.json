@@ -1,0 +1,47 @@
+{
+  "selected_on_tuning": "sigmoid_2m",
+  "confirmation_passed": true,
+  "incumbent_ranking_guard_passed": false,
+  "promotable": false,
+  "brier_better_confirmation_months": 2,
+  "promoted_to_stage6_final": false,
+  "reason_not_promoted": "Ranking below existing stage-six validation model beyond the 0.005 tolerance.",
+  "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "stage5_config_sha256": "ccaec7a9f4fd88f944a3b1b3d84d090bb702ff2103369e9c8169f6c58bb6f3b8",
+  "features": [
+    "recency_days",
+    "invoice_frequency_180d",
+    "monetary_value_180d",
+    "average_order_value_180d",
+    "product_diversity_180d",
+    "invoice_count_30d",
+    "invoice_count_90d",
+    "customer_history_days"
+  ],
+  "gbdt_num_leaves": 15,
+  "gbdt_n_estimators": 64,
+  "baseline": "sigmoid_3m",
+  "candidates": [
+    "sigmoid_1m",
+    "sigmoid_2m",
+    "isotonic_3m"
+  ],
+  "label_days": 30,
+  "calibration_reserved_months": 3,
+  "tuning_dates": [
+    "2011-03-01",
+    "2011-04-01",
+    "2011-05-01"
+  ],
+  "confirmation_dates": [
+    "2011-06-01",
+    "2011-07-01",
+    "2011-08-01"
+  ],
+  "retrospective_dates": [
+    "2011-09-01",
+    "2011-10-01",
+    "2011-11-01"
+  ],
+  "selection_rule": "Tuning: lower mean Brier and absolute mean gap than sigmoid_3m; ECE no more than +0.005; mean AP and Precision@20 no more than -0.005. Choose lowest Brier. Confirmation repeats safeguards and needs Brier win in 2/3 months. Additional incumbent guard: mean AP and Precision@20 each no more than -0.005 against the saved stage-six validation ranking."
+}

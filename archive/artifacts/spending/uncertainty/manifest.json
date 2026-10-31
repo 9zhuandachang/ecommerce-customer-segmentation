@@ -1,0 +1,19 @@
+{
+  "status": "development_only_customer_sampling_uncertainty",
+  "protocol_sha256": "dd6e8dc500e613a4018d05c0cf3c131372881f8786f7870a902e6211734c54ba",
+  "script_sha256": "1dfe2f8e65ac39de77059c54dc733a432ba3fa6cb24173771ddade005c708080",
+  "hurdle_predictions_sha256": "50cbd77e5f723fd324b5272a41e4a8ae931f5000bfbd7d4cd837302c28f7ad11",
+  "optimization_predictions_sha256": "a8ebe44cc265bc85eb30b7c7d6687430d0f473f8a4419c3f940c5077cdf468e4",
+  "intervals_sha256": "580b3f5e340c4281a9bf24583af2c6503fb10b2a21c96f9a5ef345a945fd6397",
+  "draws_sha256": "e811fdf63c7775816185913a01e755e7135146f33670169eb84eeffa7e65d209",
+  "seed": 42,
+  "resamples": 500,
+  "customer_clusters": 3093,
+  "snapshot_count": 8146,
+  "dates": [
+    "2011-06-01",
+    "2011-07-01",
+    "2011-08-01"
+  ],
+  "test_rows_used": false
+}

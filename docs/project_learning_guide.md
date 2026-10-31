@@ -404,11 +404,11 @@ Profiles describe how customers buy; recommendation predicts what they might buy
 | Input | Location and storage |
 | --- | --- |
 | Customer-product purchase counts | Built from [clean_transactions.csv](../data/processed/customer_snapshot_pipeline/clean_transactions.csv). At runtime, purchases before the analysis date form a sparse matrix: rows are customers, columns are products, and cells are purchase counts within 180 days. |
-| Customer-candidate-product features | Sampled training data are saved in [training_samples.joblib](../recommendation/outputs/item_v3_1/training_samples.joblib). Each row represents a customer and a product, with the 34 full features, a 0/1 label, and customer/product identifiers. Training selects the features required by groups A-D. |
+| Customer-candidate-product features | Sampled training data are saved in [training_samples.joblib](../artifacts/recommendation/current/training_samples.joblib). Each row represents a customer and a product, with the 34 full features, a 0/1 label, and customer/product identifiers. Training selects the features required by groups A-D. |
 
-The first input is built for the analysis date. The second stores sampled historical training data; validation and recommendation calculate candidate features for their own dates. A `.joblib` file is read with Python. Feature lists are in [feature_manifest.json](../recommendation/outputs/item_v3_1/feature_manifest.json).
+The first input is built for the analysis date. The second stores sampled historical training data; validation and recommendation calculate candidate features for their own dates. A `.joblib` file is read with Python. Feature lists are in [feature_manifest.json](../artifacts/recommendation/current/feature_manifest.json).
 
-[profiles.csv](../recommendation/outputs/item_v3_1/profiles.csv) contains one profile per customer and analysis date, supplying ten profile features to groups B and D. The customer-product table combines these profiles with each product's purchase history and popularity.
+[profiles.csv](../artifacts/recommendation/current/profiles.csv) contains one profile per customer and analysis date, supplying ten profile features to groups B and D. The customer-product table combines these profiles with each product's purchase history and popularity.
 
 **Round 1: compare five recommenders**
 

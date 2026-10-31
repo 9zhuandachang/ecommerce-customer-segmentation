@@ -1,0 +1,1067 @@
+{
+  "version": "profile_recommendation_v2",
+  "source_hashes": {
+    "transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+    "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+    "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
+  },
+  "code_hashes": {
+    "src/recommendation/profiles.py": "866b45ad9a71028ebb0515c95ad613b19c9d7f3d94cf71f88e33d106ba0421ca",
+    "archive/recommendation/hybrid.py": "9e7d6017a8455c80acd6a21a9473ebbe4988b09963bb7a8c5de1812e176eda52",
+    "pipelines/recommendation_profiles.py": "0e6d35d5cc9d6b3ea08b6e8e739900eb1aa0c743e98648b74f5bf186011efd76",
+    "docs/protocols/recommendation_profiles.md": "cb8d4fd63abd363100f33114b1c4627b13ab7cf533a172debe04ce39b939b4e0",
+    "src/recommendation/data.py": "91bdec4f4583ade9d98639e2987aa87e443ee4f153560e673efb93b958376fda",
+    "src/recommendation/algorithms.py": "2931a2e1e9f9627e3fa1d27d51f8009eb7dd8faf6ba259bad30fe5da97a7af76",
+    "src/recommendation/metrics.py": "e80d61f13f70be1b9c165b67a8a32bfcca61fcb7da5f53818eb2a23d46e13154",
+    "pipelines/recommendation_baselines.py": "1af467bf1ee8ac64222ec183835ad0dad3d6a348e96c54f2785b99fb2a630963",
+    "src/paths.py": "1df3fc5b7d9d189166cbdac3c24829be74e505f1e83c7cb2009680d688aa8256"
+  },
+  "protocol_sha256": "cb8d4fd63abd363100f33114b1c4627b13ab7cf533a172debe04ce39b939b4e0",
+  "base_specs": {
+    "popular": {
+      "id": "popular_30",
+      "method": "popular",
+      "days": 30
+    },
+    "personal_repeat": {
+      "id": "personal_repeat_None",
+      "method": "personal_repeat",
+      "half_life": null
+    },
+    "itemknn": {
+      "id": "itemknn_20_0",
+      "method": "itemknn",
+      "neighbors": 20,
+      "shrink": 0
+    },
+    "implicit_als": {
+      "id": "als_32_1.0_1.0",
+      "method": "implicit_als",
+      "factors": 32,
+      "regularization": 1.0,
+      "alpha": 1.0,
+      "iterations": 15
+    },
+    "ease": {
+      "id": "ease_10",
+      "method": "ease",
+      "regularization": 10
+    }
+  },
+  "propensity_specs": [
+    {
+      "id": "history",
+      "family": "history"
+    },
+    {
+      "id": "ridge_0.1",
+      "family": "ridge",
+      "alpha": 0.1
+    },
+    {
+      "id": "ridge_1.0",
+      "family": "ridge",
+      "alpha": 1.0
+    },
+    {
+      "id": "ridge_10.0",
+      "family": "ridge",
+      "alpha": 10.0
+    },
+    {
+      "id": "ridge_100.0",
+      "family": "ridge",
+      "alpha": 100.0
+    },
+    {
+      "id": "lgbm_7_60_50",
+      "family": "lightgbm",
+      "leaves": 7,
+      "trees": 60,
+      "minimum": 50
+    },
+    {
+      "id": "lgbm_7_60_150",
+      "family": "lightgbm",
+      "leaves": 7,
+      "trees": 60,
+      "minimum": 150
+    },
+    {
+      "id": "lgbm_7_120_50",
+      "family": "lightgbm",
+      "leaves": 7,
+      "trees": 120,
+      "minimum": 50
+    },
+    {
+      "id": "lgbm_7_120_150",
+      "family": "lightgbm",
+      "leaves": 7,
+      "trees": 120,
+      "minimum": 150
+    },
+    {
+      "id": "lgbm_15_60_50",
+      "family": "lightgbm",
+      "leaves": 15,
+      "trees": 60,
+      "minimum": 50
+    },
+    {
+      "id": "lgbm_15_60_150",
+      "family": "lightgbm",
+      "leaves": 15,
+      "trees": 60,
+      "minimum": 150
+    },
+    {
+      "id": "lgbm_15_120_50",
+      "family": "lightgbm",
+      "leaves": 15,
+      "trees": 120,
+      "minimum": 50
+    },
+    {
+      "id": "lgbm_15_120_150",
+      "family": "lightgbm",
+      "leaves": 15,
+      "trees": 120,
+      "minimum": 150
+    }
+  ],
+  "hybrid_specs": [
+    {
+      "id": "fixed_itemknn_0_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.0,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_itemknn_1_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.1,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_itemknn_2_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.2,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_itemknn_3_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.3,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_itemknn_4_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.4,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_itemknn_5_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.5,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_itemknn_6_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.6,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_itemknn_7_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.7,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_itemknn_8_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.8,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_itemknn_9_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.9,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_itemknn_10_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 1.0,
+      "strength": 0.0
+    },
+    {
+      "id": "adaptive_itemknn_0_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.0,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_itemknn_0_1.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.0,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_itemknn_0_2.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.0,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_itemknn_1_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.1,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_itemknn_1_1.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.1,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_itemknn_1_2.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.1,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_itemknn_2_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.2,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_itemknn_2_1.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.2,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_itemknn_2_2.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.2,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_itemknn_3_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.3,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_itemknn_3_1.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.3,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_itemknn_3_2.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.3,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_itemknn_4_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.4,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_itemknn_4_1.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.4,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_itemknn_4_2.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.4,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_itemknn_5_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.5,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_itemknn_5_1.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.5,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_itemknn_5_2.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.5,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_itemknn_6_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.6,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_itemknn_6_1.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.6,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_itemknn_6_2.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.6,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_itemknn_7_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.7,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_itemknn_7_1.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.7,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_itemknn_7_2.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.7,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_itemknn_8_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.8,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_itemknn_8_1.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.8,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_itemknn_8_2.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.8,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_itemknn_9_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.9,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_itemknn_9_1.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.9,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_itemknn_9_2.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 0.9,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_itemknn_10_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 1.0,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_itemknn_10_1.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 1.0,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_itemknn_10_2.0",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 1.0,
+      "strength": 2.0
+    },
+    {
+      "id": "fixed_implicit_als_0_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.0,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_implicit_als_1_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.1,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_implicit_als_2_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.2,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_implicit_als_3_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.3,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_implicit_als_4_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.4,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_implicit_als_5_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.5,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_implicit_als_6_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.6,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_implicit_als_7_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.7,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_implicit_als_8_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.8,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_implicit_als_9_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.9,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_implicit_als_10_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 1.0,
+      "strength": 0.0
+    },
+    {
+      "id": "adaptive_implicit_als_0_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.0,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_implicit_als_0_1.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.0,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_implicit_als_0_2.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.0,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_implicit_als_1_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.1,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_implicit_als_1_1.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.1,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_implicit_als_1_2.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.1,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_implicit_als_2_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.2,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_implicit_als_2_1.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.2,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_implicit_als_2_2.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.2,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_implicit_als_3_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.3,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_implicit_als_3_1.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.3,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_implicit_als_3_2.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.3,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_implicit_als_4_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.4,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_implicit_als_4_1.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.4,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_implicit_als_4_2.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.4,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_implicit_als_5_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.5,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_implicit_als_5_1.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.5,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_implicit_als_5_2.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.5,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_implicit_als_6_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.6,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_implicit_als_6_1.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.6,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_implicit_als_6_2.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.6,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_implicit_als_7_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.7,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_implicit_als_7_1.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.7,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_implicit_als_7_2.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.7,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_implicit_als_8_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.8,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_implicit_als_8_1.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.8,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_implicit_als_8_2.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.8,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_implicit_als_9_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.9,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_implicit_als_9_1.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.9,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_implicit_als_9_2.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 0.9,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_implicit_als_10_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 1.0,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_implicit_als_10_1.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 1.0,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_implicit_als_10_2.0",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 1.0,
+      "strength": 2.0
+    },
+    {
+      "id": "fixed_ease_0_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 0.0,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_ease_1_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 0.1,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_ease_2_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 0.2,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_ease_3_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 0.3,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_ease_4_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 0.4,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_ease_5_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 0.5,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_ease_6_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 0.6,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_ease_7_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 0.7,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_ease_8_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 0.8,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_ease_9_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 0.9,
+      "strength": 0.0
+    },
+    {
+      "id": "fixed_ease_10_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 1.0,
+      "strength": 0.0
+    },
+    {
+      "id": "adaptive_ease_0_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.0,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_ease_0_1.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.0,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_ease_0_2.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.0,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_ease_1_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.1,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_ease_1_1.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.1,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_ease_1_2.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.1,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_ease_2_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.2,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_ease_2_1.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.2,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_ease_2_2.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.2,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_ease_3_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.3,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_ease_3_1.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.3,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_ease_3_2.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.3,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_ease_4_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.4,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_ease_4_1.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.4,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_ease_4_2.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.4,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_ease_5_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.5,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_ease_5_1.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.5,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_ease_5_2.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.5,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_ease_6_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.6,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_ease_6_1.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.6,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_ease_6_2.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.6,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_ease_7_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.7,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_ease_7_1.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.7,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_ease_7_2.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.7,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_ease_8_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.8,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_ease_8_1.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.8,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_ease_8_2.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.8,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_ease_9_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.9,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_ease_9_1.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.9,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_ease_9_2.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 0.9,
+      "strength": 2.0
+    },
+    {
+      "id": "adaptive_ease_10_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 1.0,
+      "strength": 0.5
+    },
+    {
+      "id": "adaptive_ease_10_1.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 1.0,
+      "strength": 1.0
+    },
+    {
+      "id": "adaptive_ease_10_2.0",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 1.0,
+      "strength": 2.0
+    }
+  ],
+  "v1_manifest_sha256": "2f9248e6a67afa74a3d95434ea84c48345a84e7f34e5c610a8601756992edcb0",
+  "versions": {
+    "python": "3.11.9",
+    "numpy": "2.4.6",
+    "pandas": "2.3.3"
+  },
+  "time_policy": "labels must end <= fitting cutoff; frozen globals per phase; pre-cutoff customer input",
+  "prior_test_results_viewed": true
+}

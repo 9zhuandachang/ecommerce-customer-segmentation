@@ -3,7 +3,7 @@
 
 data/processed/customer_snapshot_pipeline/clean_transactions.csv filter=lfs diff=lfs merge=lfs -text
 data/demo/2011-12-01/purchase_history.csv filter=lfs diff=lfs merge=lfs -text
-recommendation/outputs/profile_v2/model_bundle.joblib filter=lfs diff=lfs merge=lfs -text
-recommendation/outputs/item_v3_1/model_bundle.joblib filter=lfs diff=lfs merge=lfs -text
-recommendation/outputs/item_v3_1/validation_lists.csv filter=lfs diff=lfs merge=lfs -text
-recommendation/outputs/item_v3_1/test_lists.csv filter=lfs diff=lfs merge=lfs -text
+archive/artifacts/recommendation/profile_v2/model_bundle.joblib filter=lfs diff=lfs merge=lfs -text
+artifacts/recommendation/current/model_bundle.joblib filter=lfs diff=lfs merge=lfs -text
+artifacts/recommendation/current/validation_lists.csv filter=lfs diff=lfs merge=lfs -text
+artifacts/recommendation/current/test_lists.csv filter=lfs diff=lfs merge=lfs -text

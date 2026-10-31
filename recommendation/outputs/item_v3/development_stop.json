@@ -1,8 +1,0 @@
-{
-  "status": "stopped_during_development",
-  "completed_development_fits": 64,
-  "validation_started": false,
-  "review_started": false,
-  "reason": "Hard plus uniform negatives were equally weighted in classification; correct known inclusion probabilities before validation. Preserve sample data, source snapshot and development metrics.",
-  "successor": "item_v3_1"
-}

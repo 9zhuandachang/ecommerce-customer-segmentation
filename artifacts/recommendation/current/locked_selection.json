@@ -1,0 +1,204 @@
+{
+  "selected_method": "personal_repeat",
+  "selected_name": "Original replenishment",
+  "best_new": "D_classifier",
+  "deployment_gate_passed": false,
+  "eligible": [],
+  "improvement_vs_default": {
+    "challenger": "D_classifier",
+    "reference": "personal_repeat",
+    "ndcg_gain": 0.02217870449366066,
+    "recall_gain": 0.01202996217324806,
+    "new_recall_gain": 0.004549881179631312,
+    "nonworse_months": 3
+  },
+  "selected_profile_reference": null,
+  "selected_profile_value_demonstrated": false,
+  "ablations": [
+    {
+      "challenger": "B_lr",
+      "reference": "A_lr",
+      "ndcg_gain": 0.0036681083023295904,
+      "recall_gain": 0.0035908036722634242,
+      "new_recall_gain": -2.8361263584414317e-05,
+      "nonworse_months": 3,
+      "kind": "profile_without_ease",
+      "family": "lr",
+      "demonstrated": true
+    },
+    {
+      "challenger": "D_lr",
+      "reference": "C_lr",
+      "ndcg_gain": 0.004903446692462436,
+      "recall_gain": 0.004956415219923562,
+      "new_recall_gain": 0.0022371935608952918,
+      "nonworse_months": 3,
+      "kind": "profile_with_ease",
+      "family": "lr",
+      "demonstrated": true
+    },
+    {
+      "challenger": "C_lr",
+      "reference": "A_lr",
+      "ndcg_gain": -0.0013833001447365507,
+      "recall_gain": -0.003357112952648613,
+      "new_recall_gain": 0.0036944071026639574,
+      "nonworse_months": 1,
+      "kind": "ease_without_profile",
+      "family": "lr",
+      "demonstrated": false
+    },
+    {
+      "challenger": "D_lr",
+      "reference": "B_lr",
+      "ndcg_gain": -0.00014796175460370561,
+      "recall_gain": -0.001991501404988475,
+      "new_recall_gain": 0.005959961927143664,
+      "nonworse_months": 1,
+      "kind": "ease_with_profile",
+      "family": "lr",
+      "demonstrated": false
+    },
+    {
+      "challenger": "B_classifier",
+      "reference": "A_classifier",
+      "ndcg_gain": 0.0009278723614990492,
+      "recall_gain": 0.0018472179655849481,
+      "new_recall_gain": -0.0001284955483922066,
+      "nonworse_months": 3,
+      "kind": "profile_without_ease",
+      "family": "classifier",
+      "demonstrated": false
+    },
+    {
+      "challenger": "D_classifier",
+      "reference": "C_classifier",
+      "ndcg_gain": 0.002579344404365543,
+      "recall_gain": 0.0019065311197402623,
+      "new_recall_gain": 0.0007019756111076551,
+      "nonworse_months": 2,
+      "kind": "profile_with_ease",
+      "family": "classifier",
+      "demonstrated": true
+    },
+    {
+      "challenger": "C_classifier",
+      "reference": "A_classifier",
+      "ndcg_gain": 0.0007291936252247037,
+      "recall_gain": 0.0012609059674630978,
+      "new_recall_gain": 0.003304563096228763,
+      "nonworse_months": 2,
+      "kind": "ease_without_profile",
+      "family": "classifier",
+      "demonstrated": false
+    },
+    {
+      "challenger": "D_classifier",
+      "reference": "B_classifier",
+      "ndcg_gain": 0.0023806656680911975,
+      "recall_gain": 0.0013202191216184118,
+      "new_recall_gain": 0.004135034255728625,
+      "nonworse_months": 2,
+      "kind": "ease_with_profile",
+      "family": "classifier",
+      "demonstrated": true
+    },
+    {
+      "challenger": "B_ranker",
+      "reference": "A_ranker",
+      "ndcg_gain": 0.03889001219103581,
+      "recall_gain": 0.03937104240309585,
+      "new_recall_gain": -0.0014200340488698647,
+      "nonworse_months": 3,
+      "kind": "profile_without_ease",
+      "family": "ranker",
+      "demonstrated": true
+    },
+    {
+      "challenger": "D_ranker",
+      "reference": "C_ranker",
+      "ndcg_gain": 0.018369530500275778,
+      "recall_gain": 0.022580910280462843,
+      "new_recall_gain": 0.003672021197949392,
+      "nonworse_months": 3,
+      "kind": "profile_with_ease",
+      "family": "ranker",
+      "demonstrated": true
+    },
+    {
+      "challenger": "C_ranker",
+      "reference": "A_ranker",
+      "ndcg_gain": 0.016927432572476912,
+      "recall_gain": 0.010804199850902507,
+      "new_recall_gain": 0.003975272287123058,
+      "nonworse_months": 3,
+      "kind": "ease_without_profile",
+      "family": "ranker",
+      "demonstrated": true
+    },
+    {
+      "challenger": "D_ranker",
+      "reference": "B_ranker",
+      "ndcg_gain": -0.0035930491182831112,
+      "recall_gain": -0.005985932271730499,
+      "new_recall_gain": 0.009067327533942314,
+      "nonworse_months": 1,
+      "kind": "ease_with_profile",
+      "family": "ranker",
+      "demonstrated": false
+    }
+  ],
+  "selection_phase": "validation",
+  "test_labels_used_for_selection": false,
+  "prior_validation_and_test_results_viewed": true,
+  "global_test_model_updates": false,
+  "best_vs_default_intervals": {
+    "resamples": 500,
+    "seed": 42,
+    "customer_clusters": 3093,
+    "metrics": {
+      "ndcg_10": {
+        "point": 0.022178704493660672,
+        "lower_95": 0.01741174604238775,
+        "upper_95": 0.027038263219146885
+      },
+      "recall_10": {
+        "point": 0.012029962173248088,
+        "lower_95": 0.00860986372676089,
+        "upper_95": 0.015750682466942112
+      }
+    },
+    "scope": "validation_paired_customer_resampling_after_selection"
+  },
+  "source_hashes": {
+    "transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+    "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+    "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
+  },
+  "shared_shortlist": {
+    "lr": {
+      "id": "lr_0.01",
+      "family": "lr",
+      "c": 0.01
+    },
+    "classifier": {
+      "id": "classifier_15_120",
+      "family": "classifier",
+      "leaves": 15,
+      "trees": 120
+    },
+    "ranker": {
+      "id": "ranker_15_120",
+      "family": "ranker",
+      "leaves": 15,
+      "trees": 120
+    }
+  },
+  "ease_spec": {
+    "id": "ease_10",
+    "method": "ease",
+    "regularization": 10
+  },
+  "model_sha256": "6b7a4da3a0b29054c4f8db65dafd325d1e170ea4ca022d400a2252af279a8386",
+  "plan_sha256": "36a3e1a129c1f65db221a72b7a298e6e61def68b9084090c8b991d6fb8b78b47"
+}

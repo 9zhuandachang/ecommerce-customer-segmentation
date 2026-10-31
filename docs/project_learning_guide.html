@@ -782,12 +782,12 @@
 </tr>
 <tr>
 <td>Customer-candidate-product features</td>
-<td>Sampled training data are saved in <a href="../recommendation/outputs/item_v3_1/training_samples.joblib">training_samples.joblib</a>. Each row represents a customer and a product, with the 34 full features, a 0/1 label, and customer/product identifiers. Training selects the features required by groups A-D.</td>
+<td>Sampled training data are saved in <a href="../artifacts/recommendation/current/training_samples.joblib">training_samples.joblib</a>. Each row represents a customer and a product, with the 34 full features, a 0/1 label, and customer/product identifiers. Training selects the features required by groups A-D.</td>
 </tr>
 </tbody>
 </table></div>
-<p>The first input is built for the analysis date. The second stores sampled historical training data; validation and recommendation calculate candidate features for their own dates. A <code>.joblib</code> file is read with Python. Feature lists are in <a href="../recommendation/outputs/item_v3_1/feature_manifest.json">feature_manifest.json</a>.</p>
-<p><a href="../recommendation/outputs/item_v3_1/profiles.csv">profiles.csv</a> contains one profile per customer and analysis date, supplying ten profile features to groups B and D. The customer-product table combines these profiles with each product's purchase history and popularity.</p>
+<p>The first input is built for the analysis date. The second stores sampled historical training data; validation and recommendation calculate candidate features for their own dates. A <code>.joblib</code> file is read with Python. Feature lists are in <a href="../artifacts/recommendation/current/feature_manifest.json">feature_manifest.json</a>.</p>
+<p><a href="../artifacts/recommendation/current/profiles.csv">profiles.csv</a> contains one profile per customer and analysis date, supplying ten profile features to groups B and D. The customer-product table combines these profiles with each product's purchase history and popularity.</p>
 <p><strong>Round 1: compare five recommenders</strong></p>
 <div class="table-scroll"><table>
 <thead>

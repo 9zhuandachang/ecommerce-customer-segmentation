@@ -1,0 +1,15 @@
+{
+  "status": "development_only_conditional_amount_not_unconditional_forecast",
+  "protocol_sha256": "da999e60e44c890b2d2f5f84e1cff35656cdbb5a0861f5e93c482d75318b102d",
+  "script_sha256": "120445e272491e4a45207bb5536ecda6238f8b8654d75057d41600d5fca53513",
+  "original_predictions_sha256": "315c4ee784c7bea95dfd3ad3a7f872df328f26ae0647c01365d201c2b379f62c",
+  "dynamics_features_sha256": "5c66a8112c965008894e4d4ff5fc449b5d8143390d10c429cb1f53d89c11f88a",
+  "development_predictions_sha256": "ce27892dd0aa8363b434325e85c7df13c1061a081a05dee436b3b2c9dcaf3b73",
+  "test_rows_used": false,
+  "advancement_checks": {
+    "buyer_mae_reduction_at_least_5pct": false,
+    "at_least_four_of_five_months_not_worse": true,
+    "absolute_buyer_amount_bias_not_larger": false
+  },
+  "advance_to_new_test": false
+}

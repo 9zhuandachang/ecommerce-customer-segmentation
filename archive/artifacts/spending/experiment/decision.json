@@ -1,0 +1,10 @@
+{
+  "selected_on_validation": "direct_l2",
+  "validation_acceptance_passed": true,
+  "retrospective_test_gate_passed": false,
+  "offline_model_accepted": false,
+  "integrated_in_dashboard": false,
+  "test_period_previously_seen_for_repurchase": true,
+  "note": "September-November spend results are a retrospective check; do not tune and reselect on them.",
+  "lock_sha256": "a4433e4142202d068deddc544bea702329fb7176a8ea635edb38fe2e4956d766"
+}

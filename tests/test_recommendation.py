@@ -1,5 +1,7 @@
 """Long-term next-basket boundaries, recommender equations, and fair evaluation."""
 
+from src.paths import ROOT
+
 import json
 import tempfile
 import unittest
@@ -10,25 +12,25 @@ import numpy as np
 import pandas as pd
 from scipy import sparse
 
-from recommendation.data import ROOT, history_counts, make_training, make_context, next_basket_labels, read_inputs
-from recommendation.experiment import choose_config, choose_method
-from recommendation.metrics import evaluate, per_customer_metrics, paired_intervals
-from app.recommendation_data import export_recommendations, validate_recommendations, load_recommendations, load_comparison_list
-from recommendation.models import (configurations, ease_weights, fit_model, implicit_loss,
+from src.recommendation.data import ROOT, history_counts, make_training, make_context, next_basket_labels, read_inputs
+from pipelines.recommendation_baselines import choose_config, choose_method
+from src.recommendation.metrics import evaluate, per_customer_metrics, paired_intervals
+from archive.adapters.recommendation_data import export_recommendations, validate_recommendations, load_recommendations, load_comparison_list
+from src.recommendation.algorithms import (configurations, ease_weights, fit_model, implicit_loss,
                                     implicit_step, recommend, recommendation_table, topk)
-from recommendation.profiles import (FEATURES, purchase_profiles, attach_repeat_target,
+from src.recommendation.profiles import (FEATURES, purchase_profiles, attach_repeat_target,
                                      mature_examples, fit_propensity, predict_propensity)
-from recommendation.hybrid import (NAMES as HYBRID_NAMES, prepare_routes, fuse_routes,
+from archive.recommendation.hybrid import (NAMES as HYBRID_NAMES, prepare_routes, fuse_routes,
                                    mixing_weights, metric_context, fast_metrics)
-from recommendation.profile_experiment import choose_default, recommend_all
-from app.profile_recommendation_data import (load_profile_package, profile_recommendation_list,
+from pipelines.recommendation_profiles import choose_default, recommend_all
+from archive.adapters.profile_recommendation_data import (load_profile_package, profile_recommendation_list,
                                              export_profile_recommendations, EXPORT_COLUMNS as PROFILE_EXPORT_COLUMNS)
-from recommendation.item_features import (ALL_FEATURES, FEATURE_SETS, FEATURE_INDEX, item_context,
+from src.recommendation.features import (ALL_FEATURES, FEATURE_SETS, FEATURE_INDEX, item_context,
                                           pair_features, negative_sample, sample_training_pairs, mature_training, sampling_weights)
-from recommendation.item_models import model_specs, fit_item_model, score_catalog
-from recommendation.item_experiment import (choose_ease, common_specs, choose_default as choose_item_default,
+from src.recommendation.models import model_specs, fit_item_model, score_catalog
+from pipelines.recommendation import (choose_ease, common_specs, choose_default as choose_item_default,
                                            NAMES as ITEM_NAMES, old_predictions)
-from app.item_recommendation_data import (load_item_package, item_recommendation_list,
+from archive.adapters.item_recommendation_data import (load_item_package, item_recommendation_list,
                                           export_item_recommendations, EXPORT_COLUMNS as ITEM_EXPORT_COLUMNS)
 
 
@@ -41,7 +43,7 @@ def example_transactions():
 class RecommendationTests(unittest.TestCase):
     def test_saved_profile_models_reproduce_profiles_predictions_and_all_eleven_lists(self):
         package = load_profile_package()
-        artifact = joblib.load(ROOT / 'recommendation/outputs/profile_v2/model_bundle.joblib')
+        artifact = joblib.load(ROOT / 'archive/artifacts/recommendation/profile_v2/model_bundle.joblib')
         tx, snapshots, _ = read_inputs()
         self.assertEqual(artifact['selected_method'], package['lock']['selected_method'])
         for date in sorted(package['profiles'].snapshot_date.unique()):
@@ -203,7 +205,7 @@ class RecommendationTests(unittest.TestCase):
         self.assertTrue(positive['selected_method'].startswith('adaptive_'))
 
     def test_comparison_algorithms_expose_saved_recommendations_without_answers(self):
-        path = ROOT / 'recommendation/outputs/v1/test_customer_metrics.csv'
+        path = ROOT / 'archive/artifacts/recommendation/v1/test_customer_metrics.csv'
         expected = pd.read_csv(path, usecols=['snapshot_date', 'customer_id', 'method', 'recommended_items'],
                                 dtype={'customer_id': 'string'})
         for method in ('itemknn', 'implicit_als', 'ease'):
@@ -222,7 +224,7 @@ class RecommendationTests(unittest.TestCase):
         self.assertEqual(len(comparison), 10)
         self.assertFalse(lock['test_labels_used_for_selection'])
         self.assertFalse(lock['global_test_model_updates'])
-        artifact = joblib.load(ROOT / 'recommendation/outputs/v1/selected_model.joblib')
+        artifact = joblib.load(ROOT / 'archive/artifacts/recommendation/v1/selected_model.joblib')
         self.assertEqual(artifact['selected_method'], lock['selected_method'])
         tx, snapshots, _ = read_inputs()
         for phase in ('validation', 'test'):
@@ -419,23 +421,23 @@ class RecommendationTests(unittest.TestCase):
 
 class ItemScoringTests(unittest.TestCase):
     def test_full_item_audit_replayed_every_list_and_preserved_old_controls(self):
-        from recommendation.data import sha256
-        path = ROOT / 'recommendation/outputs/item_v3_1_audit'
+        from src.recommendation.data import sha256
+        path = ROOT / 'artifacts/recommendation/audit'
         report = json.loads((path / 'report.json').read_text(encoding='utf-8'))
         self.assertEqual(report['status'], 'completed_full_item_audit')
         self.assertEqual(report['verified_customer_lists'], 255315)
         self.assertEqual(report['verified_product_rows'], 2553150)
         self.assertEqual(report['verified_profile_rows'], 17021)
         self.assertEqual(report['old_control_months_unchanged'], 18)
-        self.assertEqual(report['code_sha256'], sha256(ROOT / 'recommendation/item_audit.py'))
-        self.assertEqual(report['source_manifest_sha256'], sha256(ROOT / 'recommendation/outputs/item_v3_1/manifest.json'))
+        self.assertEqual(report['code_sha256'], sha256(ROOT / 'pipelines/audit_recommendation.py'))
+        self.assertEqual(report['source_manifest_sha256'], sha256(ROOT / 'artifacts/recommendation/current/manifest.json'))
         self.assertEqual(report['best_new'], 'D_classifier')
         self.assertEqual(report['profile_reference'], 'C_classifier')
 
     def test_saved_item_models_reproduce_all_feature_groups_and_old_controls(self):
         package = load_item_package()
-        artifact = joblib.load(ROOT / 'recommendation/outputs/item_v3_1/model_bundle.joblib')
-        old = joblib.load(ROOT / 'recommendation/outputs/profile_v2/model_bundle.joblib')
+        artifact = joblib.load(ROOT / 'artifacts/recommendation/current/model_bundle.joblib')
+        old = joblib.load(ROOT / 'archive/artifacts/recommendation/profile_v2/model_bundle.joblib')
         tx, snapshots, _ = read_inputs()
         self.assertEqual(package['lock']['selected_method'], artifact['selected_method'])
         for date in sorted(package['profiles'].snapshot_date.unique()):
@@ -471,7 +473,7 @@ class ItemScoringTests(unittest.TestCase):
             export_item_recommendations(bad)
 
     def test_saved_item_audit_has_purged_labels_forward_ease_and_matched_parameters(self):
-        path = ROOT / 'recommendation/outputs/item_v3_1'
+        path = ROOT / 'artifacts/recommendation/current'
         audit = json.loads((path / 'training_audit.json').read_text(encoding='utf-8'))
         for row in audit['item_models']:
             self.assertLessEqual(pd.Timestamp(row['latest_label_end']), pd.Timestamp(row['fit_cutoff']))

@@ -1,0 +1,100 @@
+{
+  "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "clean_transactions_sha256": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+  "script_sha256": "dcb38a623747238800d876e2371576967003f47587293057765e70ef16f09cd2",
+  "protocol_sha256": "ff05bea6f8401f608ed66b9b6c42c29d3e7ca036a6b515c4519e81f8df65052e",
+  "feature_sets": {
+    "base_8": [
+      "recency_days",
+      "invoice_frequency_180d",
+      "monetary_value_180d",
+      "average_order_value_180d",
+      "product_diversity_180d",
+      "invoice_count_30d",
+      "invoice_count_90d",
+      "customer_history_days"
+    ],
+    "base_8_plus_trend": [
+      "recency_days",
+      "invoice_frequency_180d",
+      "monetary_value_180d",
+      "average_order_value_180d",
+      "product_diversity_180d",
+      "invoice_count_30d",
+      "invoice_count_90d",
+      "customer_history_days",
+      "recent90_invoice_share",
+      "monthly_order_change",
+      "has_90d_history"
+    ],
+    "base_8_plus_trend_and_rhythm": [
+      "recency_days",
+      "invoice_frequency_180d",
+      "monetary_value_180d",
+      "average_order_value_180d",
+      "product_diversity_180d",
+      "invoice_count_30d",
+      "invoice_count_90d",
+      "customer_history_days",
+      "recent90_invoice_share",
+      "monthly_order_change",
+      "has_90d_history",
+      "active_30d_periods_180d",
+      "last_invoice_gap_days_180d",
+      "has_two_invoices_180d"
+    ]
+  },
+  "model_options": {
+    "LR": [
+      0.1,
+      1.0
+    ],
+    "SplineLR": [
+      0.1,
+      1.0
+    ],
+    "XGBoost": [
+      2,
+      3
+    ],
+    "LightGBM": [
+      7,
+      15
+    ]
+  },
+  "forward_fold_dates": [
+    "2011-03-01",
+    "2011-04-01",
+    "2011-05-01"
+  ],
+  "selection_rule": "validation AP maximum among candidates whose fold mean AP and validation Precision@20% are each >= base_8 LR",
+  "selected": {
+    "feature_set": "base_8_plus_trend_and_rhythm",
+    "model": "XGBoost",
+    "complexity": 2.0,
+    "parameters": {
+      "n_estimators": 300,
+      "learning_rate": 0.05,
+      "max_depth": 2,
+      "min_child_weight": 10,
+      "reg_lambda": 3,
+      "subsample": 0.9,
+      "colsample_bytree": 1,
+      "tree_method": "hist",
+      "grow_policy": "depthwise",
+      "random_state": 42
+    }
+  },
+  "post_selection_uncertainty": "400 paired customer bootstrap draws for AP differences; descriptive only, not used for selection",
+  "train_rows": 37019,
+  "validation_rows": 8146,
+  "test_labels_used_for_fit_selection_or_metrics": false,
+  "versions": {
+    "python": "3.11.9",
+    "numpy": "2.4.6",
+    "pandas": "2.3.3",
+    "scikit_learn": "1.9.0",
+    "xgboost": "3.2.0",
+    "lightgbm": "4.7.0"
+  }
+}

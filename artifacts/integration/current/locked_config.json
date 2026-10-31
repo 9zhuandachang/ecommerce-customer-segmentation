@@ -1,0 +1,48 @@
+{
+  "version": "reanalysis-v2",
+  "source_scope": "historical_replay_test_months_previously_viewed",
+  "test_labels_used_for_selection": false,
+  "test_labels_used_for_diagnostics": true,
+  "test_dates": [
+    "2011-09-01",
+    "2011-10-01",
+    "2011-11-01"
+  ],
+  "model_name": "XGBoost",
+  "feature_set": "base_8_plus_trend_and_rhythm",
+  "segment_candidate": "kmeans_k4",
+  "segment_names": {
+    "0": "Group 0 | Recent low order value",
+    "1": "Group 1 | Long inactive",
+    "2": "Group 2 | Recent frequent buyers",
+    "3": "Group 3 | Recent high order value"
+  },
+  "score_kind": "uncalibrated ranking score",
+  "source_hashes": {
+    "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+    "transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+    "segment_model": "da6c1018ac46d54f53a9801c8de3ce0664087b7bc245add681c18386d1228cd1",
+    "segment_decision": "a7a339bd1f241102135d0d48cc1634719d9ada9595c0720bc82aea2fe786c9fd",
+    "segment_assignments": "57be9eab9b0ec9cb964d87c55f23fa97bb1f1c4887cd6c7d7c6767fab7b5f314",
+    "repurchase_model": "62898c04032024ffe7f31ec6526d0b9fad983b772043eb4533cd179572732400",
+    "repurchase_manifest": "ddda0a184fee658752d943fa3fc1f63660b2c99f3c3ece8e765fe190301a5785",
+    "repurchase_validation_predictions": "ea5ee43233f9187b284750991aa17a378105a827e97b27ec33efbcfaaa233784",
+    "integration_script": "743296ea11a67c933a730f0011524e752ad31bb7fbd3d568c9c3f2c44c778009"
+  },
+  "output_hashes": {
+    "model": "0dd4463fe3f6ae4b4255de7545d4b7585496bca4ae22a17d5501a03e3ec41f90",
+    "test_predictions": "5e325b35995cd9c483ee7a688b61b853b3c33d14bc2978037c4150227408a21e",
+    "test_comparison": "1092573ec16493a4a397d1c3e64d95a65979393e16cb476523bb767860f04cda",
+    "monthly_comparison": "2f24ea5f3040d7b1af7c1140fbf149a265db5514f74778ac35a36d51c8625066"
+  },
+  "counts": {
+    "train": 37019,
+    "validation": 8146,
+    "test": 8875
+  },
+  "versions": {
+    "python": "3.11.9",
+    "scikit_learn": "1.9.0",
+    "xgboost": "3.2.0"
+  }
+}

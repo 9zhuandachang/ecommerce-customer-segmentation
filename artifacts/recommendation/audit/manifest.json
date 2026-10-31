@@ -1,0 +1,9 @@
+{
+  "source_manifest_sha256": "2f268ef73cb02ed4441d7b63e07c9f9f790649d4961a561c3ec780973d8f21d2",
+  "code_sha256": "a4088f74f0350ba09e6f41b0564cfc1e0ff480988b40cc4621a175d3da1ff847",
+  "output_hashes": {
+    "best_profile_draws.csv": "3d3bb893c019eebfb57fbcc69a771714d9243fe2153e4baff25239bbe6449dab",
+    "best_vs_default_draws.csv": "2e76b807e709ba3dd48dcf7f5aef3ad20753309262b8b2d187e5fc071d51eac8",
+    "report.json": "e3effc0df3379b147fa7f305e85f110c48603844c805230d768269d552d81768"
+  }
+}

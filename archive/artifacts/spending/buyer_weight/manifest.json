@@ -1,0 +1,30 @@
+{
+  "status": "development_only_not_independent_acceptance",
+  "candidate": "buyer_weight_2x_tweedie",
+  "buyer_training_weight": 2.0,
+  "comparison_methods": [
+    "historic_180d",
+    "extended_tweedie"
+  ],
+  "development_gate": {
+    "buyer_mae_reduction_at_least_5pct": true,
+    "overall_mae_increase_at_most_2pct": false,
+    "top20_capture_not_lower": false,
+    "aggregate_bias_abs_not_larger": false
+  },
+  "gate_passed": false,
+  "source_snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "source_labels_sha256": "b7da0c476c6071649eb7d169428f974bd22bacd93ce8d077a6a7af1783427c71",
+  "source_temporal_features_sha256": "a24833a0e8d05a8795654fc9b4a2a4bed2cac2407cefc37046f1e6c1a4727e9c",
+  "source_seasonal_features_sha256": "4ce9d12f22855885ec622ac3efbacbe2d8a6f3593857345d6b6e361e18287219",
+  "reference_predictions_sha256": "a8ebe44cc265bc85eb30b7c7d6687430d0f473f8a4419c3f940c5077cdf468e4",
+  "protocol_sha256": "1c867a5397c1919dc532babf12854062cfbdc889a74f9f9e6ac525956867e764",
+  "script_sha256": "1de1a4b0775d323b62b5e226bb46335c1fb954617f66bce3f4641ce69c1062c7",
+  "outputs_sha256": {
+    "customer_predictions": "498937e68d40bdfc0408bbdcba5333f2dd9976936b2b4da1d9872c46b58944a5",
+    "monthly_metrics": "b3fc90c42ed8552ae06769959156d00e1ee6ea20e20fae5057678c1809acb747",
+    "period_metrics": "087310a9adcacdca45672dde9052fceea7b34791c5b08bd3f7e668ea50c990c6",
+    "folds": "20b9dfd3808e6cd5de6bfd6d4e511bb203709ae090521ae95dfa726bfff84a13"
+  },
+  "report_sha256": "1bf4e6440d8bcca102cdc59aa8cc023e2a477b834b355ad7955b2ca55ce7d7ef"
+}

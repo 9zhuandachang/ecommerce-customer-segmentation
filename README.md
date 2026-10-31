@@ -48,21 +48,40 @@ To change the file or date, return to **Data import** and generate a new analysi
 
 ## Repository structure
 
+```text
+main/
+|-- app/                 Streamlit pages, upload handling, filters, and exports
+|-- src/                 Shared data processing and current business models
+|   |-- data/
+|   |-- segmentation/
+|   |-- repurchase/
+|   |-- spending/
+|   |-- recommendation/
+|   |-- integration/
+|   `-- paths.py         Central repository paths
+|-- pipelines/           Data preparation, comparisons, and model integration
+|-- artifacts/           Current models, selected results, and recommendation audit
+|-- archive/             Earlier experiments, adapters, protocols, and results
+|-- data/                Original, processed, and upload-demo data
+|-- docs/                Learning guide, protocols, examples, and workflow figures
+`-- tests/               Data, customer-model, spending, and recommendation checks
+```
+
 | Location | Purpose |
 | --- | --- |
-| `app/dashboard.py` | Main entry point for the business interface. |
-| `app/upload_inference.py` | Validates uploads, builds customer features, and runs the four analyses. |
-| `app/business_views.py`, `app/dashboard.css` | Business tables, export fields, and page styling. |
-| `app/*_data.py` | Loaders and verification adapters for current and earlier experiment results. |
-| `data/raw/` | Two original annual CSV files. |
-| `data/processed/customer_snapshot_pipeline/` | Eligible and excluded transactions, audits, 54,040 monthly customer snapshots, and temporal splits. |
-| `data/demo/2011-12-01/` | Real upload example, provenance manifest, and demo archive. |
-| `src/`, `build_customer_snapshots.py` | Shared cleaning, feature, and base-model code; data-pipeline entry point. |
-| `stage4/`, `stage5/`, `stage6/` | Segmentation comparison, repurchase comparison, and model integration. |
-| `value_prediction/` | Spending-potential ranking and amount-prediction experiments. |
-| `recommendation/` | Recommendation methods, purchase profiles, and item-level model comparisons. |
-| `tests/` | Regression checks for data windows, model reproduction, lists, and pages. |
-| `docs/` | Learning guide, business definitions, workflow, and upload instructions. |
+| `app/dashboard.py` | Business interface entry point. |
+| `app/upload_inference.py` | Validates purchase history and applies the four current analyses. |
+| `src/data/` | Shared cleaning, snapshots, schema validation, and transformations. |
+| `src/segmentation/`, `src/repurchase/`, `src/spending/`, `src/recommendation/` | Current feature calculation, scoring, and model comparison logic. |
+| `src/integration/` | Combines the selected segmentation and repurchase models. |
+| `pipelines/` | Explicit command-line entry points for preparing data and comparing models. |
+| `artifacts/<module>/current/` | Current model packages, selection records, predictions, and reports. |
+| `artifacts/recommendation/audit/` | Full-list reproduction and feature-contribution audit. |
+| `archive/` | Earlier experiments and their preserved results, organized by business area. |
+| `data/raw/`, `data/processed/`, `data/demo/` | Original transactions, derived datasets, and the real upload example. |
+| `docs/`, `tests/` | Documentation and maintained regression tests. |
+
+See the [repository structure guide](docs/repository_structure.md) for the main entry points and artifact locations.
 
 ## Rebuilding data and models
 
@@ -70,28 +89,27 @@ Saved results are included, so you can open the app directly. To repeat an exper
 
 ```powershell
 # Clean transactions, build monthly snapshots, and produce audits.
-python -B build_customer_snapshots.py data/raw/online_retail_II_2009-2010.csv data/raw/online_retail_II_2010-2011.csv
+python -B -m pipelines.snapshots data/raw/online_retail_II_2009-2010.csv data/raw/online_retail_II_2010-2011.csv
 
 # Compare three clustering methods with 2-6 clusters; select four-cluster K-means.
-python -B -m stage4.compare_segmentation compare
-python -B -m stage4.compare_segmentation select --algorithm kmeans --k 4
+python -B -m pipelines.segmentation compare
+python -B -m pipelines.segmentation select --algorithm kmeans --k 4
 
 # Compare four repurchase models across three feature groups, then integrate the selected models.
-python -B -m stage5.compare_repurchase
-python -B -m stage6.integrate_reanalysis
+python -B -m pipelines.repurchase
+python -B -m pipelines.integrate
 
 # Build spending labels and 20 historical features; compare spending-potential ranking methods.
-python -B -m value_prediction.labels
-python -B -m value_prediction.temporal_features
-python -B -m value_prediction.ranking_comparison
+python -B -m pipelines.spending_features
+python -B -m pipelines.spending
 
 # Compare recommenders, profile-based hybrids, and item-level scoring models.
-python -B -m recommendation.experiment
-python -B -m recommendation.profile_experiment
-python -B -m recommendation.item_experiment
+python -B -m pipelines.recommendation_baselines
+python -B -m pipelines.recommendation_profiles
+python -B -m pipelines.recommendation
 
 # Rebuild the real upload example.
-python -B -m app.prepare_upload_demo
+python -B -m pipelines.prepare_demo
 ```
 
 Experiments retain source hashes and frozen configurations. Some entry points verify existing artifacts instead of overwriting them. See the corresponding protocols for parameters and time windows.
@@ -100,12 +118,12 @@ Experiments retain source hashes and frozen configurations. Some entry points ve
 
 | Topic | Report or model |
 | --- | --- |
-| Clustering methods and cluster counts | [Segmentation protocol](stage4/segmentation_comparison_protocol.md), `stage4/outputs/segmentation_comparison/` |
-| Repurchase models | [Repurchase protocol](stage5/repurchase_comparison_protocol.md), `stage5/outputs/repurchase_comparison/` |
-| Integrated segmentation and repurchase models | [Integrated replay report](stage6/outputs/reanalysis_v2/report.md), `stage6/outputs/reanalysis_v2/model/integrated_bundle.joblib` |
-| Spending-potential ranking | [Ranking report](value_prediction/outputs/ranking_comparison_v1/report.md), `value_prediction/outputs/ranking_comparison_v1/ranking_bundle.joblib` |
-| Recommendation algorithms | [Recommendation report](recommendation/outputs/v1/report.md), `recommendation/outputs/v1/selected_model.joblib` |
-| Profile hybrids and item-level models | [Profile comparison](recommendation/outputs/profile_v2/report.md), [Item-level comparison](recommendation/outputs/item_v3_1/report.md) |
+| Clustering methods and cluster counts | [Segmentation protocol](docs/protocols/segmentation.md), `artifacts/segmentation/current/` |
+| Repurchase models | [Repurchase protocol](docs/protocols/repurchase.md), `artifacts/repurchase/current/` |
+| Integrated segmentation and repurchase models | [Integrated replay report](artifacts/integration/current/report.md), `artifacts/integration/current/model/integrated_bundle.joblib` |
+| Spending-potential ranking | [Ranking report](artifacts/spending/current/report.md), `artifacts/spending/current/ranking_bundle.joblib` |
+| Recommendation algorithms | [Recommendation report](archive/artifacts/recommendation/v1/report.md), `archive/artifacts/recommendation/v1/selected_model.joblib` |
+| Profile hybrids and item-level models | [Profile comparison](archive/artifacts/recommendation/profile_v2/report.md), [Item-level comparison](artifacts/recommendation/current/report.md) |
 
 Training snapshots cover June 2010-May 2011; validation covers June-August 2011; test-period review covers September-November 2011. The selected repurchase model achieves AP 0.6201 and Precision@20% 66.22%. The spending-potential list captures a monthly average of 70.23% of actual spending. The default group-D recommender achieves NDCG@10 0.3001, Recall@10 17.79%, and Hit@10 76.93%. The learning guide explains the calculation units and aggregation.
 
@@ -115,6 +133,4 @@ Training snapshots cover June 2010-May 2011; validation covers June-August 2011;
 python -B -m unittest discover -s tests -v
 ```
 
-Earlier standalone prototype entry points, their models and caches, retired pages, duplicate demo snapshots, old workflow diagrams, and empty placeholders have been removed. Current data, models, result reports, and verification records are retained.
-
-Earlier three-cluster segmentation, repurchase, amount-prediction, and recommendation iterations remain in their modules and `outputs/` directories for comparison, reproducibility, and existing tests. These experiments still use `src/modelling.py`. Shared data processing remains in `src/data_cleaning.py` and `src/features.py`.
+Earlier clustering, repurchase, amount-prediction, and recommendation iterations are retained in `archive/`, with their original results under `archive/artifacts/`. Current models and result reports are under `artifacts/`; shared data processing is in `src/data/`. The interface and current domain packages use `src/` without importing archived experiments.

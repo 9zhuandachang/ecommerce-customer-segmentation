@@ -1,0 +1,29 @@
+{
+  "input_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "script_sha256": "6d996678858489f64accb79e965efc9ad68e9f03b0a035d7bd34f4b2127c4633",
+  "evaluation_rule": "fixed random 2000 training snapshots, excluded from every fit",
+  "evaluation_seed": 2026,
+  "training_sample_fraction": 0.8,
+  "initialization_seeds": [
+    42,
+    7,
+    23
+  ],
+  "sampling_seeds": [
+    42,
+    7,
+    23
+  ],
+  "kmeans_n_init": 20,
+  "kmeans_max_iter": 500,
+  "log1p_features": [
+    "invoice_frequency_180d",
+    "monetary_value_180d",
+    "average_order_value_180d",
+    "product_diversity_180d",
+    "invoice_count_30d",
+    "invoice_count_90d"
+  ],
+  "scikit_learn_version": "1.9.0",
+  "validation_and_test_labels_used": false
+}

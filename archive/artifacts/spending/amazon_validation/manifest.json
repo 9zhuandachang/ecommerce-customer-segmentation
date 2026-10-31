@@ -1,0 +1,338 @@
+{
+  "status": "locked_cross_platform_test_not_original_shop_acceptance",
+  "publisher": "Open e-commerce 1.0, Harvard Dataverse",
+  "mirror_url": "https://www.kaggle.com/api/v1/datasets/download/dharshinisraghunath/harvard-ecommerce-dataset-for-big-data-analysis",
+  "source_zip_sha256": "9ca53a81e59b1d3bad9946b57fd60b067135d0adb217127efa23a900a0f1a441",
+  "source_csv_sha256": "6efb098a6e01a9acb6e215402a450f4a848ed1b102ca016f9be6c4f03c585e1e",
+  "protocol_sha256": "82b27de2ef72de860b7b27c41bf45f88a0f80718f321687557cec66d1790092d",
+  "script_sha256": "0ad797499b9aec4aa07546140c5a375672214c10818e94404255611050378766",
+  "source_audit": {
+    "source_rows": 1850717,
+    "eligible_rows": 1849744,
+    "excluded_rows": 973,
+    "missing_required_rows": 973,
+    "invalid_date_rows": 0,
+    "nonpositive_price_rows": 0,
+    "nonpositive_quantity_rows": 0,
+    "eligible_amount_cents": 4403202855,
+    "eligible_customers": 5023,
+    "source_rows_at_or_after_locked_label_end": 152003,
+    "source_rows_after_2023_03_31": 18,
+    "pseudo_invoice_is_source_row": true
+  },
+  "source_date_min": "2018-01-01T00:00:00",
+  "source_date_max": "2024-08-15T00:00:00",
+  "snapshot_count": 222060,
+  "label_reconciled": true,
+  "minimum_test_cohort_met": true,
+  "schedule": [
+    {
+      "cutoff": "2018-07-01",
+      "split": "train",
+      "snapshot_count": 3765,
+      "positive_count": 2492
+    },
+    {
+      "cutoff": "2018-08-01",
+      "split": "train",
+      "snapshot_count": 3749,
+      "positive_count": 2501
+    },
+    {
+      "cutoff": "2018-09-01",
+      "split": "train",
+      "snapshot_count": 3827,
+      "positive_count": 2558
+    },
+    {
+      "cutoff": "2018-10-01",
+      "split": "train",
+      "snapshot_count": 3830,
+      "positive_count": 2531
+    },
+    {
+      "cutoff": "2018-11-01",
+      "split": "train",
+      "snapshot_count": 3866,
+      "positive_count": 2767
+    },
+    {
+      "cutoff": "2018-12-01",
+      "split": "train",
+      "snapshot_count": 3946,
+      "positive_count": 3055
+    },
+    {
+      "cutoff": "2019-01-01",
+      "split": "train",
+      "snapshot_count": 4030,
+      "positive_count": 2786
+    },
+    {
+      "cutoff": "2019-02-01",
+      "split": "train",
+      "snapshot_count": 4055,
+      "positive_count": 2700
+    },
+    {
+      "cutoff": "2019-03-01",
+      "split": "train",
+      "snapshot_count": 4079,
+      "positive_count": 2735
+    },
+    {
+      "cutoff": "2019-04-01",
+      "split": "train",
+      "snapshot_count": 4101,
+      "positive_count": 2667
+    },
+    {
+      "cutoff": "2019-05-01",
+      "split": "train",
+      "snapshot_count": 4120,
+      "positive_count": 2714
+    },
+    {
+      "cutoff": "2019-06-01",
+      "split": "train",
+      "snapshot_count": 4123,
+      "positive_count": 2820
+    },
+    {
+      "cutoff": "2019-07-01",
+      "split": "train",
+      "snapshot_count": 4072,
+      "positive_count": 2864
+    },
+    {
+      "cutoff": "2019-08-01",
+      "split": "train",
+      "snapshot_count": 4066,
+      "positive_count": 2820
+    },
+    {
+      "cutoff": "2019-09-01",
+      "split": "train",
+      "snapshot_count": 4071,
+      "positive_count": 2847
+    },
+    {
+      "cutoff": "2019-10-01",
+      "split": "train",
+      "snapshot_count": 4108,
+      "positive_count": 2856
+    },
+    {
+      "cutoff": "2019-11-01",
+      "split": "train",
+      "snapshot_count": 4137,
+      "positive_count": 2940
+    },
+    {
+      "cutoff": "2019-12-01",
+      "split": "train",
+      "snapshot_count": 4178,
+      "positive_count": 3270
+    },
+    {
+      "cutoff": "2020-01-01",
+      "split": "train",
+      "snapshot_count": 4272,
+      "positive_count": 3058
+    },
+    {
+      "cutoff": "2020-02-01",
+      "split": "train",
+      "snapshot_count": 4299,
+      "positive_count": 2995
+    },
+    {
+      "cutoff": "2020-03-01",
+      "split": "train",
+      "snapshot_count": 4319,
+      "positive_count": 3006
+    },
+    {
+      "cutoff": "2020-04-01",
+      "split": "train",
+      "snapshot_count": 4318,
+      "positive_count": 3141
+    },
+    {
+      "cutoff": "2020-05-01",
+      "split": "train",
+      "snapshot_count": 4352,
+      "positive_count": 3357
+    },
+    {
+      "cutoff": "2020-06-01",
+      "split": "train",
+      "snapshot_count": 4395,
+      "positive_count": 3310
+    },
+    {
+      "cutoff": "2020-07-01",
+      "split": "train",
+      "snapshot_count": 4403,
+      "positive_count": 3319
+    },
+    {
+      "cutoff": "2020-08-01",
+      "split": "train",
+      "snapshot_count": 4416,
+      "positive_count": 3321
+    },
+    {
+      "cutoff": "2020-09-01",
+      "split": "train",
+      "snapshot_count": 4440,
+      "positive_count": 3296
+    },
+    {
+      "cutoff": "2020-10-01",
+      "split": "train",
+      "snapshot_count": 4462,
+      "positive_count": 3426
+    },
+    {
+      "cutoff": "2020-11-01",
+      "split": "train",
+      "snapshot_count": 4478,
+      "positive_count": 3480
+    },
+    {
+      "cutoff": "2020-12-01",
+      "split": "train",
+      "snapshot_count": 4491,
+      "positive_count": 3705
+    },
+    {
+      "cutoff": "2021-01-01",
+      "split": "train",
+      "snapshot_count": 4534,
+      "positive_count": 3557
+    },
+    {
+      "cutoff": "2021-02-01",
+      "split": "train",
+      "snapshot_count": 4562,
+      "positive_count": 3516
+    },
+    {
+      "cutoff": "2021-03-01",
+      "split": "train",
+      "snapshot_count": 4560,
+      "positive_count": 3599
+    },
+    {
+      "cutoff": "2021-04-01",
+      "split": "train",
+      "snapshot_count": 4599,
+      "positive_count": 3602
+    },
+    {
+      "cutoff": "2021-05-01",
+      "split": "train",
+      "snapshot_count": 4615,
+      "positive_count": 3561
+    },
+    {
+      "cutoff": "2021-06-01",
+      "split": "train",
+      "snapshot_count": 4638,
+      "positive_count": 3637
+    },
+    {
+      "cutoff": "2021-07-01",
+      "split": "train",
+      "snapshot_count": 4624,
+      "positive_count": 3498
+    },
+    {
+      "cutoff": "2021-08-01",
+      "split": "train",
+      "snapshot_count": 4615,
+      "positive_count": 3565
+    },
+    {
+      "cutoff": "2021-09-01",
+      "split": "train",
+      "snapshot_count": 4638,
+      "positive_count": 3490
+    },
+    {
+      "cutoff": "2021-10-01",
+      "split": "train",
+      "snapshot_count": 4626,
+      "positive_count": 3550
+    },
+    {
+      "cutoff": "2021-11-01",
+      "split": "train",
+      "snapshot_count": 4614,
+      "positive_count": 3676
+    },
+    {
+      "cutoff": "2021-12-01",
+      "split": "train",
+      "snapshot_count": 4623,
+      "positive_count": 3815
+    },
+    {
+      "cutoff": "2022-01-01",
+      "split": "train",
+      "snapshot_count": 4670,
+      "positive_count": 3638
+    },
+    {
+      "cutoff": "2022-02-01",
+      "split": "train",
+      "snapshot_count": 4687,
+      "positive_count": 3578
+    },
+    {
+      "cutoff": "2022-03-01",
+      "split": "train",
+      "snapshot_count": 4679,
+      "positive_count": 3560
+    },
+    {
+      "cutoff": "2022-04-01",
+      "split": "validation",
+      "snapshot_count": 4687,
+      "positive_count": 3581
+    },
+    {
+      "cutoff": "2022-05-01",
+      "split": "validation",
+      "snapshot_count": 4689,
+      "positive_count": 3620
+    },
+    {
+      "cutoff": "2022-06-01",
+      "split": "validation",
+      "snapshot_count": 4666,
+      "positive_count": 3582
+    },
+    {
+      "cutoff": "2022-07-01",
+      "split": "test",
+      "snapshot_count": 4642,
+      "positive_count": 3609
+    },
+    {
+      "cutoff": "2022-08-01",
+      "split": "test",
+      "snapshot_count": 4652,
+      "positive_count": 3604
+    },
+    {
+      "cutoff": "2022-09-01",
+      "split": "test",
+      "snapshot_count": 4672,
+      "positive_count": 3607
+    }
+  ],
+  "raw_transactions_saved_in_repository": false,
+  "customer_predictions_saved_in_repository": false
+}

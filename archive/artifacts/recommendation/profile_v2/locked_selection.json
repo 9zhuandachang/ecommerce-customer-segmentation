@@ -1,0 +1,144 @@
+{
+  "selected_method": "personal_repeat",
+  "selected_name": "Purely personal replenishment",
+  "best_fixed": "fixed_itemknn",
+  "best_adaptive": "adaptive_ease",
+  "best_pure": "personal_repeat",
+  "profile_value_demonstrated": false,
+  "adaptive_vs_fixed": {
+    "ndcg_gain": 0.0001811941659189964,
+    "recall_gain": 0.0003081408259041907,
+    "nonworse_months": 3,
+    "passes": false
+  },
+  "adaptive_vs_repeat": {
+    "ndcg_gain": 0.0001811941659189964,
+    "recall_gain": 0.0003081408259041907,
+    "nonworse_months": 3,
+    "passes": false
+  },
+  "adaptive_new_recall_gain_vs_repeat": 0.0005186165022150315,
+  "selection_phase": "validation",
+  "test_labels_used_for_selection": false,
+  "prior_test_results_viewed": true,
+  "global_test_model_updates": false,
+  "adaptive_vs_fixed_intervals": {
+    "resamples": 500,
+    "seed": 42,
+    "customer_clusters": 3093,
+    "metrics": {
+      "ndcg_10": {
+        "point": 0.00018119416591900678,
+        "lower_95": -9.797117305425186e-05,
+        "upper_95": 0.0005035872506525017
+      },
+      "recall_10": {
+        "point": 0.00030814082590421973,
+        "lower_95": -2.8927049719750072e-05,
+        "upper_95": 0.0007411682942854684
+      }
+    },
+    "scope": "validation_paired_customer_resampling_after_selection"
+  },
+  "selected_propensity": {
+    "id": "lgbm_15_120_150",
+    "family": "lightgbm",
+    "leaves": 15,
+    "trees": 120,
+    "minimum": 150
+  },
+  "hybrid_specs": {
+    "fixed_itemknn": {
+      "id": "fixed_itemknn_10_0.0",
+      "method": "fixed_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 1.0,
+      "strength": 0.0
+    },
+    "adaptive_itemknn": {
+      "id": "adaptive_itemknn_10_0.5",
+      "method": "adaptive_itemknn",
+      "algorithm": "itemknn",
+      "intercept": 1.0,
+      "strength": 0.5
+    },
+    "fixed_implicit_als": {
+      "id": "fixed_implicit_als_10_0.0",
+      "method": "fixed_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 1.0,
+      "strength": 0.0
+    },
+    "adaptive_implicit_als": {
+      "id": "adaptive_implicit_als_10_0.5",
+      "method": "adaptive_implicit_als",
+      "algorithm": "implicit_als",
+      "intercept": 1.0,
+      "strength": 0.5
+    },
+    "fixed_ease": {
+      "id": "fixed_ease_10_0.0",
+      "method": "fixed_ease",
+      "algorithm": "ease",
+      "intercept": 1.0,
+      "strength": 0.0
+    },
+    "adaptive_ease": {
+      "id": "adaptive_ease_10_0.5",
+      "method": "adaptive_ease",
+      "algorithm": "ease",
+      "intercept": 1.0,
+      "strength": 0.5
+    }
+  },
+  "base_specs": {
+    "popular": {
+      "id": "popular_30",
+      "method": "popular",
+      "days": 30
+    },
+    "personal_repeat": {
+      "id": "personal_repeat_None",
+      "method": "personal_repeat",
+      "half_life": null
+    },
+    "itemknn": {
+      "id": "itemknn_20_0",
+      "method": "itemknn",
+      "neighbors": 20,
+      "shrink": 0
+    },
+    "implicit_als": {
+      "id": "als_32_1.0_1.0",
+      "method": "implicit_als",
+      "factors": 32,
+      "regularization": 1.0,
+      "alpha": 1.0,
+      "iterations": 15
+    },
+    "ease": {
+      "id": "ease_10",
+      "method": "ease",
+      "regularization": 10
+    }
+  },
+  "model_sha256": "3bd83080dc4c41b3f1d65d0d28e28675f409c7a41e446d98c6e43441de13cb44",
+  "plan_sha256": "26dde8b0e3bd74f866e2a4008ffd4deb6d2e55b84b521ce88d02cba36bc275dc",
+  "source_hashes": {
+    "transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+    "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+    "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
+  },
+  "features": [
+    "historical_repeat_share",
+    "recent_repeat_share",
+    "repeat_share_change",
+    "top3_concentration",
+    "order_count",
+    "comparable_order_count",
+    "distinct_products",
+    "mean_basket_size",
+    "recency_days",
+    "history_span_days"
+  ]
+}

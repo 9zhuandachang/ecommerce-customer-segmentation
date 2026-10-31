@@ -1,0 +1,270 @@
+{
+  "status": "reassessment_of_existing_outputs_no_new_independent_test",
+  "protocol_sha256": "41b160eb25072db18740a101919385e609b57ba2d05cb3789bc5f2477603604f",
+  "script_sha256": "4298c82fe6b37c9576a7b80ab411be84a7a65ec6b0444d28a27228c400f6fbc0",
+  "scorecard_sha256": "4c8308fc555d8182afb20b8db32d0ce1e1b5b1d011e1ee7e7646f77b38c41132",
+  "source_hashes": {
+    "original_jan_may": {
+      "manifest_sha256": "ed1c93cad58874a10912ad21c5578881fc4782c9c401e4f5a1ad12caeec0d50c",
+      "monthly_sha256": "b897228948d35d60b40f1ff2239624a1f272dbc966c0af5eab38ac06a9c4d02f"
+    },
+    "original_jun_aug": {
+      "manifest_sha256": "ed1c93cad58874a10912ad21c5578881fc4782c9c401e4f5a1ad12caeec0d50c",
+      "monthly_sha256": "b897228948d35d60b40f1ff2239624a1f272dbc966c0af5eab38ac06a9c4d02f"
+    },
+    "original_sep_nov": {
+      "manifest_sha256": "c7a7cafe710c8164c579dd02ab5333f7c1d74e78f46d9e3d2b372afbb09d8146",
+      "monthly_sha256": "47be8daa1ae45592ac527d6b81332c3310a145cc9de39320eea481d5dd0a940a"
+    },
+    "grocery_two_year": {
+      "manifest_sha256": "eaabaeac308a7a6f3599fea549c52b70f2238439811a6821482fac901fcec53b",
+      "monthly_sha256": "a8b294faa0ae0ebe835291433fb6adbbd27bd9c9198d56b941530dd6b2fb75d7"
+    },
+    "jewelry": {
+      "manifest_sha256": "1721ef54ab8c510fd1254800e4863d398c3ab229f93d691f0c55b8ddf8f52b32",
+      "monthly_sha256": "c650538e13440b81bdb348d76310a62b712355ca793c4100edd8f3f095218e37"
+    },
+    "amazon": {
+      "manifest_sha256": "e695723a9c26964be42164f602534ea195db416636987ed51769942cbe71a881",
+      "monthly_sha256": "880f4f7a674d590509efebcc97ae36e05d66f59e132236324aa0138c9bdd6672"
+    },
+    "cdnow": {
+      "manifest_sha256": "bbb84dbf2364cade0d048b64beb9b36afdcac1ee5f204f34da6addba62f5b889",
+      "monthly_sha256": "c269c24c0a36b74621d8867943062ca815224a7d1e883a8aa74b1554338f39c8"
+    }
+  },
+  "fixed_criteria": {
+    "original_jan_may": {
+      "baseline": {
+        "snapshot_count": 16435,
+        "buyer_count": 3414,
+        "actual_spend": 2209891.85,
+        "mae": 195.95452763411419,
+        "positive_mae": 396.55591974223785,
+        "top20_spend_capture": 0.7105238702065896,
+        "aggregate_bias": 0.6450673344037177,
+        "top20_group_bias": 0.625224125713429
+      },
+      "candidate": {
+        "snapshot_count": 16435,
+        "buyer_count": 3414,
+        "actual_spend": 2209891.85,
+        "mae": 171.92481220430756,
+        "positive_mae": 420.9218264383367,
+        "top20_spend_capture": 0.7155230786520164,
+        "aggregate_bias": 0.19906547101923078,
+        "top20_group_bias": 0.0893036200790629
+      },
+      "joint_stable_months": 4,
+      "month_count": 5,
+      "criteria": {
+        "overall_mae_at_least_10pct_better": true,
+        "buyer_mae_at_least_5pct_better": false,
+        "top20_capture_at_least_3pp_higher": false,
+        "aggregate_bias_within_5pct": false,
+        "top20_group_bias_within_10pct": true,
+        "at_least_three_joint_stable_months": true
+      },
+      "technical_passed": false
+    },
+    "original_jun_aug": {
+      "baseline": {
+        "snapshot_count": 8146,
+        "buyer_count": 2177,
+        "actual_spend": 1523544.61,
+        "mae": 203.6618487601277,
+        "positive_mae": 427.1191639871383,
+        "top20_spend_capture": 0.7137852694710397,
+        "aggregate_bias": 0.08154921699339002,
+        "top20_group_bias": 0.06432443539153732
+      },
+      "candidate": {
+        "snapshot_count": 8146,
+        "buyer_count": 2177,
+        "actual_spend": 1523544.61,
+        "mae": 188.73454894581633,
+        "positive_mae": 440.4674139726797,
+        "top20_spend_capture": 0.7319476454319247,
+        "aggregate_bias": -0.07124242800661784,
+        "top20_group_bias": -0.12656668721108488
+      },
+      "joint_stable_months": 3,
+      "month_count": 3,
+      "criteria": {
+        "overall_mae_at_least_10pct_better": false,
+        "buyer_mae_at_least_5pct_better": false,
+        "top20_capture_at_least_3pp_higher": false,
+        "aggregate_bias_within_5pct": false,
+        "top20_group_bias_within_10pct": false,
+        "at_least_three_joint_stable_months": true
+      },
+      "technical_passed": false
+    },
+    "original_sep_nov": {
+      "baseline": {
+        "snapshot_count": 8875,
+        "buyer_count": 3025,
+        "actual_spend": 2485271.18,
+        "mae": 263.46550441314554,
+        "positive_mae": 529.8513829201102,
+        "top20_spend_capture": 0.6728363099595432,
+        "aggregate_bias": -0.20766756527551267,
+        "top20_group_bias": -0.16924914376328548
+      },
+      "candidate": {
+        "snapshot_count": 8875,
+        "buyer_count": 3025,
+        "actual_spend": 2485271.18,
+        "mae": 252.57972644254383,
+        "positive_mae": 535.0059305010741,
+        "top20_spend_capture": 0.6947359080549108,
+        "aggregate_bias": -0.2615679066017439,
+        "top20_group_bias": -0.24087821658143183
+      },
+      "joint_stable_months": 3,
+      "month_count": 3,
+      "criteria": {
+        "overall_mae_at_least_10pct_better": false,
+        "buyer_mae_at_least_5pct_better": false,
+        "top20_capture_at_least_3pp_higher": false,
+        "aggregate_bias_within_5pct": false,
+        "top20_group_bias_within_10pct": false,
+        "at_least_three_joint_stable_months": true
+      },
+      "technical_passed": false
+    },
+    "grocery_two_year": {
+      "baseline": {
+        "snapshot_count": 7251,
+        "buyer_count": 6060,
+        "actual_spend": 1184115.29,
+        "mae": 74.26042270031719,
+        "positive_mae": 79.87952227722772,
+        "top20_spend_capture": 0.5190248662357869,
+        "aggregate_bias": -0.041485868885847044,
+        "top20_group_bias": null
+      },
+      "candidate": {
+        "snapshot_count": 7251,
+        "buyer_count": 6060,
+        "actual_spend": 1184115.29,
+        "mae": 72.78559168301328,
+        "positive_mae": 77.50011842936686,
+        "top20_spend_capture": 0.5240527212514923,
+        "aggregate_bias": -0.02105083561897947,
+        "top20_group_bias": null
+      },
+      "joint_stable_months": 2,
+      "month_count": 3,
+      "criteria": {
+        "overall_mae_at_least_10pct_better": false,
+        "buyer_mae_at_least_5pct_better": false,
+        "top20_capture_at_least_3pp_higher": false,
+        "aggregate_bias_within_5pct": true,
+        "top20_group_bias_within_10pct": null,
+        "at_least_three_joint_stable_months": false
+      },
+      "technical_passed": false
+    },
+    "jewelry": {
+      "baseline": {
+        "snapshot_count": 33182,
+        "buyer_count": 1220,
+        "actual_spend": 2500355.22,
+        "mae": 157.64485323368092,
+        "positive_mae": 1491.0196147540983,
+        "top20_spend_capture": 0.8758133014396249,
+        "aggregate_bias": 0.9955454582702583,
+        "top20_group_bias": null
+      },
+      "candidate": {
+        "snapshot_count": 33182,
+        "buyer_count": 1220,
+        "actual_spend": 2500355.22,
+        "mae": 85.37164379754738,
+        "positive_mae": 1464.0183291898118,
+        "top20_spend_capture": 0.9385452159873507,
+        "aggregate_bias": 0.11390815673955856,
+        "top20_group_bias": null
+      },
+      "joint_stable_months": 3,
+      "month_count": 3,
+      "criteria": {
+        "overall_mae_at_least_10pct_better": true,
+        "buyer_mae_at_least_5pct_better": false,
+        "top20_capture_at_least_3pp_higher": true,
+        "aggregate_bias_within_5pct": false,
+        "top20_group_bias_within_10pct": null,
+        "at_least_three_joint_stable_months": true
+      },
+      "technical_passed": false
+    },
+    "amazon": {
+      "baseline": {
+        "snapshot_count": 13966,
+        "buyer_count": 10820,
+        "actual_spend": 2760854.16,
+        "mae": 135.74719616688148,
+        "positive_mae": 159.81827541589652,
+        "top20_spend_capture": 0.5147187129942422,
+        "aggregate_bias": -0.0461649925277714,
+        "top20_group_bias": 0.07910508748390521
+      },
+      "candidate": {
+        "snapshot_count": 13966,
+        "buyer_count": 10820,
+        "actual_spend": 2760854.16,
+        "mae": 135.7846175958831,
+        "positive_mae": 156.27652038560007,
+        "top20_spend_capture": 0.5229787798715162,
+        "aggregate_bias": 0.02371056285075923,
+        "top20_group_bias": 0.03086751073430971
+      },
+      "joint_stable_months": 2,
+      "month_count": 3,
+      "criteria": {
+        "overall_mae_at_least_10pct_better": false,
+        "buyer_mae_at_least_5pct_better": false,
+        "top20_capture_at_least_3pp_higher": false,
+        "aggregate_bias_within_5pct": true,
+        "top20_group_bias_within_10pct": true,
+        "at_least_three_joint_stable_months": false
+      },
+      "technical_passed": false
+    },
+    "cdnow": {
+      "baseline": {
+        "snapshot_count": 17484,
+        "buyer_count": 3299,
+        "actual_spend": 170237.64,
+        "mae": 16.21867898268893,
+        "positive_mae": 33.85735879559463,
+        "top20_spend_capture": 0.5609429853468364,
+        "aggregate_bias": 0.5496651426010526,
+        "top20_group_bias": 0.6611997214612928
+      },
+      "candidate": {
+        "snapshot_count": 17484,
+        "buyer_count": 3299,
+        "actual_spend": 170237.64,
+        "mae": 13.544507621962554,
+        "positive_mae": 36.19660617341392,
+        "top20_spend_capture": 0.588055966941271,
+        "aggregate_bias": 0.07643425295055528,
+        "top20_group_bias": 0.059011806559660096
+      },
+      "joint_stable_months": 3,
+      "month_count": 3,
+      "criteria": {
+        "overall_mae_at_least_10pct_better": true,
+        "buyer_mae_at_least_5pct_better": false,
+        "top20_capture_at_least_3pp_higher": false,
+        "aggregate_bias_within_5pct": false,
+        "top20_group_bias_within_10pct": true,
+        "at_least_three_joint_stable_months": true
+      },
+      "technical_passed": false
+    }
+  },
+  "any_final_accepted": false
+}

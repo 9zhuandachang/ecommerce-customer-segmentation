@@ -1,0 +1,23 @@
+{
+  "definition": "Eligible transactions before snapshot_date; recent windows are within 180 days and lifetime amounts start at source start",
+  "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "clean_sha256": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+  "schedule_sha256": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881",
+  "features_sha256": "a24833a0e8d05a8795654fc9b4a2a4bed2cac2407cefc37046f1e6c1a4727e9c",
+  "row_count": 54040,
+  "features": [
+    "monetary_value_30d",
+    "monetary_value_60d",
+    "monetary_value_90d",
+    "monetary_value_previous_90d",
+    "last_invoice_value_180d",
+    "max_invoice_value_180d",
+    "median_invoice_value_180d",
+    "active_purchase_days_180d",
+    "invoice_count_previous_90d",
+    "lifetime_spend_before_cutoff",
+    "lifetime_invoice_count_before_cutoff",
+    "spend_before_180d_window"
+  ],
+  "all_180d_and_lifetime_amounts_reconciled": true
+}

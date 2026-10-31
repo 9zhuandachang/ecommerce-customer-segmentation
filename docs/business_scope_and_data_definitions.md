@@ -17,7 +17,7 @@ The source is the two annual **UCI Online Retail II** CSV files, covering a UK r
 
 ## Eligible purchases and snapshots
 
-An eligible purchase is a positive product transaction accepted by `src/data_cleaning.py`: valid date, invoice, product code, customer ID, quantity, and unit price. Cancelled invoices, non-positive quantities/prices, exact duplicates, and non-product entries are excluded. An invoice counts when at least one eligible product line remains. Exclusion precedence, rule counts, and row-level reasons are documented in `docs/customer_snapshot_pipeline.md` and the audits. These figures describe purchases, rather than net revenue after returns.
+An eligible purchase is a positive product transaction accepted by `src/data/cleaning.py`: valid date, invoice, product code, customer ID, quantity, and unit price. Cancelled invoices, non-positive quantities/prices, exact duplicates, and non-product entries are excluded. An invoice counts when at least one eligible product line remains. Exclusion precedence, rule counts, and row-level reasons are documented in `docs/customer_snapshot_pipeline.md` and the audits. These figures describe purchases, rather than net revenue after returns.
 
 Offline snapshots use the first day of each month as cutoff t. An existing customer must have an eligible purchase within `[t − 180 days, t)`. Recency, invoice frequency, spending, average order value, product diversity, and 30/90-day invoice counts use only earlier purchases. `customer_history_days` can use older history to find the first visible purchase.
 
@@ -40,7 +40,7 @@ Repurchase exports include recency, invoice count, historical spending, and aver
 
 The default recommender is full group D, 34 features + LightGBM classification. It uses frozen EASE associations and the full frozen catalog, selects the ten highest scores, and breaks ties by catalog order. Offline comparisons retain rules and alternative models; the business interface has no algorithm switch. Exports contain visible business fields, the analysis date, and relevant customer profiles, without future answers, model versions, or raw recommendation scores.
 
-Purchase profiles use events within 180 days. Combine invoices at the same customer/timestamp and deduplicate products within each event. The first event establishes purchase history; subsequent events provide repeat-product shares, which are averaged. Change in repeat share requires at least four comparable orders. “Unseen” means not purchased in the preceding 180 days. Propensity models use historical samples with a next order and fully observed 30-day labels; no next order is not labeled as a zero repeat share. See the [profile/recommendation comparison](../recommendation/outputs/profile_v2/report.md).
+Purchase profiles use events within 180 days. Combine invoices at the same customer/timestamp and deduplicate products within each event. The first event establishes purchase history; subsequent events provide repeat-product shares, which are averaged. Change in repeat share requires at least four comparable orders. “Unseen” means not purchased in the preceding 180 days. Propensity models use historical samples with a next order and fully observed 30-day labels; no next order is not labeled as a zero repeat share. See the [profile/recommendation comparison](../archive/artifacts/recommendation/profile_v2/report.md).
 
 ## Scope and current status
 

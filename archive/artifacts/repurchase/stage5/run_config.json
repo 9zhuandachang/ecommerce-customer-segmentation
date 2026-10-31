@@ -1,0 +1,92 @@
+{
+  "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "script_sha256": "2b2fe5e38392086aea5cb11aec13acd38c095bfe7cd183357514436fa4b83edf",
+  "stage4_model_sha256": "9e699526ff4184c6d5f16aa61b1e579bb08a27b6a12091dae65a7580f4edb719",
+  "stage4_selected_k": 3,
+  "stage4_seed": 42,
+  "feature_sets": {
+    "A_base_8": [
+      "recency_days",
+      "invoice_frequency_180d",
+      "monetary_value_180d",
+      "average_order_value_180d",
+      "product_diversity_180d",
+      "invoice_count_30d",
+      "invoice_count_90d",
+      "customer_history_days"
+    ],
+    "B_base_8_plus_3_distances": [
+      "recency_days",
+      "invoice_frequency_180d",
+      "monetary_value_180d",
+      "average_order_value_180d",
+      "product_diversity_180d",
+      "invoice_count_30d",
+      "invoice_count_90d",
+      "customer_history_days",
+      "cluster_distance_0",
+      "cluster_distance_1",
+      "cluster_distance_2"
+    ]
+  },
+  "models": [
+    "LR",
+    "GBDT",
+    "SoftVote"
+  ],
+  "base_model_builders": "src.modelling.build_lr_pipeline / build_gbdt_pipeline",
+  "lr_classifier_params": {
+    "max_iter": 1000,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "solver": "lbfgs"
+  },
+  "gbdt_classifier_params": {
+    "n_estimators": 300,
+    "learning_rate": 0.05,
+    "num_leaves": 31,
+    "class_weight": "balanced",
+    "random_state": 42
+  },
+  "soft_vote_weights": [
+    0.25,
+    0.5,
+    0.75
+  ],
+  "weight_selection": "maximum validation average precision, prefer 0.50 on exact tie",
+  "partitions": {
+    "train": {
+      "snapshots": 37019,
+      "dates": [
+        "2010-06-01",
+        "2010-07-01",
+        "2010-08-01",
+        "2010-09-01",
+        "2010-10-01",
+        "2010-11-01",
+        "2010-12-01",
+        "2011-01-01",
+        "2011-02-01",
+        "2011-03-01",
+        "2011-04-01",
+        "2011-05-01"
+      ]
+    },
+    "validation": {
+      "snapshots": 8146,
+      "dates": [
+        "2011-06-01",
+        "2011-07-01",
+        "2011-08-01"
+      ]
+    }
+  },
+  "versions": {
+    "python": "3.11.9",
+    "numpy": "2.4.6",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.9.0",
+    "lightgbm": "4.7.0"
+  },
+  "test_labels_used": false
+}

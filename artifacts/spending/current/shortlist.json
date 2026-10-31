@@ -1,0 +1,23 @@
+{
+  "lgbm_tweedie": {
+    "id": "lgbm_tweedie_120_15_conservative",
+    "family": "lgbm_tweedie",
+    "n_estimators": 120,
+    "num_leaves": 15,
+    "profile": "conservative"
+  },
+  "xgb_tweedie": {
+    "id": "xgb_tweedie_120_15_standard",
+    "family": "xgb_tweedie",
+    "n_estimators": 120,
+    "num_leaves": 15,
+    "profile": "standard"
+  },
+  "lgbm_two_stage": {
+    "id": "lgbm_two_stage_120_15_conservative",
+    "family": "lgbm_two_stage",
+    "n_estimators": 120,
+    "num_leaves": 15,
+    "profile": "conservative"
+  }
+}

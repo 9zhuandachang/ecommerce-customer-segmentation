@@ -2,7 +2,7 @@
 
 The pipeline leaves the two original CSV unchanged, producing traceable data cleaning results and monthly customer snapshots.
 
-The cleaning rule implementation is located at `src/data_cleaning.py`, and the customer feature, label and time division implementation is located at `src/features.py`; `build_customer_snapshots.py` is responsible for calling and writing out the product. Subsequent training directly reads `customer_snapshots.csv` without repeatedly cleaning the original data.
+The cleaning rule implementation is located at `src/data/cleaning.py`, and the customer feature, label and time division implementation is located at `src/data/snapshots.py`; `pipelines/snapshots.py` is responsible for calling and writing out the product. Subsequent training directly reads `customer_snapshots.csv` without repeatedly cleaning the original data.
 
 ## Cleaning rules
 
@@ -23,7 +23,7 @@ The cleaning rule implementation is located at `src/data_cleaning.py`, and the c
 ## Run
 
 ```powershell
-python build_customer_snapshots.py `
+python -B -m pipelines.snapshots `
   data/raw/online_retail_II_2009-2010.csv `
   data/raw/online_retail_II_2010-2011.csv `
   --output-dir data/processed/customer_snapshot_pipeline

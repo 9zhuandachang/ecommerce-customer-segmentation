@@ -1,0 +1,11 @@
+{
+  "status": "development_only_customer_sampling_not_future_month_validation",
+  "protocol_sha256": "bd9c263f73767e137e6341f6d3c7be0bc208e2698ecffc1efdd99710629b5e68",
+  "script_sha256": "d89c4385f2b3c12f76e8314fdc7392456f5bf151ac7c283f5a9836c1d9313fd8",
+  "input_predictions_sha256": "ce27892dd0aa8363b434325e85c7df13c1061a081a05dee436b3b2c9dcaf3b73",
+  "intervals_sha256": "27b6ace47980d959f41cf79bfffe313f0fddbae80d92be3484c00fc9be54b75c",
+  "draws_sha256": "b71121a611f6eaf1678236b651076c734e635b60d3d0321fdf9923447cce34f7",
+  "seed": 42,
+  "resamples": 500,
+  "test_rows_used": false
+}

@@ -15,19 +15,19 @@ import numpy as np
 import pandas as pd
 
 from app.business_views import display_customer_groups
-from recommendation.data import make_context
-from recommendation.item_features import FEATURE_SETS, item_context, pair_features
-from recommendation.item_models import predict_item_scores
-from recommendation.models import topk
-from recommendation.profiles import purchase_profiles
-from src.data_cleaning import NON_PRODUCT_CODES
-from stage4.kmeans import FEATURES as BASE_FEATURES
-from stage5.compare_repurchase import add_features
-from stage6.integrate_reanalysis import score
-from value_prediction.ranking_comparison import make_priority, predict, rule_score
-from value_prediction.temporal_features import build_temporal_features
+from src.recommendation.data import make_context
+from src.recommendation.features import FEATURE_SETS, item_context, pair_features
+from src.recommendation.models import predict_item_scores
+from src.recommendation.algorithms import topk
+from src.recommendation.profiles import purchase_profiles
+from src.data.cleaning import NON_PRODUCT_CODES
+from src.data.validation import FEATURES as BASE_FEATURES
+from src.repurchase.comparison import add_features
+from src.integration.models import score
+from src.spending.comparison import make_priority, predict, rule_score
+from src.spending.features import build_temporal_features
 
-ROOT = Path(__file__).resolve().parents[1]
+from src.paths import ROOT
 UI_TEXT_VERSION = 'en-1'
 DEMO = ROOT / 'data/demo/2011-12-01'
 SNAPSHOT_COLUMNS = ['snapshot_date', 'customer_id'] + BASE_FEATURES
@@ -155,13 +155,13 @@ def validate_upload(history_bytes: bytes, analysis_date) -> tuple[pd.DataFrame, 
 
 def load_models() -> dict:
     """Load only trusted local model packages and the frozen product catalog."""
-    segment_dir = ROOT / 'stage6/outputs/reanalysis_v2'
+    segment_dir = ROOT / 'artifacts/integration/current'
     lock = json.loads((segment_dir / 'locked_config.json').read_text(encoding='utf-8'))
     model_path = segment_dir / 'model/integrated_bundle.joblib'
     if digest(model_path) != lock['output_hashes']['model']:
         raise ValueError('Customer model integrity check failed')
     customer = joblib.load(model_path)
-    value_dir = ROOT / 'value_prediction/outputs/ranking_comparison_v1'
+    value_dir = ROOT / 'artifacts/spending/current'
     value_lock = json.loads((value_dir / 'locked_selection.json').read_text(encoding='utf-8'))
     value_path = value_dir / 'ranking_bundle.joblib'
     if digest(value_path) != value_lock['model_sha256']:
@@ -169,7 +169,7 @@ def load_models() -> dict:
     value = joblib.load(value_path)
     if value['selected_method'] != value_lock['selected_method'] or value_lock['selected_method'] != 'lgbm_two_stage':
         raise ValueError('Unexpected selected value model')
-    item_dir = ROOT / 'recommendation/outputs/item_v3_1'
+    item_dir = ROOT / 'artifacts/recommendation/current'
     item_lock = json.loads((item_dir / 'locked_selection.json').read_text(encoding='utf-8'))
     manifest = json.loads((item_dir / 'manifest.json').read_text(encoding='utf-8'))
     catalog_path = item_dir / 'test_catalog.csv'

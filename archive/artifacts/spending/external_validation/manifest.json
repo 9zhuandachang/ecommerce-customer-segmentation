@@ -1,0 +1,51 @@
+{
+  "status": "cross_retailer_validation_not_original_ecommerce_acceptance",
+  "source_url": "https://raw.githubusercontent.com/bradleyboehmke/completejourney/master/data/transactions.rds",
+  "source_sha256": "1fa0700033f1e5d9bb6b09e2be063d8d68474d346e95c50f2833e09d083e0007",
+  "protocol_sha256": "4e41d2ca2d5e9147b0dcfa97b244b0bf4eab45922a29fffd1a589fd8eecada5e",
+  "script_sha256": "7b1548c83a095728a256a3042b3b7acf768f15a7287f895e036dff3a56cfa6f2",
+  "source_audit": {
+    "source_rows": 1469307,
+    "eligible_rows": 1458032,
+    "excluded_rows": 11275
+  },
+  "date_min": "2017-01-01T11:53:26",
+  "date_max": "2018-01-01T04:01:20",
+  "eligible_households": 2469,
+  "snapshot_count": 14443,
+  "schedule": [
+    {
+      "cutoff": "2017-07-01",
+      "split": "train",
+      "snapshot_count": 2393
+    },
+    {
+      "cutoff": "2017-08-01",
+      "split": "train",
+      "snapshot_count": 2399
+    },
+    {
+      "cutoff": "2017-09-01",
+      "split": "train",
+      "snapshot_count": 2404
+    },
+    {
+      "cutoff": "2017-10-01",
+      "split": "validation",
+      "snapshot_count": 2416
+    },
+    {
+      "cutoff": "2017-11-01",
+      "split": "test",
+      "snapshot_count": 2413
+    },
+    {
+      "cutoff": "2017-12-01",
+      "split": "test",
+      "snapshot_count": 2418
+    }
+  ],
+  "label_reconciled": true,
+  "raw_transactions_saved_in_repository": false,
+  "customer_predictions_saved_in_repository": false
+}

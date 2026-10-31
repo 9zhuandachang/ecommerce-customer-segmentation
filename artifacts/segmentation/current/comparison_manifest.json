@@ -1,0 +1,22 @@
+{
+  "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "protocol_sha256": "8ae8dba54e0099abfe9a8acdb19d9d08d80a27cc37f6b527f3b8ad6efea0cb89",
+  "script_sha256": "97fe9b92719fcbcc033126f664c40fc24445dff9fffd63c293eb1b89ec4a8110",
+  "holdout_seed": 20261027,
+  "resample_seeds": [
+    3101,
+    3102,
+    3103,
+    3104,
+    3105
+  ],
+  "silhouette_sample_size": 957,
+  "fit_rows": 29498,
+  "holdout_rows": 957,
+  "validation_rows": 8146,
+  "outputs_sha256": {
+    "candidates": "45e181af2522db662f23efbf39b6c6553116d7cb3ad7944b9c42e9987b66172f",
+    "monthly_sizes": "d3ee18ed2503dce2b5d780c549e1d6cb2888d78458823a5925e8987b0973460e",
+    "validation_profiles": "e419e29cd7174d5911deb28ca6fca9fd110b1e539716ada020c7cdba29d6fba3"
+  }
+}

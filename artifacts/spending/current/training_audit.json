@@ -1,0 +1,82 @@
+{
+  "folds": [
+    {
+      "stage": "tuning",
+      "prediction_start": "2011-01-01",
+      "rows": 20584,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2010-12-01",
+      "latest_label_end": "2010-12-31",
+      "test_rows": 0
+    },
+    {
+      "stage": "tuning",
+      "prediction_start": "2011-02-01",
+      "rows": 23987,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2011-01-01",
+      "latest_label_end": "2011-01-31",
+      "test_rows": 0
+    },
+    {
+      "stage": "tuning",
+      "prediction_start": "2011-03-01",
+      "rows": 23987,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2011-01-01",
+      "latest_label_end": "2011-01-31",
+      "test_rows": 0
+    },
+    {
+      "stage": "tuning",
+      "prediction_start": "2011-04-01",
+      "rows": 30673,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2011-03-01",
+      "latest_label_end": "2011-03-31",
+      "test_rows": 0
+    },
+    {
+      "stage": "tuning",
+      "prediction_start": "2011-05-01",
+      "rows": 33972,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2011-04-01",
+      "latest_label_end": "2011-05-01",
+      "test_rows": 0
+    },
+    {
+      "stage": "validation",
+      "prediction_start": "2011-06-01",
+      "rows": 37019,
+      "splits": [
+        "train"
+      ],
+      "latest_snapshot": "2011-05-01",
+      "latest_label_end": "2011-05-31",
+      "test_rows": 0
+    },
+    {
+      "stage": "review_frozen_model",
+      "prediction_start": "2011-09-01",
+      "rows": 45165,
+      "splits": [
+        "train",
+        "validation"
+      ],
+      "latest_snapshot": "2011-08-01",
+      "latest_label_end": "2011-08-31",
+      "test_rows": 0
+    }
+  ]
+}

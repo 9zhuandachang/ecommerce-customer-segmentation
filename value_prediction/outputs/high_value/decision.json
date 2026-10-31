@@ -1,9 +1,0 @@
-{
-  "historical_demo_allowed": true,
-  "conditions": {
-    "both_periods_gain_at_least_1pp": true,
-    "all_six_months_nonworse": true,
-    "complete_months_and_quota": true
-  },
-  "evidence_scope": "viewed_historical_replay_not_independent_test"
-}

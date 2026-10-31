@@ -1,0 +1,13 @@
+{
+  "source_hashes": {
+    "transactions": "94ca43623b014e3a3f61e23073b5ff053b9a276de966ac1a8d615566df5c3831",
+    "snapshots": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+    "schedule": "8c13028c366fa5bff98ed7cad90f2e497e443a11177324448c004c0d84510881"
+  },
+  "source_lines": 776579,
+  "distinct_invoice_item_events": 766089,
+  "collapsed_duplicate_invoice_item_lines": 10490,
+  "eligible_snapshots": 54040,
+  "source_start": "2009-12-01 07:45:00",
+  "source_end": "2011-12-09 12:50:00"
+}

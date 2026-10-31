@@ -17,7 +17,7 @@ for module_name in ('app.business_views', 'app.upload_inference'):
     if getattr(text_module, 'UI_TEXT_VERSION', None) != 'en-1':
         importlib.reload(text_module)
 
-from app.stage6_data import review_list
+from src.repurchase.ranking import review_list
 from app.upload_inference import (UploadError, analyze_upload, load_models,
                                   recommend_customer, MIN_ANALYSIS_DATE, MAX_ANALYSIS_DATE, RECOMMENDATION_METHOD)
 from app.business_views import (PAGES, customer_filter, group_summary, customer_table,

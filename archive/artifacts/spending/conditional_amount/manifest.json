@@ -1,0 +1,15 @@
+{
+  "status": "development_only_scenario_forecast_not_unconditional_spend",
+  "protocol_sha256": "dd6e8dc500e613a4018d05c0cf3c131372881f8786f7870a902e6211734c54ba",
+  "script_sha256": "b86878a7237c616613da306dfc593f408d76d8f7f2c6a5c11cd16831f468ce90",
+  "snapshot_sha256": "e0f71d6f6fb0927302aeff6b8353718c2b203ac66c0e67b46b7fe9fea73a0fca",
+  "labels_sha256": "b7da0c476c6071649eb7d169428f974bd22bacd93ce8d077a6a7af1783427c71",
+  "temporal_features_sha256": "a24833a0e8d05a8795654fc9b4a2a4bed2cac2407cefc37046f1e6c1a4727e9c",
+  "test_rows_used": false,
+  "candidate_methods": [
+    "historic_monthly_rate",
+    "average_prior_invoice",
+    "conditional_gamma_mean",
+    "conditional_l1_median"
+  ]
+}
